@@ -49,11 +49,11 @@ void Client::RegistrKey()
 {
 #ifdef __linux__ 
 	//linux code goes here
-	std::string url = std::string("https://wallet.") + std::string("testnet") + ".near.org/login?title=rndname&success_url=" + std::string("http://207.154.208.184:3000/setId/" + keyPair.GetStrPubKey()) + "&public_key=" + keyPair.GetStrPubKey();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://207.154.208.184:3000/setId/" + keyPair.GetStrPubKey()) + "&public_key=" + keyPair.GetStrPubKey();
 	std::string cmdComand = "gio open " + url;
 
 #elif _WIN32
-	std::string url = std::string("https://wallet.") + std::string("testnet") + ".near.org/login?title=rndname^&success_url=" + std::string("http://207.154.208.184:3000/setId/" + std::string(keyPair.GetStrPubKey())) + "^&public_key=" + std::string(keyPair.GetStrPubKey());
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + std::string("http://207.154.208.184:3000/setId/" + std::string(keyPair.GetStrPubKey())) + "^&public_key=" + std::string(keyPair.GetStrPubKey());
 	std::string cmdComand = "start " + url;
 	system(cmdComand.c_str());
 #else

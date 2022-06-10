@@ -17,5 +17,6 @@ public:
 	char* GetPublicKey() const;
 	bool IsValidAccount() { return accountID != nullptr; };
 	bool IsValidKeys() { return keyPair.GetStrPubKey() != nullptr; };
+	char* GetAccount() { return accountID; };
 };
 
