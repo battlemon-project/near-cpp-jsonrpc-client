@@ -3,6 +3,7 @@
 #include <fstream>
 #include "Connector.h"
 
+
 Client::Client(const char* accountID, const char* network): network(network)
 {
 	try
@@ -49,18 +50,20 @@ void Client::RegistrKey()
 {
 #ifdef __linux__ 
 	//linux code goes here
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://207.154.208.184:3000/setId/" + keyPair.GetStrPubKey()) + "&public_key=" + keyPair.GetStrPubKey();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + keyPair.GetStrPubKey()) + "&public_key=" + keyPair.GetStrPubKey();
 	std::string cmdComand = "gio open " + url;
 
 #elif _WIN32
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + std::string("http://207.154.208.184:3000/setId/" + std::string(keyPair.GetStrPubKey())) + "^&public_key=" + std::string(keyPair.GetStrPubKey());
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + std::string("http://23.22.240.113:80/setId/" + std::string(keyPair.GetStrPubKey())) + "^&public_key=" + std::string(keyPair.GetStrPubKey());
 	std::string cmdComand = "start " + url;
 	system(cmdComand.c_str());
 #else
 
 #endif
 
-	std::string accountID = Connector::getResponse("207.154.208.184", "3000", "/getId/" + std::string(keyPair.GetStrPubKey()));
+
+
+	std::string accountID = Connector::getResponse("23.22.240.113", "80", "/near/" + std::string(keyPair.GetStrPubKey()));
 
 	if (accountID != "{}")
 	{

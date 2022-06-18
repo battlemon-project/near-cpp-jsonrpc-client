@@ -46,7 +46,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -78,11 +78,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>J:\source\NearPlugin\NearPlugin;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)\packages\cryptopp\x64\Output\Debug;$(SolutionDir)\packages\protobuf\lib\Debug;$(SolutionDir)\packages\grpc\.build\Debug;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\synchronization\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\base\Debug;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\time\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\debugging\Debug;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\numeric\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\base\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\debugging\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\strings\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\types\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\hash\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\cares\cares\lib\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\boringssl-with-bazel\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\profiling\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\container\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\random\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\re2\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\status\Debug\;$(SolutionDir)\packages\grpc\.build\third_party\zlib\Debug\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\packages\protobuf\include;$(SolutionDir)\packages\cryptopp;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.exe</TargetExt>
+    <TargetName>NearRPC</TargetName>
+    <IncludePath>$(SolutionDir)\packages\protobuf\include;$(SolutionDir)\packages\cryptopp;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\packages\cryptopp\x64\Output\Release;$(SolutionDir)\packages\protobuf\lib\Release;$(SolutionDir)\packages\grpc\.build\Release;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\synchronization\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\base\Release;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\time\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\debugging\Release;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\numeric\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\base\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\debugging\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\strings\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\types\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\hash\Release\;$(SolutionDir)\packages\grpc\.build\third_party\cares\cares\lib\Release\;$(SolutionDir)\packages\grpc\.build\third_party\boringssl-with-bazel\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\profiling\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\synchronization\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\container\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\random\Release\;$(SolutionDir)\packages\grpc\.build\third_party\re2\Release\;$(SolutionDir)\packages\grpc\.build\third_party\abseil-cpp\absl\status\Release\;$(SolutionDir)\packages\grpc\.build\third_party\zlib\Release\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories);$(SolutionDir)\packages\protobuf\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +109,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories);$(SolutionDir)\packages\protobuf\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,56 +125,55 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>J:\source\cryptopp;%(AdditionalIncludeDirectories);$(SolutionDir)\packages\protobuf\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>J:\source\cryptopp\x64\Output\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>near_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cryptlib.lib;libprotobuf.lib;address_sorting.lib;gpr.lib;grpc.lib;grpc++.lib;upb.lib;absl_synchronization.lib;absl_graphcycles_internal.lib;absl_base.lib;absl_civil_time.lib;absl_debugging_internal.lib;absl_demangle_internal.lib;absl_int128.lib;absl_log_severity.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_stacktrace.lib;absl_strings.lib;absl_strings_internal.lib;absl_symbolize.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>J:\source\GitRepos\near-cpp-jsonrpc-client\packages\cryptopp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>J:\source\cryptopp\x64\Output\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cryptlib.lib;libprotobuf.lib;address_sorting.lib;gpr.lib;grpc.lib;grpc++.lib;upb.lib;absl_synchronization.lib;absl_graphcycles_internal.lib;absl_base.lib;absl_city.lib;absl_civil_time.lib;absl_debugging_internal.lib;absl_demangle_internal.lib;absl_int128.lib;absl_log_severity.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_stacktrace.lib;absl_strings.lib;absl_strings_internal.lib;absl_symbolize.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_bad_optional_access.lib;absl_bad_variant_access.lib;cares.lib;absl_cord.lib;absl_cord_internal.lib;absl_cordz_functions.lib;absl_cordz_handle.lib;absl_cordz_info.lib;crypto.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_internal_platform.lib;absl_random_internal_pool_urbg.lib;absl_random_internal_randen.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_slow.lib;absl_random_internal_seed_material.lib;absl_random_seed_gen_exception.lib;absl_random_seed_sequences.lib;absl_raw_hash_set.lib;re2.lib;ssl.lib;absl_status.lib;absl_statusor.lib;absl_str_format_internal.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="EdKeys.cpp" />
+    <ClCompile Include="ProtobufHelpers.cpp" />
+    <ClCompile Include="protocol\auth.grpc.pb.cc" />
+    <ClCompile Include="protocol\auth.pb.cc" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsioAdapting.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Connector.h" />
     <ClInclude Include="EdKeys.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ClInclude Include="ProtobufHelpers.h" />
+    <ClInclude Include="protocol\auth.grpc.pb.h" />
+    <ClInclude Include="protocol\auth.pb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\boost.1.79.0\build\boost.targets" Condition="Exists('..\packages\boost.1.79.0\build\boost.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\boost.1.79.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.79.0\build\boost.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

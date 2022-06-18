@@ -6,13 +6,12 @@
 #include "files.h"
 #include "osrng.h"
 #include "hex.h"
-#include "pem.h"
 #include <iostream>
 
 struct EdKeys
 {
-	CryptoPP::AutoSeededRandomPool prng;
-	CryptoPP::ed25519::Signer signer;
+	static CryptoPP::AutoSeededRandomPool prng;
+	static CryptoPP::ed25519::Signer signer;
 
 	std::string base58encode(CryptoPP::Integer plain, int zeros) 
 	{
@@ -39,6 +38,8 @@ struct EdKeys
 };
 
 static EdKeys edKeys;
+CryptoPP::AutoSeededRandomPool EdKeys::prng;
+CryptoPP::ed25519::Signer EdKeys::signer;
 
 EdKeysInterfase::EdKeysInterfase()
 {
@@ -57,12 +58,6 @@ void EdKeysInterfase::GeneratingKeys()
 
 	CryptoPP::ed25519::Verifier verifier = CryptoPP::ed25519::Verifier(edKeys.signer);
 	const CryptoPP::ed25519PublicKey& pubKey = dynamic_cast<const CryptoPP::ed25519PublicKey&>(verifier.GetPublicKey());
-
-
-	const CryptoPP::Integer& x = privKey.GetPrivateExponent();
-	std::cout << x << std::endl;
-	const CryptoPP::Integer& y = pubKey.GetPublicElement();
-	std::cout << std::hex << y << std::endl;
 
 	{
 		std::string str = edKeys.toString(pubKey);
@@ -84,10 +79,10 @@ void EdKeysInterfase::SaveKeys(const char* accountID, const char* network)
 	{
 		encoder = new CryptoPP::HexEncoder(new CryptoPP::FileSink(std::string(std::string("empty") + std::string(network) + std::string(".bin")).c_str()));
 	}
-
-	std::cout << "Private key: ";
+	std::cout << "SavePrivateKey:" << StrPubKey58 << std::endl;
 	edKeys.signer.GetPrivateKey().Save(*encoder);
-	std::cout << "\n" << std::endl;
+	encoder->MessageEnd();
+	delete encoder;
 }
 
 void EdKeysInterfase::LoadKeys(const char* accountID, const char* network)
@@ -95,16 +90,16 @@ void EdKeysInterfase::LoadKeys(const char* accountID, const char* network)
 	std::string filename = std::string(std::string(accountID) + std::string(network) + std::string(".bin"));
 	{
 		std::ifstream iff(filename.c_str());
-		if (iff.bad() == true)
+		if (iff.bad())
 		{
 			filename = std::string("empty") + std::string(network) + std::string(".bin");
 			iff.open(filename.c_str());
-			if (iff.bad() == true)
+			if (iff.bad())
 				throw std::runtime_error("Invalid file");
 		}
 	}
 
-	CryptoPP::FileSource fs1(filename.c_str(), true);
+	CryptoPP::FileSource fs1(filename.c_str(), true, new CryptoPP::HexDecoder);
 	edKeys.signer.AccessPrivateKey().Load(fs1);
 
 	bool valid = edKeys.signer.GetPrivateKey().Validate(edKeys.prng, 3);
@@ -123,6 +118,7 @@ void EdKeysInterfase::LoadKeys(const char* accountID, const char* network)
 		std::copy(str.begin(), str.end(), this->StrPubKey58);
 		this->StrPubKey58[str.size()] = '\0';
 	}
+	std::cout << "LoadPrivateKey:" << StrPubKey58 << std::endl;
 }
 
 char* EdKeysInterfase::GetStrPubKey() const

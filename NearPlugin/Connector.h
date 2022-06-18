@@ -1,7 +1,5 @@
 #pragma once
 #include <string>
-#include <boost/beast.hpp>
-#include <boost/asio/connect.hpp>
 
 class Connector
 {
