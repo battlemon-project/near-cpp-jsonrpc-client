@@ -5,17 +5,24 @@
 #include <string>
 #include <thread>
 
+//#define GRPC_ARG_ENABLE_HTTP_PROXY 0
+//#define GRPC_DEFAULT_SSL_ROOTS_FILE_PATH_ENV_VAR = "J:\source\GitRepos\near-cpp-jsonrpc-client\packages\grpc\etc"
+#define GRPC_VERBOSITY DEBUG
+#define GRPC_TRACE tcp
+#define GRPC_SSL_TARGET_NAME_OVERRIDE_ARG "grpc.ssl_target_name_override" 
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+
 #ifdef BAZEL_BUILD
 #include "examples/protos/route_guide.grpc.pb.h"
 #else
 #include "protocol/auth.grpc.pb.h"
 #endif
+
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -43,9 +50,14 @@ public:
         SendCodeRequest write;
         SendCodeResponse read;
         write.set_public_key(publicKey);
-        //Request = MakeSendCodeRequest("ed25519:5BoNdi92bYvwiEJBw6RGidrLNz6hbkBcnBiVxxrZAPsM");
         ClientContext context;
-        GetOneCode(write, &read);
+        int SIZE = 8192;
+        char* c = new char[SIZE];
+        (void*)c;
+
+        GetOneCode(write, (SendCodeResponse*)c);
+        std::cout << std::endl;
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
         return read;
     }
     VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign)
@@ -64,11 +76,41 @@ private:
     {
         ClientContext context;
 
-        Status status = stub->SendCode(&context, write, read);
-        std::cout << "SendCode rpc: " << status.ok() << std::endl;
+        int size = 1024*32;
+        char* c = new char[size];
+        Status status = stub->SendCode(&context, write, //read);
+            (SendCodeResponse*)c);
 
-        return status.ok();
+        (char*)c;
+        for (size_t i = 0; i < size* 2; i++)
+        {
+            std::cout << c[i];
+        }
+        delete[]c;
+
+        std::cout << "SendCode rpc: " << status.ok() << std::endl;
+        if (status.ok()) 
+        {
+            return status.ok();
+        }
+        else 
+        {
+            // ouch!
+            // lets print the gRPC error message
+            // which is "Length of `Name` cannot be more than 10 characters"
+            std::cout << "error_message: " << status.error_message() << std::endl;
+            std::cout << "error_details: " << status.error_details() << std::endl;
+            // lets print the error code, which is 3
+            std::cout << "error_code: " << status.error_code() << std::endl;
+            // want to do some specific action based on the error?
+            if (status.error_code() == grpc::StatusCode::INVALID_ARGUMENT) 
+            {
+                // do your thing here
+            }
+            return status.ok();
+        }
     }
+
     bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read)
     {
         ClientContext context;
@@ -78,86 +120,93 @@ private:
         return status.ok();
     }
 
-    SendCodeRequest MakeSendCodeRequest(const std::string& publicKey)
-    {
-        SendCodeRequest s;
-        s.set_public_key(publicKey);
-        return s;
-    }
-
-    VerifyCodeRequest MakeFeature(const std::string& publicKey, const std::string& sign) {
-        VerifyCodeRequest v;
-        v.set_public_key(publicKey);
-        v.set_sign(sign);
-        return v;
-    }
     std::unique_ptr<AuthService::Stub> stub;
 };
 
+#include <wincrypt.h>
+#include <Windows.h>
 
-//grpc_connectivity_state
-//typedef enum {
-//    /** channel is idle */
-//    GRPC_CHANNEL_IDLE,
-//    /** channel is connecting */
-//    GRPC_CHANNEL_CONNECTING,
-//    /** channel is ready for work */
-//    GRPC_CHANNEL_READY,
-//    /** channel has seen a failure but expects to recover */
-//    GRPC_CHANNEL_TRANSIENT_FAILURE,
-//    /** channel has seen a failure that it cannot recover from */
-//    GRPC_CHANNEL_SHUTDOWN
-//};
-
-std::shared_ptr<Channel> channelF()
+std::string utf8Encode(const std::wstring& wstr)
 {
-    //return grpc::CreateChannel("https://game.battlemon.com", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("https://game.battlemon.com/near", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("https://game.battlemon.com/near/", grpc::InsecureChannelCredentials());
+    if (wstr.empty())
+        return std::string();
 
-    //return grpc::CreateChannel("https://23.22.240.113:80", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("https://23.22.240.113:80/near", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("https://23.22.240.113:80/near/", grpc::InsecureChannelCredentials());
-
-    //return grpc::CreateChannel("http://game.battlemon.com", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("http://game.battlemon.com/near", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("http://game.battlemon.com/near/", grpc::InsecureChannelCredentials());
-
-    //return grpc::CreateChannel("http://23.22.240.113:80", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("http://23.22.240.113:80/near", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("http://23.22.240.113:80/near/", grpc::InsecureChannelCredentials());
-
-    //return grpc::CreateChannel("game.battlemon.com", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("game.battlemon.com/near", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("game.battlemon.com/near/", grpc::InsecureChannelCredentials());
-
-    //return grpc::CreateChannel("23.22.240.113:80", grpc::InsecureChannelCredentials());
-    //return grpc::CreateChannel("23.22.240.113:80/near", grpc::InsecureChannelCredentials());
-    return grpc::CreateChannel("23.22.240.113:80/near/", grpc::InsecureChannelCredentials());
+    int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo(sizeNeeded, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], sizeNeeded, NULL, NULL);
+    return strTo;
 }
 
+grpc::SslCredentialsOptions getSslOptions()
+{
+    // Fetch root certificate as required on Windows (s. issue 25533).
+    grpc::SslCredentialsOptions result;
+
+    // Open root certificate store.
+    HANDLE hRootCertStore = CertOpenSystemStoreW(NULL, L"ROOT");
+    if (!hRootCertStore)
+        return result;
+
+    // Get all root certificates.
+    PCCERT_CONTEXT pCert = NULL;
+    while ((pCert = CertEnumCertificatesInStore(hRootCertStore, pCert)) != NULL)
+    {
+        // Append this certificate in PEM formatted data.
+        DWORD size = 0;
+        CryptBinaryToStringW(pCert->pbCertEncoded, pCert->cbCertEncoded, CRYPT_STRING_BASE64HEADER, NULL, &size);
+        std::vector<WCHAR> pem(size);
+        CryptBinaryToStringW(pCert->pbCertEncoded, pCert->cbCertEncoded, CRYPT_STRING_BASE64HEADER, pem.data(), &size);
+
+        result.pem_root_certs += utf8Encode(pem.data());
+    }
+    CertCloseStore(hRootCertStore, 0);
+
+    return result;
+}
 
 int main() 
 {
-    std::shared_ptr<Channel> channel = channelF();
-    grpc_connectivity_state state = channel->GetState(true);
-    std::cout << "MainState: " << state << std::endl;
-    AuthServiceClient client(channel);
+    try
+    {
+        auto channel_creds = grpc::experimental::TlsCredentials(grpc::experimental::TlsChannelCredentialsOptions());
+        //auto channel_creds = grpc::SslCredentials(getSslOptions());
+        std::shared_ptr<Channel> channel = grpc::CreateChannel("game.battlemon.com:80", channel_creds);
+        //std::shared_ptr<Channel> channel = grpc::CreateChannel("23.22.240.113:80", grpc::InsecureChannelCredentials());
+  
+        std::unique_ptr<AuthService::Stub> stub(AuthService::NewStub(channel));
+        SendCodeRequest write;
+        SendCodeResponse read;
+        write.set_public_key("ed25519:5BoNdi92bYvwiEJBw6RGidrLNz6hbkBcnBiVxxrZAPsM");
+        ClientContext context;
 
-    state = channel->GetState(true);
-    std::cout << "MainState: " << state << std::endl;
+        std::this_thread::sleep_for(std::chrono::nanoseconds(500000000));
+        grpc::Status status = stub->SendCode(&context, write, &read);
+        if (status.ok())
+        {
+        }
+        else
+        {
+            std::cout << "error_message: " << status.error_message() << std::endl;
+            std::cout << "error_details: " << status.error_details() << std::endl;
+        }
 
-    //AuthServiceClient client(grpc::CreateCustomChannel();
-    SendCodeResponse read = client.CallRPCSendCode("ed25519:5BoNdi92bYvwiEJBw6RGidrLNz6hbkBcnBiVxxrZAPsM");
-    std::cout << "MainReadCode" << read.code() << std::endl;
-    state = channel->GetState(true);
-    std::cout << "MainState: " << state << std::endl;
+        std::cout << std::endl << "context.debug_error_string: " << context.debug_error_string() << std::endl;
 
-    read = client.CallRPCSendCode("5BoNdi92bYvwiEJBw6RGidrLNz6hbkBcnBiVxxrZAPsM");
-    std::cout << "MainReadCode" << read.code() << std::endl;
-    state = channel->GetState(true);
-    std::cout << "MainState: " << state << std::endl;
+        //std::shared_ptr<Channel> channel = grpc::CreateChannel("game.battlemon.com:80", grpc::InsecureChannelCredentials());
+        //AuthServiceClient client(channel);
+        //
+        ////AuthServiceClient client(grpc::CreateCustomChannel();
+        //SendCodeResponse read = client.CallRPCSendCode("ed25519:5BoNdi92bYvwiEJBw6RGidrLNz6hbkBcnBiVxxrZAPsM");
+        std::cout << "MainReadCode" << read.code() << std::endl << std::endl;
+
+        //std::cout << "GetServiceConfigJSON: " << v->GetServiceConfigJSON() << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
 
 
     return 0;
 }
+
