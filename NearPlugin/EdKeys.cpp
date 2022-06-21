@@ -6,7 +6,7 @@
 #include "files.h"
 #include "osrng.h"
 #include "hex.h"
-#include <iostream>
+#include "base64.h"
 
 struct EdKeys
 {
@@ -31,6 +31,7 @@ struct EdKeys
 		}
 		return adr;
 	}
+
 	std::string toString(const CryptoPP::ed25519PublicKey& pubKey)
 	{
 		return std::string("ed25519:") + base58encode(pubKey.GetPublicElement(), 0);
@@ -54,7 +55,6 @@ EdKeysInterfase::~EdKeysInterfase()
 void EdKeysInterfase::GeneratingKeys()
 {
 	edKeys.signer.AccessPrivateKey().GenerateRandom(edKeys.prng);
-	const CryptoPP::ed25519PrivateKey& privKey = dynamic_cast<const CryptoPP::ed25519PrivateKey&>(edKeys.signer.GetPrivateKey());
 
 	CryptoPP::ed25519::Verifier verifier = CryptoPP::ed25519::Verifier(edKeys.signer);
 	const CryptoPP::ed25519PublicKey& pubKey = dynamic_cast<const CryptoPP::ed25519PublicKey&>(verifier.GetPublicKey());
@@ -68,6 +68,32 @@ void EdKeysInterfase::GeneratingKeys()
 	}
 }
 
+std::string EdKeysInterfase::MessageSigning(const char* messageInp)
+{
+	std::string message(messageInp);
+	std::string signature;
+
+	size_t maxLength = edKeys.signer.MaxSignatureLength();
+	signature.resize(maxLength);
+	
+	size_t signatureLength = edKeys.signer.SignMessage(edKeys.prng, (const CryptoPP::byte*)&message[0], message.size(), (CryptoPP::byte*)&signature[0]);
+	if (maxLength != signatureLength)
+		signature.resize(signatureLength);
+
+	message.clear();
+	CryptoPP::Base64Encoder encoder;
+	encoder.Put((const CryptoPP::byte*)&signature[0], signature.size());
+	encoder.MessageEnd();
+
+	CryptoPP::word64 size = encoder.MaxRetrievable();
+	if (size)
+	{
+		message.resize(size);
+		encoder.Get((CryptoPP::byte*)&message[0], message.size());
+	}
+	return message;
+}
+
 void EdKeysInterfase::SaveKeys(const char* accountID, const char* network)
 {
 	CryptoPP::HexEncoder* encoder;
@@ -79,7 +105,6 @@ void EdKeysInterfase::SaveKeys(const char* accountID, const char* network)
 	{
 		encoder = new CryptoPP::HexEncoder(new CryptoPP::FileSink(std::string(std::string("empty") + std::string(network) + std::string(".bin")).c_str()));
 	}
-	std::cout << "SavePrivateKey:" << StrPubKey58 << std::endl;
 	edKeys.signer.GetPrivateKey().Save(*encoder);
 	encoder->MessageEnd();
 	delete encoder;
@@ -118,7 +143,10 @@ void EdKeysInterfase::LoadKeys(const char* accountID, const char* network)
 		std::copy(str.begin(), str.end(), this->StrPubKey58);
 		this->StrPubKey58[str.size()] = '\0';
 	}
-	std::cout << "LoadPrivateKey:" << StrPubKey58 << std::endl;
+	const CryptoPP::ed25519PrivateKey& privKey = dynamic_cast<const CryptoPP::ed25519PrivateKey&>(edKeys.signer.GetPrivateKey());
+
+	std::cout << "Load prvKey: " << privKey.GetPrivateExponent() << std::endl;
+	std::cout << "Load pubKey: " << GetStrPubKey() << std::endl;
 }
 
 char* EdKeysInterfase::GetStrPubKey() const
