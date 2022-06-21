@@ -73,15 +73,30 @@ std::string EdKeysInterfase::MessageSigning(const char* messageInp)
 	std::string message(messageInp);
 	std::string signature;
 
-	size_t maxLength = edKeys.signer.MaxSignatureLength();
-	signature.resize(maxLength);
+
+	size_t siglen = edKeys.signer.MaxSignatureLength();
+	signature.resize(siglen);
+	siglen = edKeys.signer.SignMessage(edKeys.prng, (const CryptoPP::byte*)&message[0], message.size(), (CryptoPP::byte*)&signature[0]);
+	signature.resize(siglen);
+
+
+	CryptoPP::ed25519::Verifier verifier = CryptoPP::ed25519::Verifier(edKeys.signer);
+	const CryptoPP::ed25519PublicKey& pubKey = dynamic_cast<const CryptoPP::ed25519PublicKey&>(verifier.GetPublicKey());
+	bool valid = verifier.VerifyMessage((const CryptoPP::byte*)&message[0], message.size(), (const CryptoPP::byte*)&signature[0], signature.size());
 	
-	size_t signatureLength = edKeys.signer.SignMessage(edKeys.prng, (const CryptoPP::byte*)&message[0], message.size(), (CryptoPP::byte*)&signature[0]);
-	if (maxLength != signatureLength)
-		signature.resize(signatureLength);
+	if (valid == false)
+		throw std::runtime_error("Invalid signature over message");
+
+	std::cout << "Verified signature over message\n" << std::endl;
+
 
 	message.clear();
 	CryptoPP::Base64Encoder encoder;
+	//const CryptoPP::byte ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	//CryptoPP::AlgorithmParameters params = CryptoPP::MakeParameters(CryptoPP::Name::EncodingLookupArray(), (const CryptoPP::byte*)ALPHABET);
+	//encoder.IsolatedInitialize(params);
+
+
 	encoder.Put((const CryptoPP::byte*)&signature[0], signature.size());
 	encoder.MessageEnd();
 
@@ -91,6 +106,9 @@ std::string EdKeysInterfase::MessageSigning(const char* messageInp)
 		message.resize(size);
 		encoder.Get((CryptoPP::byte*)&message[0], message.size());
 	}
+
+	std::cout << "signature: " << signature << std::endl;
+	std::cout << "singBase64: " << message << std::endl;
 	return message;
 }
 

@@ -11,11 +11,7 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
-#ifdef BAZEL_BUILD
-#include "examples/protos/route_guide.grpc.pb.h"
-#else
 #include "protocol/auth.grpc.pb.h"
-#endif
 
 
 
@@ -173,7 +169,7 @@ int main()
 
         std::shared_ptr<grpc::ChannelCredentials> channel_creds = grpc::SslCredentials(getSslOptions());
         std::shared_ptr<Channel> channel = grpc::CreateChannel("game.battlemon.com", channel_creds);
-  
+
         std::unique_ptr<AuthService::Stub> stub(AuthService::NewStub(channel));
         SendCodeRequest write;
         SendCodeResponse read;
@@ -184,24 +180,28 @@ int main()
 
         ClientContext context;
         ClientContext contextV;
-
         grpc::Status status = stub->SendCode(&context, write, &read);
-        unsigned int start_time = clock();
-
-        write.set_public_key(key);
-        writeV.set_sign(EdKeys.MessageSigning(read.code().c_str()));
-        status = stub->VerifyCode(&contextV, writeV, &readV);
-        unsigned int end_time = clock();
-        unsigned int search_time = end_time - start_time;
-
-        std::cout << "End VerifyCode: " << search_time << std::endl << std::endl;
         if (status.ok())
         {
-            std::cout << "near_account_id: " << readV.near_account_id() << std::endl << std::endl;
+            std::cout << "SendCode: " << read.code().c_str() << std::endl;
+
+            writeV.set_public_key(key);
+            writeV.set_sign(EdKeys.MessageSigning(read.code().c_str()));
+
+            status = stub->VerifyCode(&contextV, writeV, &readV); if (status.ok())
+            {
+                std::cout << "near_account_id: " << readV.near_account_id() << std::endl;
+            }
+            else
+            {
+                std::cout << "error_message: " << status.error_message() << std::endl;
+                std::cout << "error_details: " << status.error_details() << std::endl;
+                std::cout << "context.debug_error_string: " << contextV.debug_error_string() << std::endl;
+                //goto L1;
+            }
         }
         else
         {
-            std::cout << "error: " << readV.near_account_id() << std::endl;
             std::cout << "error_message: " << status.error_message() << std::endl;
             std::cout << "error_details: " << status.error_details() << std::endl;
             std::cout << "context.debug_error_string: " << contextV.debug_error_string() << std::endl;
