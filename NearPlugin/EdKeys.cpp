@@ -1,10 +1,11 @@
 #include "EdKeys.h"
 #include <stdexcept>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <cstring>
 
 #include "src/ed25519.h"
-
+#include <filesystem>
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -207,14 +208,16 @@ void EdKeys::SaveK(std::string filename, void* key, size_t size)
 	outfile.close();
 }
 
-void EdKeys::SaveKeys(std::string accountID, std::string network)
+void EdKeys::SaveKeys(std::string accountID)
 {
-	SaveK(accountID + network + std::string("pr.bin"), private_key, 64);
-	SaveK(accountID + network + std::string("pb.bin"), public_key, 32);
+	std::filesystem::create_directories("data");
+	SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
+	SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
 }
 
-void EdKeys::LoadK(std::string filename, void* key, size_t size)
+void EdKeys::LoadK(std::string path, std::string accountID, std::string filetype, void* key, size_t size)
 {
+	std::string filename = path + accountID + filetype;
 	std::ifstream infile(filename, std::ofstream::binary);
 	if (infile)
 	{
@@ -223,13 +226,26 @@ void EdKeys::LoadK(std::string filename, void* key, size_t size)
 		infile.close();
 		return;
 	}
+	else 
+	{
+		filename = path + filename;
+		infile.open(filename, std::ofstream::binary);
+		if (infile)
+		{
+			infile.read((char*)&size, sizeof(size_t));
+			infile.read((char*)key, size);
+			infile.close();
+			SaveKeys(accountID);
+			return;
+		}
+	}
 	throw std::runtime_error("Invalid load " + filename);
 }
 
-void EdKeys::LoadKeys(std::string accountID, std::string network)
+void EdKeys::LoadKeys(std::string accountID)
 {
-	LoadK(accountID + network + std::string("pr.bin"), private_key, 64);
-	LoadK(accountID + network + std::string("pb.bin"), public_key, 32);
+	LoadK(std::string("data/"), accountID, ".pr.bin", private_key, 64);
+	LoadK(std::string("data/"), accountID, ".pb.bin", public_key, 32);
 }
 
 std::string EdKeys::GetPubKey58() const

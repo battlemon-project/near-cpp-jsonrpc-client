@@ -7,7 +7,7 @@ class Client
 	void* keyPair;
 
 	void RegistrKey();
-	void AuthServiceClient();
+	bool AuthServiceClient();
 public:
 	Client(const char* accountID, const char* network);
 	Client(const char* network);

@@ -8,17 +8,16 @@
 
 Client::Client(const char* accountID, const char* network): network(network), keyPair(new EdKeys())
 {
-	this->accountID == nullptr;
+	this->accountID = nullptr;
 	try
 	{
-		((EdKeys*)keyPair)->LoadKeys(accountID, network);
+		((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network);
 		AuthServiceClient();
 	}
 	catch (const std::exception& e)
 	{
 		((EdKeys*)keyPair)->GeneratingKeys();
 		RegistrKey();
-		((EdKeys*)keyPair)->SaveKeys(this->accountID, this->network);
 	}
 
 }
@@ -26,10 +25,8 @@ Client::Client(const char* accountID, const char* network): network(network), ke
 Client::Client(const char* network):network(network), keyPair(new EdKeys())
 {
 	accountID = nullptr;
-
 	((EdKeys*)keyPair)->GeneratingKeys();
 	RegistrKey();
-	((EdKeys*)keyPair)->SaveKeys(this->accountID == nullptr ? std::string() : this->accountID, this->network);
 }
 
 Client::~Client()
@@ -66,17 +63,24 @@ void Client::RegistrKey()
 
 #endif
 
-	AuthServiceClient();
+	if (AuthServiceClient())
+	{
+		((EdKeys*)keyPair)->SaveKeys(this->accountID);
+		return;
+	}
+	else
+		this->accountID = nullptr;
+	((EdKeys*)keyPair)->SaveKeys("");
 }
 
-void Client::AuthServiceClient()
+bool Client::AuthServiceClient()
 {
 	std::string PubKey = ((EdKeys*)keyPair)->GetPubKey58();
 	GRPC_Client grpcClient;
 	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))));
 	
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
-	
+	int i = 0;
 	do
 	{
 		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
@@ -91,10 +95,15 @@ void Client::AuthServiceClient()
 		if (!accountID.IsInitialized())
 			throw std::runtime_error("Invalid VerifyCodeResponse");
 	
-		this->accountID = new char[accountID.near_account_id().size() + 1];
-		std::copy(accountID.near_account_id().begin(), accountID.near_account_id().end(), this->accountID);
-		this->accountID[accountID.near_account_id().size()] = '\0';
-	
-	} while (accountID == nullptr);
+		if (accountID.near_account_id() != "")
+		{
+			this->accountID = new char[accountID.near_account_id().size() + 1];
+			std::copy(accountID.near_account_id().begin(), accountID.near_account_id().end(), this->accountID);
+			this->accountID[accountID.near_account_id().size()] = '\0';
+			return true;
+		}
+		i++;
+	} while (i < 5);
+	return false;
 }
 
