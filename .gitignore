@@ -1,3 +1,8 @@
-\NearPlugin\x64
-\packages\boost.1.79.0
-\x64
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/NearPlugin/x64/Debug/NearPlugin.tlog
+/NearPlugin/x64
+/x64
+/.vs/NearPlugin/v16
