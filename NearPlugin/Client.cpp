@@ -6,7 +6,7 @@
 
 
 
-Client::Client(const char* accountID, const char* network): network(network), keyPair(new EdKeys())
+Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys())
 {
 	this->accountID = nullptr;
 	try
@@ -19,7 +19,12 @@ Client::Client(const char* accountID, const char* network): network(network), ke
 		((EdKeys*)keyPair)->GeneratingKeys();
 		RegistrKey();
 	}
-
+	{
+		std::string buff = ((EdKeys*)keyPair)->GetPubKey58();
+		this->keyPub58 = new char[buff.size() + 1];
+		std::copy(buff.begin(), buff.end(), this->accountID);
+		this->keyPub58[buff.size()] = '\0';
+	}
 }
 
 Client::Client(const char* network):network(network), keyPair(new EdKeys())
@@ -27,6 +32,12 @@ Client::Client(const char* network):network(network), keyPair(new EdKeys())
 	accountID = nullptr;
 	((EdKeys*)keyPair)->GeneratingKeys();
 	RegistrKey();
+	{
+		std::string buff = ((EdKeys*)keyPair)->GetPubKey58();
+		this->keyPub58 = new char[buff.size() + 1];
+		std::copy(buff.begin(), buff.end(), this->accountID);
+		this->keyPub58[buff.size()] = '\0';
+	}
 }
 
 Client::~Client()
@@ -40,7 +51,12 @@ Client::~Client()
 	{
 		delete[]keyPair;
 		keyPair = nullptr;
-	}	
+	}
+	if (keyPub58 != nullptr)
+	{
+		delete[]keyPub58;
+		keyPub58 = nullptr;
+	}
 }
 
 bool Client::IsValidKeys()
