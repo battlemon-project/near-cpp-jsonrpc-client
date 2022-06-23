@@ -180,8 +180,6 @@ EdKeys::~EdKeys()
 void EdKeys::GeneratingKeys()
 {
 	unsigned char seed[32];
-	unsigned char signature[64];
-
 	if (ed25519_create_seed(seed))
 	{
 		throw std::runtime_error("Invalid seed");
