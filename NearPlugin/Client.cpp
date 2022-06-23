@@ -12,45 +12,36 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* accountID, const char* network, Rewrite _Rewrite) : network(network), keyPair(new EdKeys()), error(nullptr)
+Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
 {
-	this->accountID = nullptr;
 
 	if (((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network))
 	{
 		AuthServiceClient();
-		if (this->accountID == nullptr)
-		{
-			RegistrKey(_Rewrite);
-		}
+		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 	}
-	else
-	{
-		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
-		RegistrKey(_Rewrite);
-	}
-
-	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+	allocateMemory("error loadKeys", this->error);
 }
 
-Client::Client(const char* network, Rewrite _Rewrite):network(network), keyPair(new EdKeys()), error(nullptr)
+Client::Client(const char* network):network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
 {
-	accountID = nullptr;
 	((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
-	RegistrKey(_Rewrite);
+	if (error != nullptr) return;
+
+	RegistrKey();
 	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 }
 
 Client::~Client()
 {
-	if (keyPair != nullptr)
+	if (accountID != nullptr)
 	{
 		delete[]accountID;
 		accountID = nullptr;
 	}
 	if(keyPair != nullptr)
 	{
-		delete[]keyPair;
+		delete keyPair;
 		keyPair = nullptr;
 	}
 	if (keyPub58 != nullptr)
@@ -70,7 +61,7 @@ bool Client::IsValidKeys()
 	{ return ((EdKeys*)keyPair)->GetPubKey58() != ""; };
 }
 
-void Client::RegistrKey(Rewrite _Rewrite)
+void Client::RegistrKey()
 {
 #ifdef __linux__ 
 	//linux code goes here
@@ -87,12 +78,11 @@ void Client::RegistrKey(Rewrite _Rewrite)
 
 	if (AuthServiceClient())
 	{
-		((EdKeys*)keyPair)->SaveKeys(this->accountID, _Rewrite);
+		((EdKeys*)keyPair)->SaveKeys(this->accountID);
 		return;
 	}
-	else
-		this->accountID = nullptr;
-	((EdKeys*)keyPair)->SaveKeys("", _Rewrite);
+	delete[] this->error;
+	allocateMemory("error RegistrKey", this->error);
 }
 
 bool Client::AuthServiceClient()
@@ -114,13 +104,14 @@ bool Client::AuthServiceClient()
 	
 		if (accountID.near_account_id() != "")
 		{
-			this->accountID = new char[accountID.near_account_id().size() + 1];
-			std::copy(accountID.near_account_id().begin(), accountID.near_account_id().end(), this->accountID);
-			this->accountID[accountID.near_account_id().size()] = '\0';
+			allocateMemory(accountID.near_account_id(), this->accountID);
 			return true;
 		}
 		i++;
-	} while (i < 5);
+	} while (i < 10);
+
+	allocateMemory("error AuthService", this->error);
+
 	return false;
 }
 

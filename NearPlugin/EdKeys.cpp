@@ -206,21 +206,8 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 	outfile.close();
 }
 
-void EdKeys::SaveKeys(const std::string& accountID, bool(*rewrite)(const char* path))
+void EdKeys::SaveKeys(const std::string& accountID)
 {
-	std::filesystem::create_directories("data");
-	std::string filenve = std::string("data/") + accountID + ".pr.bin";
-	std::ifstream infile(filenve, std::ofstream::binary);
-	if (infile.is_open())
-	{
-		infile.close();
-		if (rewrite(filenve.c_str()))
-		{
-			SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
-			SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
-		}
-		return;
-	}
 	SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
 	SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
 }
