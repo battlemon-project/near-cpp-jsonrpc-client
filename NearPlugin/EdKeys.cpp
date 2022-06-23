@@ -177,12 +177,12 @@ EdKeys::~EdKeys()
 {
 }
 
-void EdKeys::GeneratingKeys()
+void EdKeys::GeneratingKeys(char*& error, void(*errorH)(const std::string& copy, char* &error))
 {
 	unsigned char seed[32];
 	if (ed25519_create_seed(seed))
 	{
-		throw std::runtime_error("Invalid seed");
+		errorH("Invalid seed", error);
 	}
 	ed25519_create_keypair(public_key, private_key, seed);
 }

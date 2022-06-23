@@ -1,43 +1,39 @@
 #include "Client.h"
-#include <iostream>
-#include <fstream>
 #include "EdKeys.h"
 #include "GRPC_Client.h"
 
-
-
-Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys())
+void allocateMemory(const std::string &copy, char* &target)
 {
-	this->accountID = nullptr;
-	try
+	if (target == nullptr)
 	{
-		((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network);
-		AuthServiceClient();
-	}
-	catch (const std::exception& e)
-	{
-		((EdKeys*)keyPair)->GeneratingKeys();
-		RegistrKey();
-	}
-	{
-		std::string buff = ((EdKeys*)keyPair)->GetPubKey58();
-		this->keyPub58 = new char[buff.size() + 1];
-		std::copy(buff.begin(), buff.end(), this->accountID);
-		this->keyPub58[buff.size()] = '\0';
+		target = new char[copy.size() + 1];
+		std::copy(copy.begin(), copy.end(), target);
+		target[copy.size()] = '\0';
 	}
 }
 
-Client::Client(const char* network):network(network), keyPair(new EdKeys())
+Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys()), error(nullptr)
+{
+	this->accountID = nullptr;
+
+	((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network);
+	AuthServiceClient();
+
+	if (this->accountID == nullptr)
+	{
+		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
+		RegistrKey();
+	}
+
+	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+}
+
+Client::Client(const char* network):network(network), keyPair(new EdKeys()), error(nullptr)
 {
 	accountID = nullptr;
-	((EdKeys*)keyPair)->GeneratingKeys();
+	((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
 	RegistrKey();
-	{
-		std::string buff = ((EdKeys*)keyPair)->GetPubKey58();
-		this->keyPub58 = new char[buff.size() + 1];
-		std::copy(buff.begin(), buff.end(), this->accountID);
-		this->keyPub58[buff.size()] = '\0';
-	}
+	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 }
 
 Client::~Client()
@@ -56,6 +52,11 @@ Client::~Client()
 	{
 		delete[]keyPub58;
 		keyPub58 = nullptr;
+	}
+	if (error != nullptr)
+	{
+		delete[]error;
+		error = nullptr;
 	}
 }
 
@@ -101,15 +102,10 @@ bool Client::AuthServiceClient()
 	{
 		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
 	
-		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey);
-		if (!CodeResponse.IsInitialized())
-			throw std::runtime_error("Invalid CodeResponse");
+		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
-		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(grpcClient.CallRPCSendCode(((EdKeys*)keyPair)->GetPubKey58()).code().c_str());
-		VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage);
-	
-		if (!accountID.IsInitialized())
-			throw std::runtime_error("Invalid VerifyCodeResponse");
+		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(grpcClient.CallRPCSendCode(((EdKeys*)keyPair)->GetPubKey58(),error, allocateMemory).code().c_str());
+		VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
 	
 		if (accountID.near_account_id() != "")
 		{
@@ -120,6 +116,7 @@ bool Client::AuthServiceClient()
 		}
 		i++;
 	} while (i < 5);
+	allocateMemory(grpcClient.error, error);
 	return false;
 }
 

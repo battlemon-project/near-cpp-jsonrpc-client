@@ -42,12 +42,13 @@ class GRPC_Client
     bool GetOneCode(const SendCodeRequest& write, SendCodeResponse* read);
     bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read);
 public:
+	std::string error;
 	GRPC_Client() {}
     GRPC_Client(std::shared_ptr<Channel> channel);
 
 	void setChannel(std::shared_ptr<Channel> channel);
-    SendCodeResponse CallRPCSendCode(const std::string& publicKey);
-    VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign);
+    SendCodeResponse CallRPCSendCode(const std::string& publicKey, char*& error, void(*errorH)(const std::string& copy, char*& error));
+    VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, char*& error, void(*errorH)(const std::string& copy, char*& error));
 
 #ifdef WIN32
 	std::string utf8Encode(const std::wstring& wstr)

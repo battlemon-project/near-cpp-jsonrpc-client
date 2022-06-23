@@ -5,10 +5,15 @@
 
 int main() 
 {
+
     try
     {
-        Client client("dsbgfnghcjhgds", "testnet");
-        std::cout << "GetAccount: " << client.GetAccount() << std::endl;
+        Client client("testnet");
+        if (client.error != nullptr)
+        {
+            std::cout << client.error << std::endl;
+        }
+        std::cout << "GetAccount: " << client.GetPublicKey() << std::endl;
     }
     catch (const std::exception& e)
     {

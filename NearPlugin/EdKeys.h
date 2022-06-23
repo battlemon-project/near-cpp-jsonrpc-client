@@ -12,7 +12,7 @@ class EdKeys
 public:
 	EdKeys();
 	~EdKeys();
-	void GeneratingKeys();
+	void GeneratingKeys(char*& error, void(*errorH)(const std::string& copy, char*& error));
 	std::string MessageSigning(const std::string &messageChr);
 	void SaveKeys(std::string accountID);
 	void LoadKeys(std::string accountID);
