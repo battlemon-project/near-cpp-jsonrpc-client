@@ -24,9 +24,6 @@
     <ClCompile Include="Connector.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\auth.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>

@@ -191,7 +191,6 @@ xcopy /y /d "..\packages\grpc\.build\third_party\zlib\Release" "$(SolutionDir)$(
     <ClCompile Include="EdKeys.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />
-    <ClCompile Include="Source.cpp" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />

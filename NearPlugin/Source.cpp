@@ -8,12 +8,12 @@ int main()
 
     try
     {
-        Client client("testnet");
-        if (client.error != nullptr)
-        {
-            std::cout << client.error << std::endl;
-        }
-        std::cout << "GetAccount: " << client.GetPublicKey() << std::endl;
+        //Client client("testnet");
+        //if (client.error != nullptr)
+        //{
+        //    std::cout << client.error << std::endl;
+        //}
+        //std::cout << "GetAccount: " << client.GetPublicKey() << std::endl;
     }
     catch (const std::exception& e)
     {

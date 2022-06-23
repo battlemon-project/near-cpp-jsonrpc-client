@@ -12,7 +12,7 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys()), error(nullptr)
+Client::Client(const char* accountID, const char* network, Rewrite _Rewrite) : network(network), keyPair(new EdKeys()), error(nullptr)
 {
 	this->accountID = nullptr;
 
@@ -21,23 +21,23 @@ Client::Client(const char* accountID, const char* network) : network(network), k
 		AuthServiceClient();
 		if (this->accountID == nullptr)
 		{
-			RegistrKey();
+			RegistrKey(_Rewrite);
 		}
 	}
 	else
 	{
 		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
-		RegistrKey();
+		RegistrKey(_Rewrite);
 	}
 
 	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 }
 
-Client::Client(const char* network):network(network), keyPair(new EdKeys()), error(nullptr)
+Client::Client(const char* network, Rewrite _Rewrite):network(network), keyPair(new EdKeys()), error(nullptr)
 {
 	accountID = nullptr;
 	((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
-	RegistrKey();
+	RegistrKey(_Rewrite);
 	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 }
 
@@ -70,7 +70,7 @@ bool Client::IsValidKeys()
 	{ return ((EdKeys*)keyPair)->GetPubKey58() != ""; };
 }
 
-void Client::RegistrKey()
+void Client::RegistrKey(Rewrite _Rewrite)
 {
 #ifdef __linux__ 
 	//linux code goes here
@@ -87,12 +87,12 @@ void Client::RegistrKey()
 
 	if (AuthServiceClient())
 	{
-		((EdKeys*)keyPair)->SaveKeys(this->accountID, rewrite);
+		((EdKeys*)keyPair)->SaveKeys(this->accountID, _Rewrite);
 		return;
 	}
 	else
 		this->accountID = nullptr;
-	((EdKeys*)keyPair)->SaveKeys("", rewrite);
+	((EdKeys*)keyPair)->SaveKeys("", _Rewrite);
 }
 
 bool Client::AuthServiceClient()
