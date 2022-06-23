@@ -17,6 +17,7 @@ public:
 	~Client();
 	Client() = delete;
 
+	bool(*rewrite)(const char* path);
 	char* GetPublicKey() const { return keyPub58; };
 	bool IsValidAccount() { return accountID != nullptr; };
 	bool IsValidKeys();

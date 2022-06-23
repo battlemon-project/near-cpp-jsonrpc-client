@@ -16,10 +16,15 @@ Client::Client(const char* accountID, const char* network) : network(network), k
 {
 	this->accountID = nullptr;
 
-	((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network);
-	AuthServiceClient();
-
-	if (this->accountID == nullptr)
+	if (((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network))
+	{
+		AuthServiceClient();
+		if (this->accountID == nullptr)
+		{
+			RegistrKey();
+		}
+	}
+	else
 	{
 		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
 		RegistrKey();
@@ -82,12 +87,12 @@ void Client::RegistrKey()
 
 	if (AuthServiceClient())
 	{
-		((EdKeys*)keyPair)->SaveKeys(this->accountID);
+		((EdKeys*)keyPair)->SaveKeys(this->accountID, rewrite);
 		return;
 	}
 	else
 		this->accountID = nullptr;
-	((EdKeys*)keyPair)->SaveKeys("");
+	((EdKeys*)keyPair)->SaveKeys("", rewrite);
 }
 
 bool Client::AuthServiceClient()
@@ -116,7 +121,6 @@ bool Client::AuthServiceClient()
 		}
 		i++;
 	} while (i < 5);
-	allocateMemory(grpcClient.error, error);
 	return false;
 }
 

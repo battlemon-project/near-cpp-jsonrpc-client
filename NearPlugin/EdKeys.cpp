@@ -198,7 +198,7 @@ std::string EdKeys::MessageSigning(const std::string &messageInp)
 	return sign64;
 }
 
-void EdKeys::SaveK(std::string filename, void* key, size_t size)
+void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 {
 	std::ofstream outfile(filename, std::ofstream::binary);
 	outfile.write((const char*)&size, sizeof(size));
@@ -206,14 +206,26 @@ void EdKeys::SaveK(std::string filename, void* key, size_t size)
 	outfile.close();
 }
 
-void EdKeys::SaveKeys(std::string accountID)
+void EdKeys::SaveKeys(const std::string& accountID, bool(*rewrite)(const char* path))
 {
 	std::filesystem::create_directories("data");
+	std::string filenve = std::string("data/") + accountID + ".pr.bin";
+	std::ifstream infile(filenve, std::ofstream::binary);
+	if (infile.is_open())
+	{
+		infile.close();
+		if (rewrite(filenve.c_str()))
+		{
+			SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
+			SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
+		}
+		return;
+	}
 	SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
 	SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
 }
 
-void EdKeys::LoadK(std::string path, std::string accountID, std::string filetype, void* key, size_t size)
+bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const std::string& filetype, void* key, size_t size)
 {
 	std::string filename = path + accountID + filetype;
 	std::ifstream infile(filename, std::ofstream::binary);
@@ -222,28 +234,17 @@ void EdKeys::LoadK(std::string path, std::string accountID, std::string filetype
 		infile.read((char*)&size, sizeof(size_t));
 		infile.read((char*)key, size);
 		infile.close();
-		return;
+		return true;
 	}
-	else 
-	{
-		filename = path + filename;
-		infile.open(filename, std::ofstream::binary);
-		if (infile)
-		{
-			infile.read((char*)&size, sizeof(size_t));
-			infile.read((char*)key, size);
-			infile.close();
-			SaveKeys(accountID);
-			return;
-		}
-	}
-	throw std::runtime_error("Invalid load " + filename);
+	return false;
 }
 
-void EdKeys::LoadKeys(std::string accountID)
+bool EdKeys::LoadKeys(const std::string& accountID)
 {
-	LoadK(std::string("data/"), accountID, ".pr.bin", private_key, 64);
-	LoadK(std::string("data/"), accountID, ".pb.bin", public_key, 32);
+	if (LoadK(std::string("data/"), accountID, ".pr.bin", private_key, 64))
+	{
+		LoadK(std::string("data/"), accountID, ".pb.bin", public_key, 32);
+	}
 }
 
 std::string EdKeys::GetPubKey58() const
