@@ -231,7 +231,9 @@ bool EdKeys::LoadKeys(const std::string& accountID)
 	if (LoadK(std::string("data/"), accountID, ".pr.bin", private_key, 64))
 	{
 		LoadK(std::string("data/"), accountID, ".pb.bin", public_key, 32);
+		return true;
 	}
+	return false;
 }
 
 std::string EdKeys::GetPubKey58() const

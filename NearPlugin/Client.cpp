@@ -12,25 +12,35 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
+Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
 {
-
-	if (((EdKeys*)keyPair)->LoadKeys(std::string(accountID)))
+	if (type)
 	{
-		AuthServiceClient();
-		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+
+		std::string str(inpText);
+		size_t size = str.find(".");
+
+		std::size_t length = str.copy((char*)network, str.size() - size, size + 1);
+
+		network = nullptr;
+		if (((EdKeys*)keyPair)->LoadKeys(std::string(inpText)))
+		{
+			AuthServiceClient();
+			allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+		}
+		else
+			allocateMemory("error loadKeys", this->error);
 	}
 	else
-		allocateMemory("error loadKeys", this->error);
-}
+	{
+		network = inpText;
+		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
+		if (error != nullptr) return;
 
-Client::Client(const char* network):network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
-{
-	((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
-	if (error != nullptr) return;
+		RegistrKey();
+		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 
-	RegistrKey();
-	allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+	}
 }
 
 Client::~Client()
