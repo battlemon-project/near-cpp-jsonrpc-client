@@ -20,7 +20,8 @@ Client::Client(const char* accountID, const char* network) : network(network), k
 		AuthServiceClient();
 		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
 	}
-	allocateMemory("error loadKeys", this->error);
+	else
+		allocateMemory("error loadKeys", this->error);
 }
 
 Client::Client(const char* network):network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
@@ -76,9 +77,9 @@ void Client::RegistrKey()
 
 #endif
 
+	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
 	if (AuthServiceClient())
 	{
-		((EdKeys*)keyPair)->SaveKeys(this->accountID);
 		return;
 	}
 	delete[] this->error;
@@ -90,8 +91,7 @@ bool Client::AuthServiceClient()
 	std::string PubKey = ((EdKeys*)keyPair)->GetPubKey58();
 	GRPC_Client grpcClient;
 	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))));
-	
-	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
+
 	int i = 0;
 	do
 	{
@@ -104,11 +104,12 @@ bool Client::AuthServiceClient()
 	
 		if (accountID.near_account_id() != "")
 		{
+			((EdKeys*)keyPair)->SaveKeys(this->accountID);
 			allocateMemory(accountID.near_account_id(), this->accountID);
 			return true;
 		}
 		i++;
-	} while (i < 10);
+	} while (i < 15);
 
 	allocateMemory("error AuthService", this->error);
 
