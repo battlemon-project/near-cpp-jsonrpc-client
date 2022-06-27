@@ -15,7 +15,7 @@ void allocateMemory(const std::string &copy, char* &target)
 Client::Client(const char* accountID, const char* network) : network(network), keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
 {
 
-	if (((EdKeys*)keyPair)->LoadKeys(std::string(accountID) + "." + network))
+	if (((EdKeys*)keyPair)->LoadKeys(std::string(accountID)))
 	{
 		AuthServiceClient();
 		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
@@ -80,6 +80,7 @@ void Client::RegistrKey()
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
 	if (AuthServiceClient())
 	{
+		((EdKeys*)keyPair)->SaveKeys(this->accountID);
 		return;
 	}
 	delete[] this->error;
@@ -104,7 +105,6 @@ bool Client::AuthServiceClient()
 	
 		if (accountID.near_account_id() != "")
 		{
-			((EdKeys*)keyPair)->SaveKeys(this->accountID);
 			allocateMemory(accountID.near_account_id(), this->accountID);
 			return true;
 		}
