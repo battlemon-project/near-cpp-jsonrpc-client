@@ -29,5 +29,6 @@ public:
 	bool IsValidKeys();
 	char* GetAccount() { return accountID; };
 	char* GetError() { return error; };
+	bool VerifySing();
 };
 

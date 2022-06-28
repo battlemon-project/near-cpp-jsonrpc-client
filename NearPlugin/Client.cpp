@@ -12,16 +12,10 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr)
+Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
 {
 	if (type)
 	{
-
-		std::string str(inpText);
-		size_t size = str.find(".");
-
-		std::size_t length = str.copy(network, str.size() - size, size + 1);
-
 		network = nullptr;
 		if (((EdKeys*)keyPair)->LoadKeys(std::string(inpText)))
 		{
@@ -69,6 +63,7 @@ bool Client::IsValidKeys()
 {
 	{ return ((EdKeys*)keyPair)->GetPubKey58() != ""; };
 }
+
 
 void Client::RegistrKey()
 {
@@ -122,3 +117,12 @@ bool Client::AuthServiceClient()
 	return false;
 }
 
+
+bool Client::VerifySing()
+{
+	GRPC_Client grpcClient;
+	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))));
+
+
+	return false;
+}
