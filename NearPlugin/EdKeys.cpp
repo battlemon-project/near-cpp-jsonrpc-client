@@ -207,6 +207,7 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 
 void EdKeys::SaveKeys(const std::string& accountID)
 {
+	std::filesystem::create_directories("data");
 	SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
 	SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
 }
