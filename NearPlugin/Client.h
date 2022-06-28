@@ -10,7 +10,8 @@
 class Client
 {
 	char* accountID;
-	const char* network;
+	char* network;
+	char* sing;
 	void* keyPair;
 	char* keyPub58;
 	char* error;

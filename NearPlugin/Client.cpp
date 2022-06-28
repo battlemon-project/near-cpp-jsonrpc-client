@@ -20,7 +20,7 @@ Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(n
 		std::string str(inpText);
 		size_t size = str.find(".");
 
-		std::size_t length = str.copy((char*)network, str.size() - size, size + 1);
+		std::size_t length = str.copy(network, str.size() - size, size + 1);
 
 		network = nullptr;
 		if (((EdKeys*)keyPair)->LoadKeys(std::string(inpText)))
@@ -33,7 +33,7 @@ Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(n
 	}
 	else
 	{
-		network = inpText;
+		network = (char*)inpText;
 		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
 		if (error != nullptr) return;
 
@@ -43,28 +43,26 @@ Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(n
 	}
 }
 
+void free(char* data)
+{
+	if (data != nullptr)
+	{
+		delete[]data;
+		data = nullptr;
+	}
+}
+
 Client::~Client()
 {
-	if (accountID != nullptr)
-	{
-		delete[]accountID;
-		accountID = nullptr;
-	}
-	if(keyPair != nullptr)
+	if (keyPair != nullptr)
 	{
 		delete keyPair;
 		keyPair = nullptr;
 	}
-	if (keyPub58 != nullptr)
-	{
-		delete[]keyPub58;
-		keyPub58 = nullptr;
-	}
-	if (error != nullptr)
-	{
-		delete[]error;
-		error = nullptr;
-	}
+	free(accountID);
+	free(keyPub58);
+	free(error);
+	free(sing);
 }
 
 bool Client::IsValidKeys()
@@ -82,19 +80,17 @@ void Client::RegistrKey()
 #elif _WIN32
 	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ((EdKeys*)keyPair)->GetPubKey58() + "^&public_key=" + ((EdKeys*)keyPair)->GetPubKey58();
 	std::string cmdComand = "start " + url;
-	system(cmdComand.c_str());
-#else
-
+#elif __APPLE__
+	std::string url = std::string("\"https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ((EdKeys*)keyPair)->GetPubKey58()) + "&public_key=" + ((EdKeys*)keyPair)->GetPubKey58() + "\'";
+	std::string cmdComand = "open " + url;
 #endif
+	system(cmdComand.c_str());
 
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
 	if (AuthServiceClient())
 	{
 		((EdKeys*)keyPair)->SaveKeys(this->accountID);
-		return;
 	}
-	delete[] this->error;
-	allocateMemory("error RegistrKey", this->error);
 }
 
 bool Client::AuthServiceClient()
@@ -106,8 +102,6 @@ bool Client::AuthServiceClient()
 	int i = 0;
 	do
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
-	
 		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
 		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(grpcClient.CallRPCSendCode(((EdKeys*)keyPair)->GetPubKey58(),error, allocateMemory).code().c_str());
@@ -115,10 +109,12 @@ bool Client::AuthServiceClient()
 	
 		if (accountID.near_account_id() != "")
 		{
+			allocateMemory(signatureMessage, sing);
 			allocateMemory(accountID.near_account_id(), this->accountID);
 			return true;
 		}
 		i++;
+		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
 	} while (i < 15);
 
 	allocateMemory("error AuthService", this->error);
