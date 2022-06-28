@@ -8,10 +8,9 @@
 #include <filesystem>
 #ifdef _WIN32
 #include <Windows.h>
-#endif
 
-#ifdef __unix__
-#include <strings.h>
+#elif defined(__unix__) || defined(__APPLE__)
+#include <string.h>
 #include <sys/param.h>
 typedef SSIZE_T ssize_t;
 #endif

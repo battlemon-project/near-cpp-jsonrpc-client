@@ -173,10 +173,11 @@
   <ItemGroup>
     <ClCompile Include="GRPC_Client.cpp" />
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Connector.cpp" />
     <ClCompile Include="EdKeys.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />
+    <ClCompile Include="protocol\internalAuth.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalAuth.pb.cc" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />
@@ -191,10 +192,11 @@
   <ItemGroup>
     <ClInclude Include="GRPC_Client.h" />
     <ClInclude Include="Client.h" />
-    <ClInclude Include="Connector.h" />
     <ClInclude Include="EdKeys.h" />
     <ClInclude Include="protocol\auth.grpc.pb.h" />
     <ClInclude Include="protocol\auth.pb.h" />
+    <ClInclude Include="protocol\internalAuth.grpc.pb.h" />
+    <ClInclude Include="protocol\internalAuth.pb.h" />
     <ClInclude Include="src\ed25519.h" />
     <ClInclude Include="src\fe.h" />
     <ClInclude Include="src\fixedint.h" />

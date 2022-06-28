@@ -92,7 +92,7 @@ bool Client::AuthServiceClient()
 {
 	std::string PubKey = ((EdKeys*)keyPair)->GetPubKey58();
 	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))));
+	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))), AUTHS);
 
 	int i = 0;
 	do
@@ -121,7 +121,7 @@ bool Client::AuthServiceClient()
 bool Client::VerifySing()
 {
 	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))));
+	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))), INTERNALAUTHS);
 
 
 	return false;
