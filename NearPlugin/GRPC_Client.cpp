@@ -6,6 +6,11 @@
 #include <string>
 #include <thread>
 
+template <typename T>
+std::unique_ptr<T>* getStubT(void* stb)
+{
+    return (std::unique_ptr<T, std::default_delete<T>>*)stb;
+}
 
 GRPC_Client::GRPC_Client():stub(nullptr)
 {
@@ -13,22 +18,31 @@ GRPC_Client::GRPC_Client():stub(nullptr)
 
 GRPC_Client::GRPC_Client(std::shared_ptr<Channel> channel, Protocol type)
 {
+    this->stub = nullptr;
     setChannel(channel, type);
+}
+
+GRPC_Client::~GRPC_Client()
+{
+    delete stub;
 }
 
 void GRPC_Client::setChannel(std::shared_ptr<Channel> channel, Protocol type)
 {
     switch (type)
     {
-    case AUTHS:
-        std::unique_ptr< AuthService::Stub>* stub = new std::unique_ptr< AuthService::Stub>(AuthService::NewStub(channel));
-        this->stub = stub;
+    case Protocol::AUTHS:
+        {
+            std::unique_ptr< AuthService::Stub>* stub = new std::unique_ptr< AuthService::Stub>(AuthService::NewStub(channel));
+            this->stub = stub;
+        }
         break;
-    case INTERNALAUTHS:
-        std::unique_ptr< InternalAuthService::Stub>* stub = new std::unique_ptr< InternalAuthService::Stub>(InternalAuthService::NewStub(channel));
-        this->stub = stub;
-        break;
-    default:
+    case Protocol::INTERNALAUTHS:
+        {
+            std::unique_ptr< InternalAuthService::Stub>* stub = new std::unique_ptr< InternalAuthService::Stub>(InternalAuthService::NewStub(channel));
+            this->stub = stub;
+
+        }
         break;
     }
 
@@ -76,7 +90,7 @@ InternalVerifySignResponse GRPC_Client::CallInternalAuthService(std::string near
 bool GRPC_Client::GetOneCode(const SendCodeRequest& write, SendCodeResponse* read)
 {
     ClientContext context;
-    std::unique_ptr< AuthService::Stub>* stub = (std::unique_ptr<game::battlemon::auth::AuthService::Stub, std::default_delete<game::battlemon::auth::AuthService::Stub>>*)this->stub;
+    std::unique_ptr< AuthService::Stub>* stub = getStubT<AuthService::Stub>(this->stub);
     Status status = stub->get()->SendCode(&context, write, read);
 
     if (status.ok())
@@ -90,7 +104,7 @@ bool GRPC_Client::GetOneCode(const SendCodeRequest& write, SendCodeResponse* rea
 bool GRPC_Client::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read)
 {
     ClientContext context;
-    std::unique_ptr< AuthService::Stub>* stub = (std::unique_ptr<AuthService::Stub, std::default_delete<AuthService::Stub>>*)this->stub;
+    std::unique_ptr< AuthService::Stub>* stub = getStubT<AuthService::Stub>(this->stub);
     Status status = stub->get()->VerifyCode(&context, write, read);
 
 
@@ -105,7 +119,7 @@ bool GRPC_Client::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeRespons
 bool GRPC_Client::GetVerifySign(const InternalVerifySignRequest& write, InternalVerifySignResponse* read)
 {
     ClientContext context;
-    std::unique_ptr< InternalAuthService::Stub>* stub = (std::unique_ptr<InternalAuthService::Stub, std::default_delete<InternalAuthService::Stub>>*)this->stub;
+    std::unique_ptr< InternalAuthService::Stub>* stub = getStubT<InternalAuthService::Stub>(this->stub);
     Status status = stub->get()->InternalVerifySign(&context, write, read);
 
     if (status.ok())

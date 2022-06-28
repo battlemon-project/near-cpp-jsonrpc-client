@@ -37,7 +37,7 @@ using game::battlemon::auth::internal::InternalVerifySignResponse;
 using game::battlemon::auth::internal::InternalAuthService;
 
 
-enum Protocol
+enum class Protocol
 {
 	AUTHS,
 	INTERNALAUTHS,
@@ -55,10 +55,14 @@ public:
 	std::string error;
 	GRPC_Client();
     GRPC_Client(std::shared_ptr<Channel> channel, Protocol type);
+	~GRPC_Client();
 
 	void setChannel(std::shared_ptr<Channel> channel, Protocol type);
+
     SendCodeResponse CallRPCSendCode(const std::string& publicKey, char*& error, void(*errorH)(const std::string& copy, char*& error));
     VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, char*& error, void(*errorH)(const std::string& copy, char*& error));
+
+
 	InternalVerifySignResponse CallInternalAuthService(std::string near_account_id, std::string sing, char*& error, void(*errorH)(const std::string& copy, char*& error));
 
 #ifdef WIN32

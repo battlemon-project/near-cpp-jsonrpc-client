@@ -12,9 +12,9 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* inpText, bool type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
+Client::Client(const char* inpText, TypeInp type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
 {
-	if (type)
+	if (type == TypeInp::AUTHORIZATION)
 	{
 		network = nullptr;
 		if (((EdKeys*)keyPair)->LoadKeys(std::string(inpText)))
@@ -92,7 +92,7 @@ bool Client::AuthServiceClient()
 {
 	std::string PubKey = ((EdKeys*)keyPair)->GetPubKey58();
 	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))), AUTHS);
+	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))), Protocol::AUTHS);
 
 	int i = 0;
 	do
@@ -118,11 +118,14 @@ bool Client::AuthServiceClient()
 }
 
 
-bool Client::VerifySing()
+int Client::VerifySing()
 {
 	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))), INTERNALAUTHS);
+	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))), Protocol::INTERNALAUTHS);
 
+	InternalVerifySignResponse verify = grpcClient.CallInternalAuthService(accountID, sing, error, allocateMemory);
 
-	return false;
+	std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
+
+	return verify.status();
 }
