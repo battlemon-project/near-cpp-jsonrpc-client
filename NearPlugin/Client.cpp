@@ -2,6 +2,9 @@
 #include "EdKeys.h"
 #include "GRPC_Client.h"
 
+
+#define ED25519 ((EdKeys*)keyPair)
+
 void allocateMemory(const std::string &copy, char* &target)
 {
 	if (target == nullptr)
@@ -12,15 +15,15 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-Client::Client(const char* inpText, TypeInp type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
+Client::Client(const char* dir, const char* inpText, TypeInp type) :  keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
 {
 	if (type == TypeInp::AUTHORIZATION)
 	{
 		network = nullptr;
-		if (((EdKeys*)keyPair)->LoadKeys(std::string(inpText)))
+		if (ED25519->LoadKeys(inpText, dir))
 		{
 			AuthServiceClient();
-			allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+			allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 		}
 		else
 			allocateMemory("error loadKeys", this->error);
@@ -28,12 +31,16 @@ Client::Client(const char* inpText, TypeInp type) :  keyPair(new EdKeys()), erro
 	else
 	{
 		network = (char*)inpText;
-		((EdKeys*)keyPair)->GeneratingKeys(error, allocateMemory);
+		ED25519->GeneratingKeys(error, allocateMemory);
 		if (error != nullptr) return;
 
 		RegistrKey();
-		allocateMemory(((EdKeys*)keyPair)->GetPubKey58(), this->keyPub58);
+		if (AuthServiceClient())
+		{
+			ED25519->SaveKeys(this->accountID, dir);
+		}
 
+		allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 	}
 }
 
@@ -61,7 +68,7 @@ Client::~Client()
 
 bool Client::IsValidKeys()
 {
-	{ return ((EdKeys*)keyPair)->GetPubKey58() != ""; };
+	{ return ED25519->GetPubKey58() != ""; };
 }
 
 
@@ -69,28 +76,24 @@ void Client::RegistrKey()
 {
 #ifdef __linux__ 
 	//linux code goes here
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ((EdKeys*)keyPair)->GetPubKey58()) + "&public_key=" + ((EdKeys*)keyPair)->GetPubKey58();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ED25519->GetPubKey58()) + "&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "gio open " + url;
 
 #elif _WIN32
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ((EdKeys*)keyPair)->GetPubKey58() + "^&public_key=" + ((EdKeys*)keyPair)->GetPubKey58();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "^&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "start " + url;
 #elif __APPLE__
-	std::string url = std::string("\"https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ((EdKeys*)keyPair)->GetPubKey58()) + "&public_key=" + ((EdKeys*)keyPair)->GetPubKey58() + "\'";
+	std::string url = std::string("\"https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ED25519->GetPubKey58()) + "&public_key=" + ED25519->GetPubKey58() + "\'";
 	std::string cmdComand = "open " + url;
 #endif
 	system(cmdComand.c_str());
 
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
-	if (AuthServiceClient())
-	{
-		((EdKeys*)keyPair)->SaveKeys(this->accountID);
-	}
 }
 
 bool Client::AuthServiceClient()
 {
-	std::string PubKey = ((EdKeys*)keyPair)->GetPubKey58();
+	std::string PubKey = ED25519->GetPubKey58();
 	GRPC_Client grpcClient;
 	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))), Protocol::AUTHS);
 
@@ -99,7 +102,7 @@ bool Client::AuthServiceClient()
 	{
 		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
-		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(CodeResponse.code());
+		std::string signatureMessage = ED25519->MessageSigning(CodeResponse.code());
 		VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
 	
 		if (accountID.near_account_id() != "")

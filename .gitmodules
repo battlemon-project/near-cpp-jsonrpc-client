@@ -1,0 +1,7 @@
+[submodule "NearPlugin/src"]
+	path = NearPlugin/src
+	url = https://github.com/orlp/ed25519.git
+[submodule "packages/grpc"]
+	path = packages/grpc
+	url = https://github.com/grpc/grpc.git
+	branch = v1.47.0

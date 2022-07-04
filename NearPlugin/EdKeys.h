@@ -14,8 +14,8 @@ public:
 	~EdKeys();
 	void GeneratingKeys(char*& error, void(*errorH)(const std::string& copy, char*& error));
 	std::string MessageSigning(const std::string &messageChr);
-	void SaveKeys(const std::string &accountID);
-	bool LoadKeys(const std::string &accountID);
+	void SaveKeys(const std::string &accountID, std::string dir = "");
+	bool LoadKeys(const std::string &accountID, std::string dir = "");
 	std::string GetPubKey58()const;
 	std::string GetPrKey58()const;
 };

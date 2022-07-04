@@ -204,11 +204,12 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 	outfile.close();
 }
 
-void EdKeys::SaveKeys(const std::string& accountID)
+void EdKeys::SaveKeys(const std::string& accountID, std::string dir)
 {
-	std::filesystem::create_directories("data");
-	SaveK(std::string("data/") + accountID + ".pr.bin", private_key, 64);
-	SaveK(std::string("data/") + accountID + ".pb.bin", public_key, 32);
+	dir += "data";
+	std::filesystem::create_directories(dir);
+	SaveK(dir + "/" + accountID + ".pr.bin", private_key, 64);
+	SaveK(dir + "/" + accountID + ".pb.bin", public_key, 32);
 }
 
 bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const std::string& filetype, void* key, size_t size)
@@ -225,11 +226,11 @@ bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const 
 	return false;
 }
 
-bool EdKeys::LoadKeys(const std::string& accountID)
+bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
 {
-	if (LoadK(std::string("data/"), accountID, ".pr.bin", private_key, 64))
+	if (LoadK(dir + std::string("data/"), accountID, ".pr.bin", private_key, 64))
 	{
-		LoadK(std::string("data/"), accountID, ".pb.bin", public_key, 32);
+		LoadK(dir + std::string("data/"), accountID, ".pb.bin", public_key, 32);
 		return true;
 	}
 	return false;
