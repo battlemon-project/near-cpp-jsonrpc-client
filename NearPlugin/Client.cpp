@@ -99,7 +99,7 @@ bool Client::AuthServiceClient()
 	{
 		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
-		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(grpcClient.CallRPCSendCode(((EdKeys*)keyPair)->GetPubKey58(),error, allocateMemory).code().c_str());
+		std::string signatureMessage = ((EdKeys*)keyPair)->MessageSigning(CodeResponse.code());
 		VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
 	
 		if (accountID.near_account_id() != "")
@@ -115,17 +115,4 @@ bool Client::AuthServiceClient()
 	allocateMemory("error AuthService", this->error);
 
 	return false;
-}
-
-
-int Client::VerifySing()
-{
-	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("0n64i8m4o8.execute-api.us-east-1.amazonaws.com", grpc::SslCredentials(grpcClient.getSslOptions()))), Protocol::INTERNALAUTHS);
-
-	InternalVerifySignResponse verify = grpcClient.CallInternalAuthService(accountID, sing, error, allocateMemory);
-
-	std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
-
-	return verify.status();
 }

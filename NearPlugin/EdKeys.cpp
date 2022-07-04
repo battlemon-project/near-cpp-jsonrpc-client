@@ -22,7 +22,6 @@ typedef SSIZE_T ssize_t;
 uint8_t* base64_encode(const uint8_t* src, size_t len, size_t* out_len)
 {
 	const uint8_t base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	 //const unsigned char base58_table[65] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 	uint8_t* out, * pos;
 	const uint8_t* end, * in;
 	size_t olen;
@@ -241,3 +240,7 @@ std::string EdKeys::GetPubKey58() const
 	return EncodeBase58(public_key, 32);
 }
 
+std::string EdKeys::GetPrKey58() const
+{
+	return EncodeBase58(private_key, 64);
+}

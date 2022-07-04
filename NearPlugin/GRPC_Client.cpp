@@ -39,8 +39,8 @@ void GRPC_Client::setChannel(std::shared_ptr<Channel> channel, Protocol type)
         break;
     case Protocol::INTERNALAUTHS:
         {
-            std::unique_ptr< InternalAuthService::Stub>* stub = new std::unique_ptr< InternalAuthService::Stub>(InternalAuthService::NewStub(channel));
-            this->stub = stub;
+            //std::unique_ptr< InternalAuthService::Stub>* stub = new std::unique_ptr< InternalAuthService::Stub>(InternalAuthService::NewStub(channel));
+            //this->stub = stub;
 
         }
         break;
@@ -73,20 +73,6 @@ VerifyCodeResponse GRPC_Client::CallRPCVerifyCode(const std::string& publicKey, 
 
     return read;
 }
-
-InternalVerifySignResponse GRPC_Client::CallInternalAuthService(std::string near_account_id, std::string sing, char*& error, void(*errorH)(const std::string& copy, char*& error))
-{
-    InternalVerifySignRequest write;
-    InternalVerifySignResponse read;
-    write.set_near_account_id(near_account_id);
-    write.set_sign(sing);
-    if (GetVerifySign(write, &read))
-    {
-        errorH(this->error, error);
-    }
-    return read;
-}
-
 bool GRPC_Client::GetOneCode(const SendCodeRequest& write, SendCodeResponse* read)
 {
     ClientContext context;
@@ -116,16 +102,3 @@ bool GRPC_Client::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeRespons
     return status.ok();
 }
 
-bool GRPC_Client::GetVerifySign(const InternalVerifySignRequest& write, InternalVerifySignResponse* read)
-{
-    ClientContext context;
-    std::unique_ptr< InternalAuthService::Stub>* stub = getStubT<InternalAuthService::Stub>(this->stub);
-    Status status = stub->get()->InternalVerifySign(&context, write, read);
-
-    if (status.ok())
-    {
-        return status.ok();
-    }
-    error = status.error_message();
-    return status.ok();
-}

@@ -17,5 +17,6 @@ public:
 	void SaveKeys(const std::string &accountID);
 	bool LoadKeys(const std::string &accountID);
 	std::string GetPubKey58()const;
+	std::string GetPrKey58()const;
 };
 

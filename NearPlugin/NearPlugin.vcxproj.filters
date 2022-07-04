@@ -60,12 +60,6 @@
     <ClCompile Include="src\verify.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\internalAuth.grpc.pb.cc">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="protocol\internalAuth.pb.cc">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EdKeys.h">
@@ -102,12 +96,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\sha512.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\internalAuth.grpc.pb.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\internalAuth.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

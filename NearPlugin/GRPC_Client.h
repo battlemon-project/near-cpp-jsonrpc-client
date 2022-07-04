@@ -6,7 +6,6 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 #include "protocol/auth.grpc.pb.h"
-#include "protocol/internalAuth.grpc.pb.h"
 
 
 #ifdef WIN32
@@ -32,9 +31,6 @@ using game::battlemon::auth::SendCodeResponse;
 using game::battlemon::auth::VerifyCodeRequest;
 using game::battlemon::auth::VerifyCodeResponse;
 using game::battlemon::auth::AuthService;
-using game::battlemon::auth::internal::InternalVerifySignRequest;
-using game::battlemon::auth::internal::InternalVerifySignResponse;
-using game::battlemon::auth::internal::InternalAuthService;
 
 
 enum class Protocol
@@ -49,7 +45,6 @@ class GRPC_Client
 	void* stub;
     bool GetOneCode(const SendCodeRequest& write, SendCodeResponse* read);
     bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read);
-	bool GetVerifySign(const InternalVerifySignRequest& write, InternalVerifySignResponse* read);
 
 public:
 	std::string error;
@@ -63,7 +58,6 @@ public:
     VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, char*& error, void(*errorH)(const std::string& copy, char*& error));
 
 
-	InternalVerifySignResponse CallInternalAuthService(std::string near_account_id, std::string sing, char*& error, void(*errorH)(const std::string& copy, char*& error));
 
 #ifdef WIN32
 	std::string utf8Encode(const std::wstring& wstr)
