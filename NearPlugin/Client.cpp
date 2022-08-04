@@ -2,6 +2,10 @@
 #include "EdKeys.h"
 #include "GRPC_Client.h"
 
+#include <thread>
+#include <chrono>
+
+
 
 #define ED25519 ((EdKeys*)keyPair)
 
@@ -57,7 +61,7 @@ Client::~Client()
 {
 	if (keyPair != nullptr)
 	{
-		delete keyPair;
+		delete ED25519;
 		keyPair = nullptr;
 	}
 	free(accountID);
@@ -78,16 +82,14 @@ void Client::RegistrKey()
 	//linux code goes here
 	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ED25519->GetPubKey58()) + "&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "gio open " + url;
-
 #elif _WIN32
 	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "^&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "start " + url;
 #elif __APPLE__
-	std::string url = std::string("\"https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ED25519->GetPubKey58()) + "&public_key=" + ED25519->GetPubKey58() + "\'";
+    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\?title=rndname\&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "\&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "open " + url;
 #endif
-	system(cmdComand.c_str());
-
+    system(cmdComand.c_str());
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
 }
 

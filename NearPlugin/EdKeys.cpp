@@ -12,7 +12,7 @@
 #elif defined(__unix__) || defined(__APPLE__)
 #include <string.h>
 #include <sys/param.h>
-typedef SSIZE_T ssize_t;
+#define SSIZE_T ssize_t
 #endif
 
 #include <iostream>
@@ -167,8 +167,8 @@ std::string EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
 
 EdKeys::EdKeys()
 {
-	public_key[0] = {};
-	private_key[0] = {};
+	public_key[0];
+	private_key[0];
 }
 
 EdKeys::~EdKeys()
@@ -207,7 +207,11 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 void EdKeys::SaveKeys(const std::string& accountID, std::string dir)
 {
 	dir += "data";
+#ifdef _WIN32
 	std::filesystem::create_directories(dir);
+#elif defined(__unix__) || defined(__APPLE__)
+    mkdir(dir.c_str());
+#endif
 	SaveK(dir + "/" + accountID + ".pr.bin", private_key, 64);
 	SaveK(dir + "/" + accountID + ".pb.bin", public_key, 32);
 }

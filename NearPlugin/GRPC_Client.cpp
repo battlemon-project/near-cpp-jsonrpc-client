@@ -24,7 +24,7 @@ GRPC_Client::GRPC_Client(std::shared_ptr<Channel> channel, Protocol type)
 
 GRPC_Client::~GRPC_Client()
 {
-    delete stub;
+    delete (std::unique_ptr< AuthService::Stub>*)stub;
 }
 
 void GRPC_Client::setChannel(std::shared_ptr<Channel> channel, Protocol type)
