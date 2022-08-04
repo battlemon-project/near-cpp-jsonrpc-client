@@ -2,7 +2,7 @@
 near-jsonrpc-client-rs DLL to use in cpp application
 
 MacOS
-Clone gRPC
+```
 $ git clone https://github.com/grpc/grpc.git
 $ cd grpc
 $ git submodule update --init
@@ -50,8 +50,10 @@ $ cmake \
   -DABSL_PROPAGATE_CXX_STD=ON \
   -G Xcode \
   ..
+```
 
 Windows
+```
 > git submodule update --init
 > cd NearPlugin/src
 > xcopy /y /d "src" "."
@@ -85,3 +87,4 @@ SET UE_THIRD_PARTY_DIR=J:\UE_4.27\Engine\Source\ThirdParty
     -DSSL_EAY_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a" ^
     -DSSL_EAY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a"
 > cmake --build . --target ALL_BUILD --config Release
+```
