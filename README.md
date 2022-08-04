@@ -1,7 +1,7 @@
 # near-cpp-jsonrpc-client
 near-jsonrpc-client-rs DLL to use in cpp application
 
-MacOS
+### MacOS
 ```
 $ git clone https://github.com/grpc/grpc.git
 $ cd grpc
@@ -52,7 +52,7 @@ $ cmake \
   ..
 ```
 
-Windows
+### Windows
 ```
 > git submodule update --init
 > cd NearPlugin/src
