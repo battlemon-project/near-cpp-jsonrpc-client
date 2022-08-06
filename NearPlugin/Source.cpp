@@ -4,8 +4,8 @@ int main()
 {
     try
     {
-        //Client client("testnet", TypeInp::AUTHORIZATION);
-        Client client("", "dsbgfnghcjhgds.testnet", TypeInp::REGISTRATION);
+        //Client client("Test","dsbgfnghcjhgds.testnet", TypeInp::AUTHORIZATION);
+        Client client("Test", "testnet", TypeInp::REGISTRATION);
         if (client.GetError() != nullptr)
             std::cout << client.GetError();
     }
