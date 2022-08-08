@@ -1,7 +1,7 @@
 #pragma once
 #define DEBUG
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(PLATFORM_MAC)
 #define TYPE_CHAR char16_t*
 #else
 #define TYPE_CHAR char*
