@@ -54,37 +54,4 @@ $ cmake \
 
 ### Windows
 ```
-> git submodule update --init
-> cd NearPlugin/src
-> xcopy /y /d "src" "."
-> RD /s /Q src
-> del ed25519_32.dll & del ed25519_64.dll
-> cd ../../packages
-> RD /s /Q grpc
-> git clone https://github.com/grpc/grpc.git
-> cd grpc & git submodule update --init
-> md .build & cd .build
-
-SET UE_THIRD_PARTY_DIR=J:\UE_4.27\Engine\Source\ThirdParty
-
-> cmake .. -G "Visual Studio 16 2019" ^
-    -DCMAKE_CXX_STANDARD_LIBRARIES="Crypt32.Lib User32.lib Advapi32.lib" ^
-    -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_CONFIGURATION_TYPES=Release ^
-    -Dprotobuf_BUILD_TESTS=OFF ^
-    -DgRPC_ZLIB_PROVIDER=package ^
-    -DZLIB_INCLUDE_DIR="%UE_THIRD_PARTY_DIR%\zlib\v1.2.8\include\Linux\x86_64-unknown-linux-gnu" ^
-    -DZLIB_LIBRARY_DEBUG="%UE_THIRD_PARTY_DIR%\zlib\v1.2.8\lib\Linux\x86_64-unknown-linux-gnu\libz_fPIC.a" ^
-    -DZLIB_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\zlib\v1.2.8\lib\Linux\x86_64-unknown-linux-gnu\libz_fPIC.a" ^
-    -DgRPC_SSL_PROVIDER=package ^
-    -DLIB_EAY_LIBRARY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libcrypto.a" ^
-    -DLIB_EAY_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libcrypto.a" ^
-    -DLIB_EAY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libcrypto.a" ^
-    -DLIB_EAY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libcrypto.a" ^
-    -DOPENSSL_INCLUDE_DIR="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\include\Linux\x86_64-unknown-linux-gnu" ^
-    -DSSL_EAY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a" ^
-    -DSSL_EAY_LIBRARY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a" ^
-    -DSSL_EAY_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a" ^
-    -DSSL_EAY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1c\Lib\Linux\x86_64-unknown-linux-gnu\libssl.a"
-> cmake --build . --target ALL_BUILD --config Release
-```
+run updateForWin.bat
