@@ -15,7 +15,6 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <CoreServices/CoreServices.h>
 #define SSIZE_T ssize_t
 #endif
 
@@ -53,7 +52,7 @@ uint8_t* base64_encode(const uint8_t* src, size_t len, size_t* out_len)
 		in += 3;
 		line_len += 4;
 		if (line_len >= 72) {
-			*pos++ = '\n';
+			//*pos++ = '\n';
 			line_len = 0;
 		}
 	}
@@ -74,8 +73,8 @@ uint8_t* base64_encode(const uint8_t* src, size_t len, size_t* out_len)
 		line_len += 4;
 	}
 
-	if (line_len)
-		*pos++ = '\n';
+	//if (line_len)
+	//	*pos++ = '\n';
 
 	*pos = '\0';
 	if (out_len)
@@ -125,7 +124,7 @@ bool b58enc(char* b58, size_t* b58sz, const void* data, size_t binsz)
 			carry /= 58;
 		}
 	}
-
+	
 	for (j = 0; j < (SSIZE_T)size && !buf[j]; ++j)
 		;
 
@@ -200,6 +199,7 @@ std::string EdKeys::MessageSigning(const std::string &messageInp)
 	return sign64;
 }
 
+
 void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 {
 	std::ofstream outfile(filename, std::ofstream::binary);
@@ -208,20 +208,11 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 	outfile.close();
 }
 
-std::string EdKeys::getAppData()
+void EdKeys::SaveKeys(const std::string& accountID, std::string dir)
 {
-#ifdef _WIN32
-	return (std::string(getenv("APPDATA")) + "/");
-#elif defined(__unix__) || defined(__APPLE__)
-    return std::string("/Library/Application Support/");
-#endif
-}
-
-void EdKeys::SaveKeys(const std::string& accountID, std::string NameProgect)
-{
-    if(NameProgect != "")
+    if(dir != "")
     {
-        std::string pashProject = getAppData() + NameProgect + "/";
+        std::string pashProject = dir;
         SaveK(pashProject + accountID + ".pr.bin", private_key, 64);
         SaveK(pashProject + accountID + ".pb.bin", public_key, 32);
     }
@@ -246,12 +237,12 @@ bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const 
 	return false;
 }
 
-bool EdKeys::LoadKeys(const std::string& accountID, std::string NameProgect)
+bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
 {
     
-    if(NameProgect != "")
+    if(dir != "")
     {
-        std::string pashProject = getAppData() + NameProgect + "/";
+        std::string pashProject = dir;
         if (LoadK(pashProject, accountID, ".pr.bin", private_key, 64))
         {
             LoadK(pashProject, accountID, ".pb.bin", public_key, 32);

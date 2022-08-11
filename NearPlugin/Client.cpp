@@ -1,13 +1,14 @@
-#include "Client.h"
-#include "EdKeys.h"
-#include "GRPC_Client.h"
-
 #ifdef __APPLE__
 #include <thread>
 #include <chrono>
 #include <locale>
 #include <codecvt>
 #endif
+
+#include "Client.h"
+#include "EdKeys.h"
+#include "GRPC_Client.h"
+
 
 #define ED25519 ((EdKeys*)keyPair)
 
@@ -21,26 +22,26 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-
-Client::Client(const TYPE_CHAR NameProgect, const char* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
-#ifdef DEBUG
-, NameProgect(NameProgect)
-#endif
-{
 #ifdef __APPLE__
-    std::string NameProgectUTF8;
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-    std::u16string utf16_string(NameProgect);
-    NameProgectUTF8 = convert.to_bytes(utf16_string);
-#define TYPE_NameProgect NameProgectUTF8
+std::string convUTF(const char16_t* utp16)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+	std::u16string utf16_string(NameProgect);
+	std::string UTF8 = convert.to_bytes(utf16_string);
+}
+#define TYPE_Conv(str) convUTF(str)
 #else
-#define TYPE_NameProgect NameProgect
+#define TYPE_Conv(str) str
 #endif
-    
+
+
+Client::Client(const TYPE_CHAR dir, const TYPE_CHAR inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
+{
+	network = nullptr;
+
 	if (type == TypeInp::AUTHORIZATION)
 	{
-		network = nullptr;
-		if (ED25519->LoadKeys(inpText, TYPE_NameProgect))
+		if (ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir)))
 		{
 			AuthServiceClient();
 			allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
@@ -50,14 +51,15 @@ Client::Client(const TYPE_CHAR NameProgect, const char* inpText, TypeInp type) :
 	}
 	else
 	{
-		network = (char*)inpText;
+		allocateMemory(TYPE_Conv(inpText), network);
+
 		ED25519->GeneratingKeys(error, allocateMemory);
 		if (error != nullptr) return;
 
 		RegistrKey();
 		if (AuthServiceClient())
 		{
-			ED25519->SaveKeys(this->accountID, TYPE_NameProgect);
+			ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
 		}
 
 		allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
@@ -102,7 +104,7 @@ void Client::RegistrKey()
 	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "^&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "start " + url;
 #elif __APPLE__
-    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\?title=rndname\\&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "\\&public_key=" + ED25519->GetPubKey58();
+    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\\?title=rndname\\&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "\\&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "open " + url;
 #endif
     system(cmdComand.c_str());
