@@ -1,3 +1,4 @@
+::Ed25519: update
 git submodule update --init
 cd NearPlugin/src
 xcopy /y /d "src" "."
@@ -5,9 +6,12 @@ RD /s /Q src
 del ed25519_32.dll & del ed25519_64.dll
 cd ../../packages
 RD /s /Q grpc
+
+::gRPC: update
 git clone https://github.com/grpc/grpc.git
 cd grpc & git submodule update --init
 
+::gRPC: generate progect
 SET /P UE_THIRD_PARTY_DIR="Enter path: UE_4.27\Engine\Source\ThirdParty: "
 SET /P GRPCARCHITECTURE="Enter ARCH Win32 or Win64: "
 
@@ -32,4 +36,5 @@ cmake .. -G "Visual Studio 16 2019" -DARCHITECTURE=%GRPCARCHITECTURE% ^
     -DSSL_EAY_LIBRARY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib" ^
     -DSSL_EAY_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib" ^
     -DSSL_EAY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib"
+::gRPC: build progect
 cmake --build . --target ALL_BUILD --config Release
