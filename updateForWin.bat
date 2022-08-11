@@ -36,5 +36,6 @@ cmake .. -G "Visual Studio 16 2019" -DARCHITECTURE=%GRPCARCHITECTURE% ^
     -DSSL_EAY_LIBRARY_DEBUG="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib" ^
     -DSSL_EAY_LIBRARY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib" ^
     -DSSL_EAY_RELEASE="%UE_THIRD_PARTY_DIR%\OpenSSL\1.1.1k\Lib\Win64\VS2015\Release\libssl.lib"
+    
 ::gRPC: build progect
 cmake --build . --target ALL_BUILD --config Release
