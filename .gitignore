@@ -10,3 +10,6 @@
 /NearPlugin/Release
 /Release
 /Win32/Release
+/packages
+/NearPlugin/src
+/.vs
