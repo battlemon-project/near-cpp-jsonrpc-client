@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#Ed25519: update
 git submodule update --init
 cd NearPlugin/src/src
 cp *.h ..
@@ -8,6 +8,7 @@ cd ..
 Rm -R src *.md test.c *.dll
 cd ../..
 
+#gRPC: update
 git clone https://github.com/grpc/grpc.git
 cd grpc
 git submodule update --init
@@ -15,6 +16,7 @@ mkdir -p cmake/build
 cd cmake/build
 cd cmake/build
 
+#gRPC: generate progect
 read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
 read -p "Roote install libs: " CMAKE_INSTALL_DIR
 
@@ -41,6 +43,7 @@ read -p "Roote install libs: " CMAKE_INSTALL_DIR
  -DSSL_EAY_RELEASE="$UE_THIRD_PARTY_DIR/OpenSSL/1.1.1k/lib/Mac/libssl.a" \
  -G Xcode \
  ..
+ #gRPC: build progect
 /Applications/CMake.app/Contents/bin/cmake --build . --target ALL_BUILD --config Release
 /Applications/CMake.app/Contents/bin/cmake --install .
 
@@ -49,6 +52,7 @@ cd ../../..
 mkdir build
 cd build
 
+#NearCPP: generate progect
 /Applications/CMake.app/Contents/bin/cmake \
   -DCMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_DIR" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
