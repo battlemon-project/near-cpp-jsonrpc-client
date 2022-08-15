@@ -11,5 +11,5 @@ Open near-cpp-jsonrpc-client/build/XCode project
 ### Windows
 ```
 > updateForWin.bat
-
+```
 Open .sln and build project
