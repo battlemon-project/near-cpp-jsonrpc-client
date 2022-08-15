@@ -13,4 +13,4 @@ $ sh generateProjectForMac.sh
 ```
 > updateForWin.bat
 ```
-Open .sln and build project
+* Open .sln and build project
