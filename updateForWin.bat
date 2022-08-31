@@ -39,3 +39,13 @@ cmake .. -G "Visual Studio 16 2019" -DARCHITECTURE=%GRPCARCHITECTURE% ^
     
 ::gRPC: build progect
 cmake --build . --target ALL_BUILD --config Release
+
+::proto.h generate
+cd ../../..
+./grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=./protocol/ ^
+--cpp_out=../NearPlugin/protocol/ ./protocol/auth.proto
+
+::proto.grpc.h generate
+./grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=./protocol/  ^
+--grpc_out=../NearPlugin/protocol/ ^
+--plugin=protoc-gen-grpc="./grpc/.build%GRPCARCHITECTURE%/Release/grpc_cpp_plugin.exe" ./protocol/auth.proto
