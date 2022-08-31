@@ -6,7 +6,7 @@ cp *.h ..
 cp *.c ..
 cd ..
 Rm -R src *.md test.c *.dll
-cd ../..
+cd ../../packages
 
 #gRPC: update
 git clone https://github.com/grpc/grpc.git
