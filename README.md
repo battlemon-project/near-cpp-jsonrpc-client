@@ -1,7 +1,7 @@
 # near-cpp-jsonrpc-client
 near-jsonrpc-client-rs DLL to use in cpp application
 
-#Building with CMake
+# Building with CMake
 ### MacOS
 ```
 $ sh generateProjectForMac.sh
