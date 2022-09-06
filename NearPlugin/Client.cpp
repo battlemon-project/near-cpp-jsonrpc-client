@@ -114,11 +114,10 @@ void Client::RegistrKey()
 bool Client::AuthServiceClient()
 {
 	std::string PubKey = ED25519->GetPubKey58();
-	GRPC_Client grpcClient;
-	grpcClient.setChannel((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(grpcClient.getSslOptions()))), Protocol::AUTHS);
+	gRPC_ClientAuth grpcClient;
 
 	int i = 0;
-	do
+	while (i < 15);
 	{
 		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
@@ -133,9 +132,137 @@ bool Client::AuthServiceClient()
 		}
 		i++;
 		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
-	} while (i < 15);
+	} 
 
 	allocateMemory("error AuthService", this->error);
 
 	return false;
+}
+
+ModelItems::OutfitKind& operator<<(ModelItems::OutfitKind& OModel, const game::battlemon::items::OutfitKind& OModel2)
+{
+	switch (OModel2)
+	{
+	case 0:
+		OModel= ModelItems::OutfitKind::CAP;
+		break;
+	case 1:
+		OModel = ModelItems::OutfitKind::CLOTH;
+		break;
+	case 2:
+		OModel = ModelItems::OutfitKind::FIRE_ARM;
+		break;
+	case 3:
+		OModel = ModelItems::OutfitKind::COLD_ARM;
+		break;
+	case 4:
+		OModel = ModelItems::OutfitKind::BACK;
+		break;
+	default:
+		OModel = ModelItems::OutfitKind::DEFAULT;
+		break;
+	}
+	return OModel;
+}
+
+ModelItems::OutfitModel& operator<<(ModelItems::OutfitModel& OModel, const game::battlemon::items::OutfitModel& OModel2)
+{
+	allocateMemory(OModel2.flavour(), OModel.flavour);
+	allocateMemory(OModel2.token_id(), OModel.token_id);
+	OModel.kind << OModel2.kind();
+	return OModel;
+}
+
+ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LModel, const game::battlemon::items::LemonModel& LModel2)
+{
+	LModel.cap << LModel2.cap();
+	LModel.cloth << LModel2.cloth();
+	allocateMemory(LModel2.exo(), LModel.exo);
+	allocateMemory(LModel2.eyes(), LModel.eyes);
+	allocateMemory(LModel2.head(), LModel.head);
+	allocateMemory(LModel2.teeth(), LModel.teeth);
+	allocateMemory(LModel2.face(), LModel.face);
+	LModel.fire_arm << LModel2.fire_arm();
+	LModel.cold_arm << LModel2.cold_arm();
+	LModel.back << LModel2.back();
+	return LModel;
+}
+
+ModelItems::ItemM& operator<<(ModelItems::ItemM& IM, game::battlemon::items::Item& mesI)
+{
+	allocateMemory(mesI.token_id(), IM.token_id);
+	allocateMemory(mesI.media(), IM.media);
+	allocateMemory(mesI.owner_id(), IM.owner_id);
+	IM.lemon << mesI.lemon();
+	IM.outfit << mesI.outfit();
+	return IM;
+}
+
+PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
+{
+	allocateMemory(PI.near_id(), PIC.near_id);
+	return PIC;
+}
+
+
+
+
+void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR nft_ids)
+{
+	std::string room_idStr = TYPE_Conv(room_id);
+	std::string near_idsStr = TYPE_Conv(nft_ids);
+
+	gRPC_ClientItems grpcClient;
+	grpcClient.CallRPC_SetMyItems(room_idStr, id_Player, near_idsStr, error, allocateMemory);
+}
+
+
+PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR near_ids)
+{
+	std::string room_idStr = TYPE_Conv(room_id);
+	std::string near_idsStr = TYPE_Conv(near_ids);
+
+	gRPC_ClientItems grpcClient;
+
+	PlayerItems PI = grpcClient.CallRPC_GetPlayersItems(room_idStr, id_Player, near_idsStr, error, allocateMemory);
+
+	PlayerItemsClient playerItemsClient;
+	playerItemsClient << PI;
+
+	return playerItemsClient;
+}
+
+PlayerItemsClient::~PlayerItemsClient()
+{
+	free(near_id);
+	items.~ItemM();
+}
+
+ModelItems::ItemM::~ItemM()
+{
+	free(token_id );
+	free(media);
+	free(owner_id);
+	lemon.~LemonModel();
+	outfit.~OutfitModel();
+}
+
+ModelItems::OutfitModel::~OutfitModel()
+{
+	free(flavour);
+	free(token_id);
+}
+
+ModelItems::LemonModel::~LemonModel()
+{
+	free(exo);
+	free(eyes);
+	free(head);
+	free(teeth);
+	free(face);
+	cap.~OutfitModel();
+	cloth.~OutfitModel();
+	fire_arm.~OutfitModel();
+	cold_arm.~OutfitModel();
+	back.~OutfitModel();
 }

@@ -6,49 +6,9 @@
 #include <string>
 #include <thread>
 
-template <typename T>
-std::unique_ptr<T>* getStubT(void* stb)
-{
-    return (std::unique_ptr<T, std::default_delete<T>>*)stb;
-}
 
-GRPC_Client::GRPC_Client():stub(nullptr)
-{
-}
 
-GRPC_Client::GRPC_Client(std::shared_ptr<Channel> channel, Protocol type)
-{
-    this->stub = nullptr;
-    setChannel(channel, type);
-}
-
-GRPC_Client::~GRPC_Client()
-{
-    delete (std::unique_ptr< AuthService::Stub>*)stub;
-}
-
-void GRPC_Client::setChannel(std::shared_ptr<Channel> channel, Protocol type)
-{
-    switch (type)
-    {
-    case Protocol::AUTHS:
-        {
-            std::unique_ptr< AuthService::Stub>* stub = new std::unique_ptr< AuthService::Stub>(AuthService::NewStub(channel));
-            this->stub = stub;
-        }
-        break;
-    case Protocol::INTERNALAUTHS:
-        {
-            //std::unique_ptr< InternalAuthService::Stub>* stub = new std::unique_ptr< InternalAuthService::Stub>(InternalAuthService::NewStub(channel));
-            //this->stub = stub;
-
-        }
-        break;
-    }
-
-}
-
-SendCodeResponse GRPC_Client::CallRPCSendCode(const std::string& publicKey, char*& error, void(*errorH)(const std::string& copy, char*& error))
+SendCodeResponse gRPC_ClientAuth::CallRPCSendCode(const std::string& publicKey, HOOK_ERROR)
 {
     SendCodeRequest write;
     SendCodeResponse read;
@@ -60,7 +20,7 @@ SendCodeResponse GRPC_Client::CallRPCSendCode(const std::string& publicKey, char
     return read;
 }
 
-VerifyCodeResponse GRPC_Client::CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, char*& error, void(*errorH)(const std::string& copy, char*& error))
+VerifyCodeResponse gRPC_ClientAuth::CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, HOOK_ERROR)
 {
     VerifyCodeRequest write;
     VerifyCodeResponse read;
@@ -73,11 +33,10 @@ VerifyCodeResponse GRPC_Client::CallRPCVerifyCode(const std::string& publicKey, 
 
     return read;
 }
-bool GRPC_Client::GetOneCode(const SendCodeRequest& write, SendCodeResponse* read)
+bool gRPC_ClientAuth::GetOneCode(const SendCodeRequest& write, SendCodeResponse* read)
 {
     ClientContext context;
-    std::unique_ptr< AuthService::Stub>* stub = getStubT<AuthService::Stub>(this->stub);
-    Status status = stub->get()->SendCode(&context, write, read);
+    Status status = stub->SendCode(&context, write, read);
 
     if (status.ok())
     {
@@ -87,11 +46,10 @@ bool GRPC_Client::GetOneCode(const SendCodeRequest& write, SendCodeResponse* rea
     return status.ok();
 }
 
-bool GRPC_Client::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read)
+bool gRPC_ClientAuth::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read)
 {
     ClientContext context;
-    std::unique_ptr< AuthService::Stub>* stub = getStubT<AuthService::Stub>(this->stub);
-    Status status = stub->get()->VerifyCode(&context, write, read);
+    Status status = stub->VerifyCode(&context, write, read);
 
 
     if (status.ok())
@@ -102,3 +60,57 @@ bool GRPC_Client::GetOneVerify(const VerifyCodeRequest& write, VerifyCodeRespons
     return status.ok();
 }
 
+bool gRPC_ClientItems::GetOnePlayersItems(const PlayersItemsRequest& write, PlayersItemsResponse* read)
+{
+    ClientContext context;
+    Status status = stub->GetPlayersItems(&context, write, read);
+
+
+    if (status.ok())
+    {
+        return status.ok();
+    }
+    error = status.error_message();
+    return status.ok();
+}
+
+bool gRPC_ClientItems::GetOneSetMyItems(SetMyItemsRequest& write, Empty* read)
+{
+    ClientContext context;
+    Status status = stub->SetMyItems(&context, write, read);
+
+
+    if (status.ok())
+    {
+        return status.ok();
+    }
+    error = status.error_message();
+    return status.ok();
+}
+
+
+PlayerItems gRPC_ClientItems::CallRPC_GetPlayersItems(const std::string& room_id, int id_Player, const std::string& near_ids, HOOK_ERROR)
+{
+    PlayersItemsRequest write;
+    PlayersItemsResponse read;
+    write.set_room_id(room_id);
+    write.set_near_ids(id_Player, near_ids);
+    if (GetOnePlayersItems(write, &read))
+    {
+        errorH(this->error, error);
+    }
+
+    return read.players_items().Get(0);
+}
+
+void gRPC_ClientItems::CallRPC_SetMyItems(const std::string& room_id, int id_Player, const std::string& nft_ids, HOOK_ERROR)
+{
+    SetMyItemsRequest write;
+    Empty read;
+    write.set_room_id(room_id);
+    write.set_nft_ids(id_Player, nft_ids);
+    if (GetOneSetMyItems(write, &read))
+    {
+        errorH(this->error, error);
+    }
+}

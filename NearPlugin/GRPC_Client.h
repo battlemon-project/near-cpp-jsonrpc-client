@@ -6,7 +6,7 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 #include "protocol/auth.grpc.pb.h"
-
+#include "protocol/items.grpc.pb.h"
 
 #ifdef WIN32
 
@@ -26,39 +26,24 @@ using grpc::ClientReader;
 using grpc::ClientReaderWriter;
 using grpc::ClientWriter;
 using grpc::Status;
+
 using game::battlemon::auth::SendCodeRequest;
 using game::battlemon::auth::SendCodeResponse;
 using game::battlemon::auth::VerifyCodeRequest;
 using game::battlemon::auth::VerifyCodeResponse;
 using game::battlemon::auth::AuthService;
 
+using game::battlemon::items::ItemsService;
+using game::battlemon::items::PlayersItemsRequest;
+using game::battlemon::items::PlayersItemsResponse;
+using game::battlemon::items::PlayerItems;
+using game::battlemon::items::SetMyItemsRequest;
+using game::battlemon::common::Empty;
 
-enum class Protocol
+#define HOOK_ERROR char*& error, void(*errorH)(const std::string& copy, char*& error)
+
+class gRPC_SSL
 {
-	AUTHS,
-	INTERNALAUTHS,
-};
-
-class GRPC_Client
-{
-    //std::unique_ptr<AuthService::Stub> stub;
-	void* stub;
-    bool GetOneCode(const SendCodeRequest& write, SendCodeResponse* read);
-    bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read);
-
-public:
-	std::string error;
-	GRPC_Client();
-    GRPC_Client(std::shared_ptr<Channel> channel, Protocol type);
-	~GRPC_Client();
-
-	void setChannel(std::shared_ptr<Channel> channel, Protocol type);
-
-    SendCodeResponse CallRPCSendCode(const std::string& publicKey, char*& error, void(*errorH)(const std::string& copy, char*& error));
-    VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, char*& error, void(*errorH)(const std::string& copy, char*& error));
-
-
-
 #ifdef WIN32
 	std::string utf8Encode(const std::wstring& wstr)
 	{
@@ -71,7 +56,7 @@ public:
 		return strTo;
 	}
 
-
+public:
 	grpc::SslCredentialsOptions getSslOptions()
 	{
 		grpc::SslCredentialsOptions result;
@@ -103,4 +88,40 @@ public:
 
 };
 
+template <typename Service, typename ServiceStub>
+class gRPC_Client : public gRPC_SSL
+{
+protected:
+	std::unique_ptr<ServiceStub> stub;
+	std::string error;
 
+public:
+	gRPC_Client()
+	{
+		stub = std::unique_ptr<ServiceStub>(Service::NewStub((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(getSslOptions())))));
+	}
+	~gRPC_Client() {}
+};
+
+class gRPC_ClientAuth : public gRPC_Client<AuthService, AuthService::Stub>
+{
+    bool GetOneCode(const SendCodeRequest& write, SendCodeResponse* read);
+    bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read);
+
+public:
+
+    SendCodeResponse CallRPCSendCode(const std::string& publicKey, HOOK_ERROR);
+    VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, HOOK_ERROR);
+};
+
+
+class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
+{
+	bool GetOnePlayersItems(const PlayersItemsRequest& write, PlayersItemsResponse* read);
+	bool GetOneSetMyItems(SetMyItemsRequest& write, Empty* read);
+
+public:
+	
+	PlayerItems CallRPC_GetPlayersItems(const std::string& room_id, int id_Player, const std::string& near_ids, HOOK_ERROR);
+	void CallRPC_SetMyItems(const std::string& room_id, int id_Player, const std::string& nft_ids, HOOK_ERROR);
+};

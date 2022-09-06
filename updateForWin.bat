@@ -4,12 +4,8 @@ cd NearPlugin/src
 xcopy /y /d "src" "."
 RD /s /Q src
 del ed25519_32.dll & del ed25519_64.dll
-cd ../../packages
-RD /s /Q grpc
-
-::gRPC: update
-git clone https://github.com/grpc/grpc.git
-cd grpc & git submodule update --init
+cd ../../packages/grpc
+git submodule update --init
 
 ::gRPC: generate progect
 SET /P UE_THIRD_PARTY_DIR="Enter path: UE_4.27\Engine\Source\ThirdParty: "
@@ -42,10 +38,5 @@ cmake --build . --target ALL_BUILD --config Release
 
 ::proto.h generate
 cd ../../..
-./grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=./protocol/ ^
---cpp_out=../NearPlugin/protocol/ ./protocol/auth.proto
 
-::proto.grpc.h generate
-./grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=./protocol/  ^
---grpc_out=../NearPlugin/protocol/ ^
---plugin=protoc-gen-grpc="./grpc/.build%GRPCARCHITECTURE%/Release/grpc_cpp_plugin.exe" ./protocol/auth.proto
+updateProtoHeadersCPP.bat

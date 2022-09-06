@@ -11,4 +11,5 @@
 /Release
 /Win32/Release
 /NearPlugin/src
+/NearPlugin/protocol
 /.vs
