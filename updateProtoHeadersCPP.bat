@@ -17,7 +17,8 @@ git pull origin master
 cd ../..
 
 :okWin
-cd NearPlugin/protocol
+cd NearPlugin & md protocol
+cd protocol
 del *.cc & del *.h
 cd ../..
 
