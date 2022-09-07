@@ -139,47 +139,52 @@ bool Client::AuthServiceClient()
 	return false;
 }
 
-void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* nft_ids)
+void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, const TYPE_CHAR* nft_ids)
 {
 	std::string room_idStr = TYPE_Conv(room_id);
 
-	std::string* nft_idsStr = new std::string[index];
-	for (int i = 0; i < index; i++)
+	std::string* nft_idsStr = new std::string[number_of_nft_ids];
+	for (int i = 0; i < number_of_nft_ids; i++)
 	{
 		nft_idsStr[i] = TYPE_Conv(nft_ids[i]);
 	}
 
 	gRPC_ClientItems grpcClient;
-	grpcClient.CallRPC_SetMyItems(room_idStr, index, nft_idsStr, accountID, sign, error, allocateMemory);
+	grpcClient.CallRPC_SetMyItems(room_idStr, number_of_nft_ids, nft_idsStr, accountID, sign, error, allocateMemory);
 }
 
 
-PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids)
+PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids)
 {
 	std::string room_idStr = TYPE_Conv(room_id);
-	std::string* near_idsStr = new std::string[index];
-	for (int i = 0; i < index; i++)
+	std::string* near_idsStr = new std::string[number_of_near_ids];
+	for (int i = 0; i < number_of_near_ids; i++)
 	{
 		near_idsStr[i] = TYPE_Conv(near_ids[i]);
 	}
 
 	gRPC_ClientItems grpcClient;
-	PlayersItemsResponse PIR = grpcClient.CallRPC_GetPlayersItems(room_idStr, index, near_idsStr, error, allocateMemory);
+	PlayersItemsResponse PIR = grpcClient.CallRPC_GetPlayersItems(room_idStr, number_of_near_ids, near_idsStr, error, allocateMemory);
 
 	PlayerItems PI;
 	PlayerItemsClient playerItemsClient;
 	playerItemsClient.sizeItems = PIR.players_items().size();
-	playerItemsClient.items = new char**[playerItemsClient.sizeItems];
 
+	playerItemsClient.near_id = nullptr;
 	allocateMemory(PI.near_id(), playerItemsClient.near_id);
+
+	playerItemsClient.items = nullptr;
+	playerItemsClient.items = new char** [playerItemsClient.sizeItems];
 	for (size_t i = 0; i < PIR.players_items().size(); i++)
 	{
 		PI = PIR.players_items().Get(i);
-		playerItemsClient.sizenft_ids = PI.nft_ids().size();
-		playerItemsClient.items[i] = new char* [playerItemsClient.sizenft_ids];
-		for (size_t j = 0; j < playerItemsClient.sizenft_ids; j++)
+		playerItemsClient.nft_ids_size = PI.nft_ids().size();
+		playerItemsClient.items[i] = new char* [playerItemsClient.nft_ids_size];
+		for (size_t j = 0; j < playerItemsClient.nft_ids_size; j++)
 		{
-			allocateMemory(PI.nft_ids().Get(i), playerItemsClient.items[i][j]);
+			playerItemsClient.items[i][j] = nullptr;
+			allocateMemory(PI.nft_ids().Get(j), playerItemsClient.items[i][j]);
+
 		}
 	}
 
@@ -268,7 +273,7 @@ PlayerItemsClient::~PlayerItemsClient()
 	free(near_id);
 	for (int i = 0; i < sizeItems; i++)
 	{
-		for (int j = 0; j < sizenft_ids; j++)
+		for (int j = 0; j < nft_ids_size; j++)
 			delete[] items[i][j];
 		delete[] items[i];
 	}

@@ -9,11 +9,10 @@ int main()
         if (client.GetError() != nullptr)
             std::cout << client.GetError();
 
-        const char* nft_ids[] = {"nft_ids_1", "nft_ids_2", "nft_ids_3"};
-        client.gRPC_SetMyItems("123", 3, nft_ids);
-        const char* near_ids[1] = { "dsbgfnghcjhgds.testnet" };
-        PlayerItemsClient pic = client.gRPC_getPlayerItems("123", 1, near_ids);
-        std::cout << pic.near_id;
+        const char* nft_ids[] = {"nft_ids_1", "nft_ids_2", "nft_ids_3", "nft_ids_4" };
+        client.gRPC_SetMyItems("321", 4, nft_ids);
+        const char* near_ids[] = { "dsbgfnghcjhgds.testnet"};
+        PlayerItemsClient pic = client.gRPC_getPlayerItems("321", 1, near_ids);
     }
     catch (std::exception const& e)
     {

@@ -77,7 +77,7 @@ struct PlayerItemsClient
 	char* near_id;
 	char*** items = nullptr;
 	int sizeItems;
-	int sizenft_ids;
+	int nft_ids_size;
 	~PlayerItemsClient();
 };
 
@@ -113,8 +113,8 @@ public:
 	char* GetError() { return error; };
 	const char* GetSing(){ return sign; };
 
-	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids);
-	void gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* nft_ids);
+	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids);
+	void gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, const TYPE_CHAR* nft_ids);
 	ModelItems::Item gRPC_GetItems();
 };
 
