@@ -66,9 +66,6 @@
     <ClCompile Include="protocol\items.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\common.grpc.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
