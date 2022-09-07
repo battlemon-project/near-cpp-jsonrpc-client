@@ -35,7 +35,7 @@ std::string convUTF(const char16_t* utp16)
 #endif
 
 
-Client::Client(const TYPE_CHAR dir, const TYPE_CHAR inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sing(nullptr)
+Client::Client(const TYPE_CHAR dir, const TYPE_CHAR inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
 {
 	network = nullptr;
 
@@ -85,7 +85,7 @@ Client::~Client()
 	free(accountID);
 	free(keyPub58);
 	free(error);
-	free(sing);
+	free(sign);
 }
 
 bool Client::IsValidKeys()
@@ -126,7 +126,7 @@ bool Client::AuthServiceClient()
 	
 		if (accountID.near_account_id() != "")
 		{
-			allocateMemory(signatureMessage, sing);
+			allocateMemory(signatureMessage, sign);
 			allocateMemory(accountID.near_account_id(), this->accountID);
 			return true;
 		}
@@ -150,7 +150,7 @@ void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR
 	}
 
 	gRPC_ClientItems grpcClient;
-	grpcClient.CallRPC_SetMyItems(room_idStr, index, nft_idsStr, error, allocateMemory);
+	grpcClient.CallRPC_SetMyItems(room_idStr, index, nft_idsStr, accountID, sign, error, allocateMemory);
 }
 
 
@@ -255,7 +255,7 @@ PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
 ModelItems::Item Client::gRPC_GetItems()
 {
 	gRPC_ClientItems grpcClient;
-	ItemsResponse itemR = grpcClient.CallRPC_GetItems(error, allocateMemory);
+	ItemsResponse itemR = grpcClient.CallRPC_GetItems(accountID, sign, error, allocateMemory);
 	ModelItems::Item itemOUT;
 
 	itemOUT << itemR.items().Get(0);

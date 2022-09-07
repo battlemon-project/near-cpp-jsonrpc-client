@@ -92,7 +92,7 @@ class Client
 {
 	char* accountID;
 	char* network;
-	char* sing;
+	char* sign;
 	void* keyPair;
 	char* keyPub58;
 	char* error;
@@ -111,23 +111,9 @@ public:
 	bool IsValidKeys();
 	char* GetAccount() { return accountID; };
 	char* GetError() { return error; };
-	const char* GetSing(){ return sing; };
-/*
-	message PlayersItemsRequest
-	{
-		string room_id = 1;
-		repeated string near_ids = 2;	<======================      {id_Player, near_ids}
-	}
-*/
-	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids);
+	const char* GetSing(){ return sign; };
 
-/*
-	message SetMyItemsRequest 
-	{
-    string room_id = 1;
-    repeated string nft_ids = 2;	<======================      {id_Player, nft_ids}
-	}
-*/
+	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids);
 	void gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* nft_ids);
 	ModelItems::Item gRPC_GetItems();
 };

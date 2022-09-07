@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -83,11 +83,11 @@
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(SolutionDir)\packages\grpc\.buildWin64\third_party\protobuf\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\synchronization\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\time\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\numeric\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\strings\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\types\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\hash\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\cares\cares\lib\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\boringssl-with-bazel\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\profiling\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\container\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\random\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\re2\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\status\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\zlib\Debug\;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)\packages\grpc\third_party\protobuf\src;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetExt>.lib</TargetExt>
+    <TargetExt>.exe</TargetExt>
     <TargetName>NearRPC</TargetName>
     <IncludePath>$(SolutionDir)\packages\grpc\third_party\protobuf\src;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\packages\grpc\.buildWin64\third_party\protobuf\Release;$(SolutionDir)\packages\grpc\.buildWin64\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\synchronization\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\time\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\numeric\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\strings\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\types\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\hash\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\cares\cares\lib\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\boringssl-with-bazel\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\profiling\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\container\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\random\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\re2\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\status\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\zlib\Release\;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\lib\Win64\VS2015\Release;$(LibraryPath)</LibraryPath>
@@ -179,8 +179,11 @@
     <ClCompile Include="EdKeys.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />
+    <ClCompile Include="protocol\common.grpc.pb.cc" />
+    <ClCompile Include="protocol\common.pb.cc" />
     <ClCompile Include="protocol\items.grpc.pb.cc" />
     <ClCompile Include="protocol\items.pb.cc" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />
@@ -198,6 +201,8 @@
     <ClInclude Include="EdKeys.h" />
     <ClInclude Include="protocol\auth.grpc.pb.h" />
     <ClInclude Include="protocol\auth.pb.h" />
+    <ClInclude Include="protocol\common.grpc.pb.h" />
+    <ClInclude Include="protocol\common.pb.h" />
     <ClInclude Include="protocol\items.grpc.pb.h" />
     <ClInclude Include="protocol\items.pb.h" />
     <ClInclude Include="src\ed25519.h" />

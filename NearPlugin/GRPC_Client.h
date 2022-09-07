@@ -119,12 +119,12 @@ public:
 
 class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
 {
-	bool GetOneItems(const ItemsRequest& write, ItemsResponse* read);
+	bool GetOneItems(const ItemsRequest& write, ItemsResponse* read, const std::string& nearID, const std::string& sign);
 	bool GetOnePlayersItems(const PlayersItemsRequest& write, PlayersItemsResponse* read);
-	bool GetOneSetMyItems(SetMyItemsRequest& write, Empty* read);
+	bool GetOneSetMyItems(SetMyItemsRequest& write, Empty* read, const std::string& nearID, const std::string& sign);
 
 public:
-	ItemsResponse CallRPC_GetItems(HOOK_ERROR);
+	ItemsResponse CallRPC_GetItems(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 	PlayersItemsResponse CallRPC_GetPlayersItems(const std::string& room_id, int index, const std::string* near_ids, HOOK_ERROR);
-	void CallRPC_SetMyItems(const std::string& room_id, int index, const std::string* nft_ids, HOOK_ERROR);
+	void CallRPC_SetMyItems(const std::string& room_id, int index, const std::string* nft_ids, const std::string& nearID, const std::string& sign, HOOK_ERROR);
 };
