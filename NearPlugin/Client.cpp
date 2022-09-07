@@ -117,7 +117,7 @@ bool Client::AuthServiceClient()
 	gRPC_ClientAuth grpcClient;
 
 	int i = 0;
-	while (i < 15);
+	while (i < 15)
 	{
 		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
 	
@@ -268,6 +268,8 @@ PlayerItemsClient::~PlayerItemsClient()
 	free(near_id);
 	for (int i = 0; i < sizeItems; i++)
 	{
+		for (int j = 0; j < sizenft_ids; j++)
+			delete[] items[i][j];
 		delete[] items[i];
 	}
 	sizeItems = -1;
