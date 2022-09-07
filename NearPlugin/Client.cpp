@@ -14,7 +14,7 @@
 
 void allocateMemory(const std::string &copy, char* &target)
 {
-	if (target == nullptr)
+	if (target == nullptr && copy != "")
 	{
 		target = new char[copy.size() + 1];
 		std::copy(copy.begin(), copy.end(), target);
@@ -139,64 +139,112 @@ bool Client::AuthServiceClient()
 	return false;
 }
 
-ModelItems::OutfitKind& operator<<(ModelItems::OutfitKind& OModel, const game::battlemon::items::OutfitKind& OModel2)
+void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* nft_ids)
 {
-	switch (OModel2)
+	std::string room_idStr = TYPE_Conv(room_id);
+
+	std::string* nft_idsStr = new std::string[index];
+	for (int i = 0; i < index; i++)
+	{
+		nft_idsStr[i] = TYPE_Conv(nft_ids[i]);
+	}
+
+	gRPC_ClientItems grpcClient;
+	grpcClient.CallRPC_SetMyItems(room_idStr, index, nft_idsStr, error, allocateMemory);
+}
+
+
+PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids)
+{
+	std::string room_idStr = TYPE_Conv(room_id);
+	std::string* near_idsStr = new std::string[index];
+	for (int i = 0; i < index; i++)
+	{
+		near_idsStr[i] = TYPE_Conv(near_ids[i]);
+	}
+
+	gRPC_ClientItems grpcClient;
+	PlayersItemsResponse PIR = grpcClient.CallRPC_GetPlayersItems(room_idStr, index, near_idsStr, error, allocateMemory);
+
+	PlayerItems PI;
+	PlayerItemsClient playerItemsClient;
+	playerItemsClient.sizeItems = PIR.players_items().size();
+	playerItemsClient.items = new char**[playerItemsClient.sizeItems];
+
+	allocateMemory(PI.near_id(), playerItemsClient.near_id);
+	for (size_t i = 0; i < PIR.players_items().size(); i++)
+	{
+		PI = PIR.players_items().Get(i);
+		playerItemsClient.sizenft_ids = PI.nft_ids().size();
+		playerItemsClient.items[i] = new char* [playerItemsClient.sizenft_ids];
+		for (size_t j = 0; j < playerItemsClient.sizenft_ids; j++)
+		{
+			allocateMemory(PI.nft_ids().Get(i), playerItemsClient.items[i][j]);
+		}
+	}
+
+	return playerItemsClient;
+}
+
+ModelItems::OutfitKind& operator<<(ModelItems::OutfitKind& OutfitKindUE, const game::battlemon::items::OutfitKind& OutfitKindResponse)
+{
+	switch (OutfitKindResponse)
 	{
 	case 0:
-		OModel= ModelItems::OutfitKind::CAP;
+		OutfitKindUE = ModelItems::OutfitKind::CAP;
 		break;
 	case 1:
-		OModel = ModelItems::OutfitKind::CLOTH;
+		OutfitKindUE = ModelItems::OutfitKind::CLOTH;
 		break;
 	case 2:
-		OModel = ModelItems::OutfitKind::FIRE_ARM;
+		OutfitKindUE = ModelItems::OutfitKind::FIRE_ARM;
 		break;
 	case 3:
-		OModel = ModelItems::OutfitKind::COLD_ARM;
+		OutfitKindUE = ModelItems::OutfitKind::COLD_ARM;
 		break;
 	case 4:
-		OModel = ModelItems::OutfitKind::BACK;
+		OutfitKindUE = ModelItems::OutfitKind::BACK;
 		break;
 	default:
-		OModel = ModelItems::OutfitKind::DEFAULT;
+		OutfitKindUE = ModelItems::OutfitKind::DEFAULT;
 		break;
 	}
-	return OModel;
+	return OutfitKindUE;
 }
 
-ModelItems::OutfitModel& operator<<(ModelItems::OutfitModel& OModel, const game::battlemon::items::OutfitModel& OModel2)
+ModelItems::OutfitModel& operator<<(ModelItems::OutfitModel& OutfitModellUE, const game::battlemon::items::OutfitModel& OutfitModelResponse)
 {
-	allocateMemory(OModel2.flavour(), OModel.flavour);
-	allocateMemory(OModel2.token_id(), OModel.token_id);
-	OModel.kind << OModel2.kind();
-	return OModel;
+	allocateMemory(OutfitModelResponse.flavour(), OutfitModellUE.flavour);
+	allocateMemory(OutfitModelResponse.token_id(), OutfitModellUE.token_id);
+	OutfitModellUE.kind << OutfitModelResponse.kind();
+	return OutfitModellUE;
 }
 
-ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LModel, const game::battlemon::items::LemonModel& LModel2)
+ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LemonModelUE, const game::battlemon::items::LemonModel& LemonModelResponse)
 {
-	LModel.cap << LModel2.cap();
-	LModel.cloth << LModel2.cloth();
-	allocateMemory(LModel2.exo(), LModel.exo);
-	allocateMemory(LModel2.eyes(), LModel.eyes);
-	allocateMemory(LModel2.head(), LModel.head);
-	allocateMemory(LModel2.teeth(), LModel.teeth);
-	allocateMemory(LModel2.face(), LModel.face);
-	LModel.fire_arm << LModel2.fire_arm();
-	LModel.cold_arm << LModel2.cold_arm();
-	LModel.back << LModel2.back();
-	return LModel;
+	allocateMemory(LemonModelResponse.exo(), LemonModelUE.exo);
+	allocateMemory(LemonModelResponse.eyes(), LemonModelUE.eyes);
+	allocateMemory(LemonModelResponse.head(), LemonModelUE.head);
+	allocateMemory(LemonModelResponse.teeth(), LemonModelUE.teeth);
+	allocateMemory(LemonModelResponse.face(), LemonModelUE.face);
+	LemonModelUE.cap << LemonModelResponse.cap();
+	LemonModelUE.cloth << LemonModelResponse.cloth();
+	LemonModelUE.fire_arm << LemonModelResponse.fire_arm();
+	LemonModelUE.cold_arm << LemonModelResponse.cold_arm();
+	LemonModelUE.back << LemonModelResponse.back();
+	return LemonModelUE;
 }
 
-ModelItems::ItemM& operator<<(ModelItems::ItemM& IM, game::battlemon::items::Item& mesI)
+ModelItems::Item& operator<<(ModelItems::Item& itemsUE, const game::battlemon::items::Item& itemResponse)
 {
-	allocateMemory(mesI.token_id(), IM.token_id);
-	allocateMemory(mesI.media(), IM.media);
-	allocateMemory(mesI.owner_id(), IM.owner_id);
-	IM.lemon << mesI.lemon();
-	IM.outfit << mesI.outfit();
-	return IM;
+	allocateMemory(itemResponse.token_id(), itemsUE.token_id);
+	allocateMemory(itemResponse.media(), itemsUE.media);
+	allocateMemory(itemResponse.owner_id(), itemsUE.owner_id);
+	itemsUE.lemon << itemResponse.lemon();
+	itemsUE.outfit << itemResponse.outfit();
+	return itemsUE;
 }
+
 
 PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
 {
@@ -204,43 +252,30 @@ PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
 	return PIC;
 }
 
-
-
-
-void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR nft_ids)
+ModelItems::Item Client::gRPC_GetItems()
 {
-	std::string room_idStr = TYPE_Conv(room_id);
-	std::string near_idsStr = TYPE_Conv(nft_ids);
-
 	gRPC_ClientItems grpcClient;
-	grpcClient.CallRPC_SetMyItems(room_idStr, id_Player, near_idsStr, error, allocateMemory);
-}
+	ItemsResponse itemR = grpcClient.CallRPC_GetItems(error, allocateMemory);
+	ModelItems::Item itemOUT;
 
+	itemOUT << itemR.items().Get(0);
 
-PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR near_ids)
-{
-	std::string room_idStr = TYPE_Conv(room_id);
-	std::string near_idsStr = TYPE_Conv(near_ids);
-
-	gRPC_ClientItems grpcClient;
-
-	PlayerItems PI = grpcClient.CallRPC_GetPlayersItems(room_idStr, id_Player, near_idsStr, error, allocateMemory);
-
-	PlayerItemsClient playerItemsClient;
-	playerItemsClient << PI;
-
-	return playerItemsClient;
+	return itemOUT;
 }
 
 PlayerItemsClient::~PlayerItemsClient()
 {
 	free(near_id);
-	items.~ItemM();
+	for (int i = 0; i < sizeItems; i++)
+	{
+		delete[] items[i];
+	}
+	sizeItems = -1;
 }
 
-ModelItems::ItemM::~ItemM()
+ModelItems::Item::~Item()
 {
-	free(token_id );
+	free(token_id);
 	free(media);
 	free(owner_id);
 	lemon.~LemonModel();

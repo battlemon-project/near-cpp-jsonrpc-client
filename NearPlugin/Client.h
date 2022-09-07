@@ -59,14 +59,14 @@ namespace ModelItems
 		~LemonModel();
 	};
 
-	struct ItemM
+	struct Item
 	{
 		char* token_id = nullptr;
 		char* media = nullptr;
 		char* owner_id = nullptr;
 		LemonModel lemon;
 		OutfitModel outfit;
-		~ItemM();
+		~Item();
 	};
 
 }
@@ -74,8 +74,10 @@ namespace ModelItems
 // повторяет структуру message PlayerItems
 struct PlayerItemsClient
 {
-	char* near_id = nullptr;
-	ModelItems::ItemM items;
+	char* near_id;
+	char*** items = nullptr;
+	int sizeItems;
+	int sizenft_ids;
 	~PlayerItemsClient();
 };
 
@@ -110,7 +112,6 @@ public:
 	char* GetAccount() { return accountID; };
 	char* GetError() { return error; };
 	const char* GetSing(){ return sing; };
-	
 /*
 	message PlayersItemsRequest
 	{
@@ -118,7 +119,7 @@ public:
 		repeated string near_ids = 2;	<======================      {id_Player, near_ids}
 	}
 */
-	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR near_ids); 
+	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* near_ids);
 
 /*
 	message SetMyItemsRequest 
@@ -127,6 +128,7 @@ public:
     repeated string nft_ids = 2;	<======================      {id_Player, nft_ids}
 	}
 */
-	void gRPC_SetMyItems(const TYPE_CHAR room_id, int id_Player, const TYPE_CHAR nft_ids);
+	void gRPC_SetMyItems(const TYPE_CHAR room_id, int index, const TYPE_CHAR* nft_ids);
+	ModelItems::Item gRPC_GetItems();
 };
 

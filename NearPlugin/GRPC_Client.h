@@ -36,6 +36,8 @@ using game::battlemon::auth::AuthService;
 using game::battlemon::items::ItemsService;
 using game::battlemon::items::PlayersItemsRequest;
 using game::battlemon::items::PlayersItemsResponse;
+using game::battlemon::items::ItemsResponse;
+using game::battlemon::items::ItemsRequest;
 using game::battlemon::items::PlayerItems;
 using game::battlemon::items::SetMyItemsRequest;
 using game::battlemon::common::Empty;
@@ -117,11 +119,12 @@ public:
 
 class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
 {
+	bool GetOneItems(const ItemsRequest& write, ItemsResponse* read);
 	bool GetOnePlayersItems(const PlayersItemsRequest& write, PlayersItemsResponse* read);
 	bool GetOneSetMyItems(SetMyItemsRequest& write, Empty* read);
 
 public:
-	
-	PlayerItems CallRPC_GetPlayersItems(const std::string& room_id, int id_Player, const std::string& near_ids, HOOK_ERROR);
-	void CallRPC_SetMyItems(const std::string& room_id, int id_Player, const std::string& nft_ids, HOOK_ERROR);
+	ItemsResponse CallRPC_GetItems(HOOK_ERROR);
+	PlayersItemsResponse CallRPC_GetPlayersItems(const std::string& room_id, int index, const std::string* near_ids, HOOK_ERROR);
+	void CallRPC_SetMyItems(const std::string& room_id, int index, const std::string* nft_ids, HOOK_ERROR);
 };

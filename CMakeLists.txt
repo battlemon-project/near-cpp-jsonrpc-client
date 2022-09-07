@@ -2,8 +2,13 @@ cmake_minimum_required (VERSION 3.5)
 
 project ("NearRPC")
 
+
+if(APPLE) 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 set(CMAKE_OSX_ARCHITECTURES "x86_64")
+elseif(UNIX)
+set(CMAKE_OSX_ARCHITECTURES "x86_64")
+endif()
 
 set(CMAKE_C_ARCHIVE_FINISH true)
 set(CMAKE_CXX_ARCHIVE_FINISH true)
@@ -41,8 +46,8 @@ set(HEADERS
 )
 
 set(GRPCLIB_ROOT ${CMAKE_INSTALL_PREFIX})
-
 include_directories(${CMAKE_INSTALL_PREFIX}/include/)
+if (UNIX)
 set(LIBS
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_cord.a
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_str_format_internal.a
@@ -98,6 +103,7 @@ set(LIBS
     ${CMAKE_INSTALL_PREFIX}/lib/libre2.a
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_raw_hash_set.a
 )
+endif (UNIX)
 
 add_library(NearRPC STATIC ${SOURSCES} ${HEADERS} ${LIBS})
 

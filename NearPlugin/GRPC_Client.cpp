@@ -89,28 +89,56 @@ bool gRPC_ClientItems::GetOneSetMyItems(SetMyItemsRequest& write, Empty* read)
 }
 
 
-PlayerItems gRPC_ClientItems::CallRPC_GetPlayersItems(const std::string& room_id, int id_Player, const std::string& near_ids, HOOK_ERROR)
+PlayersItemsResponse gRPC_ClientItems::CallRPC_GetPlayersItems(const std::string& room_id, int index, const std::string* near_ids, HOOK_ERROR)
 {
     PlayersItemsRequest write;
     PlayersItemsResponse read;
     write.set_room_id(room_id);
-    write.set_near_ids(id_Player, near_ids);
+    for (int i = 0; i < index; i++)
+    {
+        write.add_near_ids(near_ids[i]);
+    }
     if (GetOnePlayersItems(write, &read))
     {
         errorH(this->error, error);
     }
-
-    return read.players_items().Get(0);
+    return read;
 }
 
-void gRPC_ClientItems::CallRPC_SetMyItems(const std::string& room_id, int id_Player, const std::string& nft_ids, HOOK_ERROR)
+void gRPC_ClientItems::CallRPC_SetMyItems(const std::string& room_id, int index, const std::string* nft_ids, HOOK_ERROR)
 {
     SetMyItemsRequest write;
     Empty read;
     write.set_room_id(room_id);
-    write.set_nft_ids(id_Player, nft_ids);
+    for (int i = 0; i < index; i++)
+    {
+        write.add_nft_ids(nft_ids[i]);
+    }
     if (GetOneSetMyItems(write, &read))
     {
         errorH(this->error, error);
     }
+}
+bool gRPC_ClientItems::GetOneItems(const ItemsRequest& write, ItemsResponse* read)
+{
+    ClientContext context;
+    Status status = stub->GetItems(&context, write, read);
+
+
+    if (status.ok())
+    {
+        return status.ok();
+    }
+    error = status.error_message();
+    return status.ok();
+}
+ItemsResponse gRPC_ClientItems::CallRPC_GetItems(HOOK_ERROR)
+{
+    ItemsRequest write;
+    ItemsResponse read;
+    if (GetOneItems(write, &read))
+    {
+        errorH(this->error, error);
+    }
+    return read;
 }
