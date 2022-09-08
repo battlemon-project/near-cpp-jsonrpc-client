@@ -257,27 +257,56 @@ PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
 	return PIC;
 }
 
-ModelItems::Item Client::gRPC_GetItems()
+ModelItems::Item& ItemsList::getItem(int id)
+{
+	return items[id];
+}
+
+ItemsList Client::gRPC_GetItems()
 {
 	gRPC_ClientItems grpcClient;
 	ItemsResponse itemR = grpcClient.CallRPC_GetItems(accountID, sign, error, allocateMemory);
-	ModelItems::Item itemOUT;
 
-	itemOUT << itemR.items().Get(0);
+	ModelItems::Item* itemOUT = nullptr;
+	ItemsList itemsList(itemOUT, itemR.items().size());
 
-	return itemOUT;
+	for (size_t i = 0; i < itemR.items().size(); i++)
+	{
+		itemOUT[i] << itemR.items().Get(i);
+	}
+
+	return itemsList;
+}
+
+
+ItemsList::ItemsList(ModelItems::Item* &items, int size) : size(size)
+{
+	if (size != -1)
+		this->items = items = new ModelItems::Item[size];
+}
+ItemsList::~ItemsList()
+{
+	delete[]items;
 }
 
 PlayerItemsClient::~PlayerItemsClient()
 {
 	free(near_id);
-	for (int i = 0; i < sizeItems; i++)
+	if (items != nullptr)
 	{
-		for (int j = 0; j < nft_ids_size; j++)
-			delete[] items[i][j];
-		delete[] items[i];
+		for (int i = 0; i < sizeItems; i++)
+		{
+			for (int j = 0; j < nft_ids_size; j++)
+			{
+				free(items[i][j]);
+			}
+			delete[] items[i];
+			items[i] = nullptr;
+		}
+		delete items;
+		items = nullptr;
+		sizeItems = nft_ids_size = -1;
 	}
-	sizeItems = -1;
 }
 
 ModelItems::Item::~Item()

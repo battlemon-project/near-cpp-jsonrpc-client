@@ -71,10 +71,23 @@ namespace ModelItems
 
 }
 
+class ItemsList
+{
+	ModelItems::Item* items;
+public:
+
+	const int size;
+	ItemsList(ModelItems::Item* &items, int size);
+	ItemsList() = delete;
+	~ItemsList();
+
+	ModelItems::Item& getItem(int id);
+};
+
 // повторяет структуру message PlayerItems
 struct PlayerItemsClient
 {
-	char* near_id;
+	char* near_id = nullptr;
 	char*** items = nullptr;
 	int sizeItems;
 	int nft_ids_size;
@@ -115,6 +128,6 @@ public:
 
 	PlayerItemsClient gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids);
 	void gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, const TYPE_CHAR* nft_ids);
-	ModelItems::Item gRPC_GetItems();
+	ItemsList gRPC_GetItems();
 };
 
