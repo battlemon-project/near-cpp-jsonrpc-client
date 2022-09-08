@@ -168,16 +168,16 @@ PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int numbe
 
 	PlayerItems PI;
 	PlayerItemsClient playerItemsClient;
-	playerItemsClient.sizeItems = PIR.players_items().size();
+	playerItemsClient.players_items_size = PIR.players_items().size();
 
 	playerItemsClient.near_id = nullptr;
-	allocateMemory(PI.near_id(), playerItemsClient.near_id);
-
+	playerItemsClient.near_id = new char* [playerItemsClient.players_items_size];
 	playerItemsClient.items = nullptr;
-	playerItemsClient.items = new char** [playerItemsClient.sizeItems];
+	playerItemsClient.items = new char** [playerItemsClient.players_items_size];
 	for (size_t i = 0; i < PIR.players_items().size(); i++)
 	{
 		PI = PIR.players_items().Get(i);
+		allocateMemory(PI.near_id(), playerItemsClient.near_id[i]);
 		playerItemsClient.nft_ids_size = PI.nft_ids().size();
 		playerItemsClient.items[i] = new char* [playerItemsClient.nft_ids_size];
 		for (size_t j = 0; j < playerItemsClient.nft_ids_size; j++)
@@ -251,12 +251,6 @@ ModelItems::Item& operator<<(ModelItems::Item& itemsUE, const game::battlemon::i
 }
 
 
-PlayerItemsClient& operator<<(PlayerItemsClient& PIC, PlayerItems& PI)
-{
-	allocateMemory(PI.near_id(), PIC.near_id);
-	return PIC;
-}
-
 ModelItems::Item& ItemsList::getItem(int id)
 {
 	return items[id];
@@ -291,11 +285,12 @@ ItemsList::~ItemsList()
 
 PlayerItemsClient::~PlayerItemsClient()
 {
-	free(near_id);
 	if (items != nullptr)
 	{
-		for (int i = 0; i < sizeItems; i++)
+		for (int i = 0; i < players_items_size; i++)
 		{
+			free(near_id[i]);
+			near_id[i] = nullptr;
 			for (int j = 0; j < nft_ids_size; j++)
 			{
 				free(items[i][j]);
@@ -303,9 +298,11 @@ PlayerItemsClient::~PlayerItemsClient()
 			delete[] items[i];
 			items[i] = nullptr;
 		}
+		delete near_id;
+		near_id = nullptr;
 		delete items;
 		items = nullptr;
-		sizeItems = nft_ids_size = -1;
+		players_items_size = nft_ids_size = -1;
 	}
 }
 

@@ -87,9 +87,9 @@ public:
 // повторяет структуру message PlayerItems
 struct PlayerItemsClient
 {
-	char* near_id = nullptr;
+	char** near_id = nullptr;
 	char*** items = nullptr;
-	int sizeItems;
+	int players_items_size;
 	int nft_ids_size;
 	~PlayerItemsClient();
 };
