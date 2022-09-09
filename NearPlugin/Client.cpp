@@ -11,6 +11,7 @@
 
 
 #define ED25519 ((EdKeys*)keyPair)
+#define REDIRECT "https://game.battlemon.com/near"
 
 void allocateMemory(const std::string &copy, char* &target)
 {
@@ -98,13 +99,13 @@ void Client::RegistrKey()
 {
 #ifdef __linux__ 
 	//linux code goes here
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + std::string("http://23.22.240.113:80/setId/" + ED25519->GetPubKey58()) + "&public_key=" + ED25519->GetPubKey58();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + REDIRECT + "&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "gio open " + url;
 #elif _WIN32
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "^&public_key=" + ED25519->GetPubKey58();
+	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + REDIRECT + "^&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "start " + url;
 #elif __APPLE__
-    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\\?title=rndname\\&success_url=" + "http://23.22.240.113:80/setId/" + ED25519->GetPubKey58() + "\\&public_key=" + ED25519->GetPubKey58();
+    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\\?title=rndname\\&success_url=" + REDIRECT + "\\&public_key=" + ED25519->GetPubKey58();
 	std::string cmdComand = "open " + url;
 #endif
     system(cmdComand.c_str());
@@ -154,7 +155,7 @@ void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, con
 }
 
 
-PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids)
+void Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids, PlayerItemsClient& playerItemsClient)
 {
 	std::string room_idStr = TYPE_Conv(room_id);
 	std::string* near_idsStr = new std::string[number_of_near_ids];
@@ -167,16 +168,14 @@ PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int numbe
 	PlayersItemsResponse PIR = grpcClient.CallRPC_GetPlayersItems(room_idStr, number_of_near_ids, near_idsStr, error, allocateMemory);
 
 	PlayerItems PI;
-	PlayerItemsClient playerItemsClient;
 	playerItemsClient.players_items_size = PIR.players_items().size();
 
-	playerItemsClient.near_id = nullptr;
 	playerItemsClient.near_id = new char* [playerItemsClient.players_items_size];
-	playerItemsClient.items = nullptr;
 	playerItemsClient.items = new char** [playerItemsClient.players_items_size];
 	for (size_t i = 0; i < PIR.players_items().size(); i++)
 	{
 		PI = PIR.players_items().Get(i);
+		playerItemsClient.near_id[i] = nullptr;
 		allocateMemory(PI.near_id(), playerItemsClient.near_id[i]);
 		playerItemsClient.nft_ids_size = PI.nft_ids().size();
 		playerItemsClient.items[i] = new char* [playerItemsClient.nft_ids_size];
@@ -187,8 +186,6 @@ PlayerItemsClient Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int numbe
 
 		}
 	}
-
-	return playerItemsClient;
 }
 
 ModelItems::OutfitKind& operator<<(ModelItems::OutfitKind& OutfitKindUE, const game::battlemon::items::OutfitKind& OutfitKindResponse)
@@ -290,18 +287,14 @@ PlayerItemsClient::~PlayerItemsClient()
 		for (int i = 0; i < players_items_size; i++)
 		{
 			free(near_id[i]);
-			near_id[i] = nullptr;
 			for (int j = 0; j < nft_ids_size; j++)
 			{
 				free(items[i][j]);
 			}
 			delete[] items[i];
-			items[i] = nullptr;
 		}
-		delete near_id;
-		near_id = nullptr;
-		delete items;
-		items = nullptr;
+		delete[] near_id;
+		delete[] items;
 		players_items_size = nft_ids_size = -1;
 	}
 }
