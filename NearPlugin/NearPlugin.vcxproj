@@ -198,6 +198,7 @@
     <ClInclude Include="GRPC_Client.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="EdKeys.h" />
+    <ClInclude Include="include\ModelItem.h" />
     <ClInclude Include="protocol\auth.grpc.pb.h" />
     <ClInclude Include="protocol\auth.pb.h" />
     <ClInclude Include="protocol\common.grpc.pb.h" />

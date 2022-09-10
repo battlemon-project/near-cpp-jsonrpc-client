@@ -270,11 +270,24 @@ ItemsList Client::gRPC_GetItems()
 }
 
 
-ItemsList::ItemsList(ModelItems::Item* &items, int size) : size(size)
+ItemsList::ItemsList(ModelItems::Item* &items, int size) : size(size), items(nullptr)
 {
-	if (size != -1)
+	if (size != 0)
 		this->items = items = new ModelItems::Item[size];
 }
+
+ItemsList::ItemsList(const ItemsList& itemsList) : size(itemsList.size), items(nullptr)
+{
+	if (size != -1)
+	{
+		items = new ModelItems::Item[size];
+		for (int i = 0; i < size; i++)
+		{
+			items[i] = itemsList.items[i];
+		}
+	}
+}
+
 ItemsList::~ItemsList()
 {
 	delete[]items;
