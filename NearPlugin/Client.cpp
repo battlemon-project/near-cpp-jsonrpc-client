@@ -36,15 +36,16 @@ std::string convUTF(const char16_t* utp16)
 #endif
 
 
+#include <ctime>
+
 Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
 {
 	network = nullptr;
-
 	if (type == TypeInp::AUTHORIZATION)
 	{
 		if (ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir)))
 		{
-			AuthServiceClient();
+			AuthServiceClient(TypeInp::AUTHORIZATION);
 			allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 		}
 		else
@@ -58,7 +59,7 @@ Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : k
 		if (error != nullptr) return;
 
 		RegistrKey();
-		if (AuthServiceClient())
+		if (AuthServiceClient(TypeInp::REGISTRATION))
 		{
 			ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
 		}
@@ -112,33 +113,53 @@ void Client::RegistrKey()
 	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
 }
 
-bool Client::AuthServiceClient()
+bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &error, void* &keyPair, char* &sign, char* &accountIDchr)
 {
+	SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
+
+	std::string signatureMessage = ED25519->MessageSigning(CodeResponse.code());
+	VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
+
+	if (accountID.near_account_id() != "")
+	{
+		allocateMemory(signatureMessage, sign);
+		allocateMemory(accountID.near_account_id(), accountIDchr);
+		return true;
+	}
+	return false;
+}
+
+bool Client::AuthServiceClient(TypeInp type)
+{
+
 	std::string PubKey = ED25519->GetPubKey58();
 	gRPC_ClientAuth grpcClient;
 
-	int i = 0;
-	while (i < 15)
+	if (TypeInp::REGISTRATION == type)
 	{
-		SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
-	
-		std::string signatureMessage = ED25519->MessageSigning(CodeResponse.code());
-		VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
-	
-		if (accountID.near_account_id() != "")
+
+		int i = 0;
+		while (i < 15)
 		{
-			allocateMemory(signatureMessage, sign);
-			allocateMemory(accountID.near_account_id(), this->accountID);
-			return true;
+			if (ChekClient(PubKey, grpcClient,this->error, this->keyPair, this->sign, this->accountID))
+			{
+				return true;
+			}
+			i++;
+			std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
 		}
-		i++;
-		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
-	} 
 
-	allocateMemory("error AuthService", this->error);
+		allocateMemory("error AuthService", this->error);
 
-	return false;
+		return false;
+	}
+	else
+	{
+		return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
+	}
 }
+
+
 
 void Client::gRPC_SetMyItems(const TYPE_CHAR* room_id, int number_of_nft_ids, const TYPE_CHAR** nft_ids)
 {
