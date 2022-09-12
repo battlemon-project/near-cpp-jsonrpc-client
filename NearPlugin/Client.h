@@ -19,9 +19,9 @@
 #endif
 
 #if __APPLE__
-#define TYPE_CHAR char16_t*
+#define TYPE_CHAR char16_t
 #else
-#define TYPE_CHAR char*
+#define TYPE_CHAR char
 #endif
 
 
@@ -70,7 +70,7 @@ class Client
 	bool AuthServiceClient();
 public:
 
-	Client(const TYPE_CHAR dir, const TYPE_CHAR inpText, TypeInp type);
+	Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type);
 
 	~Client();
 	Client() = delete;
@@ -82,8 +82,8 @@ public:
 	char* GetError() { return error; };
 	const char* GetSing(){ return sign; };
 
-	void gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids, PlayerItemsClient& playerItemsClient);
-	void gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, const TYPE_CHAR* nft_ids);
+	void gRPC_getPlayerItems(const TYPE_CHAR* room_id, int number_of_near_ids, const TYPE_CHAR** near_ids, PlayerItemsClient& playerItemsClient);
+	void gRPC_SetMyItems(const TYPE_CHAR* room_id, int number_of_nft_ids, const TYPE_CHAR** nft_ids);
 	ItemsList gRPC_GetItems();
 };
 

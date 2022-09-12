@@ -36,7 +36,7 @@ std::string convUTF(const char16_t* utp16)
 #endif
 
 
-Client::Client(const TYPE_CHAR dir, const TYPE_CHAR inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
+Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
 {
 	network = nullptr;
 
@@ -140,7 +140,7 @@ bool Client::AuthServiceClient()
 	return false;
 }
 
-void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, const TYPE_CHAR* nft_ids)
+void Client::gRPC_SetMyItems(const TYPE_CHAR* room_id, int number_of_nft_ids, const TYPE_CHAR** nft_ids)
 {
 	std::string room_idStr = TYPE_Conv(room_id);
 
@@ -155,7 +155,7 @@ void Client::gRPC_SetMyItems(const TYPE_CHAR room_id, int number_of_nft_ids, con
 }
 
 
-void Client::gRPC_getPlayerItems(const TYPE_CHAR room_id, int number_of_near_ids, const TYPE_CHAR* near_ids, PlayerItemsClient& playerItemsClient)
+void Client::gRPC_getPlayerItems(const TYPE_CHAR* room_id, int number_of_near_ids, const TYPE_CHAR** near_ids, PlayerItemsClient& playerItemsClient)
 {
 	std::string room_idStr = TYPE_Conv(room_id);
 	std::string* near_idsStr = new std::string[number_of_near_ids];

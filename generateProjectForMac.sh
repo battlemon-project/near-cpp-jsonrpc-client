@@ -61,3 +61,28 @@ cd build
   -DABSL_PROPAGATE_CXX_STD=ON \
   -G Xcode \
   ..
+
+  cd ..
+
+export Arr[0]=auth.proto
+export Arr[1]=common.proto
+export Arr[2]=internalAuth.proto
+export Arr[3]=internalItems.proto
+export Arr[4]=internalMm.proto
+export Arr[5]=items.proto
+export Arr[6]=mm.proto
+export Arr[7]=users.proto
+export Arr[8]=websocket.proto
+
+
+length=${#Arr[@]}
+for (( j=0; j<${length}; j++ ));
+do
+$CMAKE_INSTALL_DIR/bin/protoc -I=$cd/packages/protocol/ \
+--cpp_out=$cd/NearPlugin/protocol/ $cd/packages/protocol/${#Arr[j]}
+
+::proto.grpc.h generate
+$CMAKE_INSTALL_DIR/bin/protoc -I=$cd/packages/protocol/  \
+--grpc_out=$cd/NearPlugin/protocol/ \
+--plugin=protoc-gen-grpc="$CMAKE_INSTALL_DIR/bin/grpc_cpp_plugin" $cd/packages/protocol/${#Arr[j]}
+done
