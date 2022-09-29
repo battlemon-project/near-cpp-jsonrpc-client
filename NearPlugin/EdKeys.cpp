@@ -168,7 +168,7 @@ std::string EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
 	return result;
 }
 
-EdKeys::EdKeys()
+EdKeys::EdKeys():state(false)
 {
 	public_key[0];
 	private_key[0];
@@ -184,7 +184,9 @@ void EdKeys::GeneratingKeys(char*& error, void(*errorH)(const std::string& copy,
 	if (ed25519_create_seed(seed))
 	{
 		errorH("Invalid seed", error);
+		return;
 	}
+	state = true;
 	ed25519_create_keypair(public_key, private_key, seed);
 }
 
@@ -246,6 +248,7 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK(pashProject, accountID, ".pr.bin", private_key, 64))
         {
             LoadK(pashProject, accountID, ".pb.bin", public_key, 32);
+			state = true;
             return true;
         }
     }
@@ -253,6 +256,7 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK((std::string("/") + "saved"), accountID, ".pr.bin", private_key, 64))
         {
             LoadK((std::string("/") + "saved"), accountID, ".pb.bin", public_key, 32);
+			state = true;
             return true;
         }
     
@@ -267,4 +271,9 @@ std::string EdKeys::GetPubKey58() const
 std::string EdKeys::GetPrKey58() const
 {
 	return EncodeBase58(private_key, 64);
+}
+
+bool EdKeys::IsValid() const
+{
+	return state;
 }

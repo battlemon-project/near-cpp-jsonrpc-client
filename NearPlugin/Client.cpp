@@ -1,4 +1,4 @@
-#ifdef __APPLE__
+#if defined(__linux__) || defined(__APPLE__)
 #include <thread>
 #include <chrono>
 #include <locale>
@@ -8,6 +8,7 @@
 #include "Client.h"
 #include "EdKeys.h"
 #include "GRPC_Client.h"
+//#include <ctime>
 
 
 #define ED25519 ((EdKeys*)keyPair)
@@ -23,12 +24,13 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-#ifdef __APPLE__
+#if defined(__linux__) || defined(__APPLE__)
 std::string convUTF(const char16_t* utp16)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-	std::u16string utf16_string(NameProgect);
+	std::u16string utf16_string(utp16);
 	std::string UTF8 = convert.to_bytes(utf16_string);
+	return UTF8;
 }
 #define TYPE_Conv(str) convUTF(str)
 #else
@@ -36,36 +38,19 @@ std::string convUTF(const char16_t* utp16)
 #endif
 
 
-#include <ctime>
 
 Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
 {
-	network = nullptr;
 	if (type == TypeInp::AUTHORIZATION)
 	{
-		if (ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir)))
-		{
-			AuthServiceClient(TypeInp::AUTHORIZATION);
-			allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
-		}
-		else
-			allocateMemory("error loadKeys", this->error);
+		ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir));
 	}
 	else
 	{
-		allocateMemory(TYPE_Conv(inpText), network);
-
 		ED25519->GeneratingKeys(error, allocateMemory);
-		if (error != nullptr) return;
-
-		RegistrKey();
-		if (AuthServiceClient(TypeInp::REGISTRATION))
-		{
-			ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
-		}
-
-		allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 	}
+
+	allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 }
 
 void free(char* data)
@@ -95,24 +80,6 @@ bool Client::IsValidKeys()
 	{ return ED25519->GetPubKey58() != ""; };
 }
 
-
-void Client::RegistrKey()
-{
-#ifdef __linux__ 
-	//linux code goes here
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname&success_url=" + REDIRECT + "&public_key=" + ED25519->GetPubKey58();
-	std::string cmdComand = "gio open " + url;
-#elif _WIN32
-	std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login?title=rndname^&success_url=" + REDIRECT + "^&public_key=" + ED25519->GetPubKey58();
-	std::string cmdComand = "start " + url;
-#elif __APPLE__
-    std::string url = std::string("https://wallet.") + std::string(network) + ".near.org/login\\?title=rndname\\&success_url=" + REDIRECT + "\\&public_key=" + ED25519->GetPubKey58();
-	std::string cmdComand = "open " + url;
-#endif
-    system(cmdComand.c_str());
-	std::this_thread::sleep_for(std::chrono::nanoseconds(15000000000));
-}
-
 bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &error, void* &keyPair, char* &sign, char* &accountIDchr)
 {
 	SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
@@ -129,37 +96,26 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 	return false;
 }
 
-bool Client::AuthServiceClient(TypeInp type)
+bool Client::AuthServiceClient()
 {
-
-	std::string PubKey = ED25519->GetPubKey58();
-	gRPC_ClientAuth grpcClient;
-
-	if (TypeInp::REGISTRATION == type)
+	free(error);
+	if (ED25519->IsValid())
 	{
+		std::string PubKey = ED25519->GetPubKey58();
+		gRPC_ClientAuth grpcClient;
 
-		int i = 0;
-		while (i < 15)
+		if (ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID))
 		{
-			if (ChekClient(PubKey, grpcClient,this->error, this->keyPair, this->sign, this->accountID))
-			{
-				return true;
-			}
-			i++;
-			std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
+			return true;
 		}
-
-		allocateMemory("error AuthService", this->error);
-
-		return false;
 	}
-	else
-	{
-		return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
-	}
+	return false;
 }
 
-
+void Client::saveKey(const TYPE_CHAR* dir)
+{
+	ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
+}
 
 void Client::gRPC_SetMyItems(const TYPE_CHAR* room_id, int number_of_nft_ids, const TYPE_CHAR** nft_ids)
 {
