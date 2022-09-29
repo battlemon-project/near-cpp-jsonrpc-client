@@ -82,6 +82,7 @@ public:
 		return result;
 	}
 #else
+public:
 	grpc::SslCredentialsOptions getSslOptions()
 	{
 		return grpc::SslCredentialsOptions();

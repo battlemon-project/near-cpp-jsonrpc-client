@@ -12,6 +12,7 @@
 
 
 #define ED25519 ((EdKeys*)keyPair)
+#define GRPC_CLIENT ((gRPC_ClientAuth*)grpcClient)
 #define REDIRECT "https://game.battlemon.com/near"
 
 void allocateMemory(const std::string &copy, char* &target)
@@ -39,7 +40,7 @@ std::string convUTF(const char16_t* utp16)
 
 
 
-Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr)
+Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr), grpcClient(new gRPC_ClientAuth)
 {
 	if (type == TypeInp::AUTHORIZATION)
 	{
@@ -67,6 +68,11 @@ Client::~Client()
 	if (keyPair != nullptr)
 	{
 		delete ED25519;
+		keyPair = nullptr;
+	}
+	if(grpcClient != nullptr)
+	{
+		delete GRPC_CLIENT;
 		keyPair = nullptr;
 	}
 	free(accountID);
@@ -102,9 +108,8 @@ bool Client::AuthServiceClient()
 	if (ED25519->IsValid())
 	{
 		std::string PubKey = ED25519->GetPubKey58();
-		gRPC_ClientAuth grpcClient;
 
-		if (ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID))
+		if (ChekClient(PubKey, *GRPC_CLIENT, this->error, this->keyPair, this->sign, this->accountID))
 		{
 			return true;
 		}
