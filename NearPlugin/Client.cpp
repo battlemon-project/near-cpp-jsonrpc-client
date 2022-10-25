@@ -1,19 +1,27 @@
-#if defined(__linux__) || defined(__APPLE__)
+#ifdef __APPLE__
 #include <thread>
 #include <chrono>
 #include <locale>
 #include <codecvt>
 #endif
 
+#ifdef __unix__
+//#include <threads.h>
+
+#include <thread>
+#include <chrono>
+#include <locale>
+#include <codecvt>
+
+#endif
+
 #include "Client.h"
 #include "EdKeys.h"
 #include "GRPC_Client.h"
-//#include <ctime>
 
 
 #define ED25519 ((EdKeys*)keyPair)
-#define GRPC_CLIENT ((gRPC_ClientAuth*)grpcClient)
-#define REDIRECT "https://game.battlemon.com/near"
+#define THROW_HOOK error, allocateMemory
 
 void allocateMemory(const std::string &copy, char* &target)
 {
@@ -25,7 +33,7 @@ void allocateMemory(const std::string &copy, char* &target)
 	}
 }
 
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__unix__) || defined(__APPLE__)
 std::string convUTF(const char16_t* utp16)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
@@ -39,19 +47,76 @@ std::string convUTF(const char16_t* utp16)
 #endif
 
 
+#include <ctime>
 
-Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr), grpcClient(new gRPC_ClientAuth)
+void Client::Free_gRPC_read()
 {
+	switch (type_gRPC)
+	{
+	case Type_gRPC::NONE:
+		break;
+	case Type_gRPC::GET_ITEMS:
+		delete (ItemsResponse*)gRPC_read;
+		break;
+	case Type_gRPC::GET_BUNDLES:
+		break;
+	case Type_gRPC::CREATE_BUNDLE:
+		break;
+	case Type_gRPC::EDIT_BUNDLE:
+		break;
+	case Type_gRPC::REMOVE_BUNDLE:
+		break;
+	case Type_gRPC::ATTACH_BUNDLE:
+		break;
+	case Type_gRPC::DETACH_BUNDLE:
+		break;
+	case Type_gRPC::SEARCH_GAME:
+		break;
+	case Type_gRPC::ACCEPT_GAME:
+		break;
+	case Type_gRPC::CANCEL_SEARCH:
+		break;
+	case Type_gRPC::AUTHORIZATION:
+		break;
+	case Type_gRPC::REGISTRATION:
+		break;
+	default:
+		break;
+	}
+	gRPC_read = nullptr;
+	type_gRPC = Type_gRPC::NONE;
+}
+
+Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeInp type) : keyPair(new EdKeys()), error(nullptr), accountID(nullptr), keyPub58(nullptr), sign(nullptr), gRPC_read(nullptr), type_gRPC(Type_gRPC::NONE)
+{
+	network = nullptr;
+
 	if (type == TypeInp::AUTHORIZATION)
 	{
-		ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir));
+		if (ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir)))
+		{
+			AuthServiceClient(TypeInp::AUTHORIZATION);
+			type_gRPC = Type_gRPC::AUTHORIZATION;
+			allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
+		}
+		else
+			allocateMemory("error loadKeys", this->error);
 	}
 	else
 	{
-		ED25519->GeneratingKeys(error, allocateMemory);
-	}
+		allocateMemory(TYPE_Conv(inpText), network);
 
-	allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
+		ED25519->GeneratingKeys(THROW_HOOK);
+		if (error != nullptr) return;
+
+		if (AuthServiceClient(TypeInp::REGISTRATION))
+		{
+			type_gRPC = Type_gRPC::REGISTRATION;
+			ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
+		}
+
+		allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
+	}
 }
 
 void free(char* data)
@@ -70,11 +135,6 @@ Client::~Client()
 		delete ED25519;
 		keyPair = nullptr;
 	}
-	if(grpcClient != nullptr)
-	{
-		delete GRPC_CLIENT;
-		keyPair = nullptr;
-	}
 	free(accountID);
 	free(keyPub58);
 	free(error);
@@ -88,10 +148,10 @@ bool Client::IsValidKeys()
 
 bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &error, void* &keyPair, char* &sign, char* &accountIDchr)
 {
-	SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, error, allocateMemory);
+	SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, THROW_HOOK);
 
 	std::string signatureMessage = ED25519->MessageSigning(CodeResponse.code());
-	VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, error, allocateMemory);
+	VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, THROW_HOOK);
 
 	if (accountID.near_account_id() != "")
 	{
@@ -102,71 +162,32 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 	return false;
 }
 
-bool Client::AuthServiceClient()
+bool Client::AuthServiceClient(TypeInp type)
 {
-	free(error);
-	if (ED25519->IsValid())
-	{
-		std::string PubKey = ED25519->GetPubKey58();
+	std::string PubKey = ED25519->GetPubKey58();
+	gRPC_ClientAuth grpcClient;
 
-		if (ChekClient(PubKey, *GRPC_CLIENT, this->error, this->keyPair, this->sign, this->accountID))
+	if (TypeInp::REGISTRATION == type)
+	{
+
+		int i = 0;
+		while (i < 30)
 		{
-			return true;
+			if (ChekClient(PubKey, grpcClient,this->error, this->keyPair, this->sign, this->accountID))
+			{
+				return true;
+			}
+			i++;
+			std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
 		}
+
+		allocateMemory("error AuthService", this->error);
+
+		return false;
 	}
-	return false;
-}
-
-void Client::saveKey(const TYPE_CHAR* dir)
-{
-	ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
-}
-
-void Client::gRPC_SetMyItems(const TYPE_CHAR* room_id, int number_of_nft_ids, const TYPE_CHAR** nft_ids)
-{
-	std::string room_idStr = TYPE_Conv(room_id);
-
-	std::string* nft_idsStr = new std::string[number_of_nft_ids];
-	for (int i = 0; i < number_of_nft_ids; i++)
+	else
 	{
-		nft_idsStr[i] = TYPE_Conv(nft_ids[i]);
-	}
-
-	gRPC_ClientItems grpcClient;
-	grpcClient.CallRPC_SetMyItems(room_idStr, number_of_nft_ids, nft_idsStr, accountID, sign, error, allocateMemory);
-}
-
-
-void Client::gRPC_getPlayerItems(const TYPE_CHAR* room_id, int number_of_near_ids, const TYPE_CHAR** near_ids, PlayerItemsClient& playerItemsClient)
-{
-	std::string room_idStr = TYPE_Conv(room_id);
-	std::string* near_idsStr = new std::string[number_of_near_ids];
-	for (int i = 0; i < number_of_near_ids; i++)
-	{
-		near_idsStr[i] = TYPE_Conv(near_ids[i]);
-	}
-
-	gRPC_ClientItems grpcClient;
-	PlayersItemsResponse PIR = grpcClient.CallRPC_GetPlayersItems(room_idStr, number_of_near_ids, near_idsStr, error, allocateMemory);
-
-	PlayerItems PI;
-	playerItemsClient.players_items_size = PIR.players_items().size();
-
-	playerItemsClient.near_id = new char* [playerItemsClient.players_items_size];
-	playerItemsClient.items = new char** [playerItemsClient.players_items_size];
-	for (size_t i = 0; i < PIR.players_items().size(); i++)
-	{
-		PI = PIR.players_items().Get(i);
-		playerItemsClient.near_id[i] = nullptr;
-		allocateMemory(PI.near_id(), playerItemsClient.near_id[i]);
-		playerItemsClient.nft_ids_size = PI.nft_ids().size();
-		playerItemsClient.items[i] = new char* [playerItemsClient.nft_ids_size];
-		for (size_t j = 0; j < playerItemsClient.nft_ids_size; j++)
-		{
-			playerItemsClient.items[i][j] = nullptr;
-			allocateMemory(PI.nft_ids().Get(j), playerItemsClient.items[i][j]);
-
-		}
+		return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
 	}
 }
 
@@ -235,22 +256,161 @@ ModelItems::Item& ItemsList::getItem(int id)
 	return items[id];
 }
 
-ItemsList Client::gRPC_GetItems()
+ModelItems::Item Client::gRPC_GetItem(int index)
 {
-	gRPC_ClientItems grpcClient;
-	ItemsResponse itemR = grpcClient.CallRPC_GetItems(accountID, sign, error, allocateMemory);
-
-	ModelItems::Item* itemOUT = nullptr;
-	ItemsList itemsList(itemOUT, itemR.items().size());
-
-	for (size_t i = 0; i < itemR.items().size(); i++)
+	if (type_gRPC == Type_gRPC::GET_ITEMS)
 	{
-		itemOUT[i] << itemR.items().Get(i);
+		//const game::battlemon::items::Item item_read = ((ItemsResponse*)gRPC_read)->items(index);
+
+		ModelItems::Item item;
+		item.in_fight = ((ItemsResponse*)gRPC_read)->items(index).in_fight();
+		item.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).token_id().c_str();
+		item.media = (char*)((ItemsResponse*)gRPC_read)->items(index).media().c_str();
+		item.owner_id = (char*)((ItemsResponse*)gRPC_read)->items(index).owner_id().c_str();
+		item.lemon.exo = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().exo().c_str();
+		item.lemon.eyes = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().eyes().c_str();
+		item.lemon.head = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().head().c_str();
+		item.lemon.teeth = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().teeth().c_str();
+		item.lemon.face = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().face().c_str();
+
+		item.lemon.cap.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cap().flavour().c_str();
+		item.lemon.cap.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cap().token_id().c_str();
+		item.lemon.cap.kind << ((ItemsResponse*)gRPC_read)->items(index).lemon().cap().kind();
+
+		item.lemon.cloth.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cloth().flavour().c_str();
+		item.lemon.cloth.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cloth().token_id().c_str();
+		item.lemon.cloth.kind << ((ItemsResponse*)gRPC_read)->items(index).lemon().cloth().kind();
+
+
+		item.lemon.fire_arm.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().fire_arm().flavour().c_str();
+		item.lemon.fire_arm.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().fire_arm().token_id().c_str();
+		item.lemon.fire_arm.kind << ((ItemsResponse*)gRPC_read)->items(index).lemon().fire_arm().kind();
+
+		item.lemon.cold_arm.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cold_arm().flavour().c_str();
+		item.lemon.cold_arm.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().cold_arm().token_id().c_str();
+		item.lemon.cold_arm.kind << ((ItemsResponse*)gRPC_read)->items(index).lemon().cold_arm().kind();
+
+		item.lemon.back.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().back().flavour().c_str();
+		item.lemon.back.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).lemon().back().token_id().c_str();
+		item.lemon.back.kind << ((ItemsResponse*)gRPC_read)->items(index).lemon().back().kind();
+
+		item.outfit.flavour = (char*)((ItemsResponse*)gRPC_read)->items(index).outfit().flavour().c_str();
+		item.outfit.token_id = (char*)((ItemsResponse*)gRPC_read)->items(index).outfit().token_id().c_str();
+		item.outfit.kind << ((ItemsResponse*)gRPC_read)->items(index).outfit().kind();
+
+		return item;
 	}
 
+	return ModelItems::Item();
+}
+
+ItemsList Client::gRPC_GetItems()
+{
+	if (type_gRPC == Type_gRPC::GET_ITEMS)
+	{
+		type_gRPC = Type_gRPC::GET_ITEMS;
+		ModelItems::Item* itemOUT = nullptr;
+		ItemsList itemsList(itemOUT, ((ItemsResponse*)gRPC_read)->items().size());
+
+		for (size_t i = 0; i < ((ItemsResponse*)gRPC_read)->items().size(); i++)
+		{
+			itemOUT[i] = gRPC_GetItem(i);
+		}
+
+		return itemsList;
+	}
+
+	ModelItems::Item* itemOUT = nullptr;
+	ItemsList itemsList(itemOUT, -1);
 	return itemsList;
 }
 
+ItemsList Client::gRPC_CopyItems()
+{
+	if (type_gRPC == Type_gRPC::GET_ITEMS)
+	{
+		type_gRPC = Type_gRPC::GET_ITEMS;
+		ModelItems::Item* itemOUT = nullptr;
+		ItemsList itemsList(itemOUT, ((ItemsResponse*)gRPC_read)->items().size());
+
+		for (size_t i = 0; i < ((ItemsResponse*)gRPC_read)->items().size(); i++)
+		{
+			itemOUT[i] << ((ItemsResponse*)gRPC_read)->items().Get(i);
+		}
+
+		return itemsList;
+	}
+
+	ModelItems::Item* itemOUT = nullptr;
+	ItemsList itemsList(itemOUT, -1);
+	return itemsList;
+}
+
+void Client::CallRPC_GetItems()
+{
+	Free_gRPC_read();
+	gRPC_ClientItems grpcClient;
+	gRPC_read = new ItemsResponse(grpcClient.CallRPC_GetItems(accountID, sign, THROW_HOOK));
+	type_gRPC = Type_gRPC::GET_ITEMS;
+}
+
+void Client::CallRPC_GetBundles(const TYPE_CHAR* outBundle_id, const TYPE_CHAR* outAttached_lemons)
+{
+	gRPC_ClientItems grpcClient;
+	GetBundlesResponse read = grpcClient.CallRPC_GetBundles(accountID, sign, THROW_HOOK);
+
+	game::battlemon::items::WeaponBundle* wb = new game::battlemon::items::WeaponBundle[read.bundles_size()];
+
+	for (size_t i = 0; i < read.bundles_size(); i++)
+	{
+		wb[i] = read.bundles(i);
+	}
+
+}
+
+ModelMM::SearchGameResponseStatus Client::CallRPC_SearchGame(const int& MatchType, const int& MatchMode)
+{
+	type_gRPC = Type_gRPC::SEARCH_GAME;
+	gRPC_ClientMM  gRPC_Client;
+	SearchGameResponse read = gRPC_Client.CallRPC_SearchGame(MatchType, MatchMode, THROW_HOOK);
+
+	switch (read.status())
+	{
+	case SearchGameResponseStatus::OK:
+		return ModelMM::SearchGameResponseStatus::OK;
+		break;
+	case SearchGameResponseStatus::NFT_ERROR:
+		return ModelMM::SearchGameResponseStatus::NFT_ERROR;
+		break;
+	case SearchGameResponseStatus::ALREADY_IN_QUEUE:
+		return ModelMM::SearchGameResponseStatus::ALREADY_IN_QUEUE;
+		break;
+	case SearchGameResponseStatus::GAMEMODE_ERROR:
+		return ModelMM::SearchGameResponseStatus::GAMEMODE_ERROR;
+		break;
+	case SearchGameResponseStatus::INVALID_REQUEST:
+		return ModelMM::SearchGameResponseStatus::INVALID_REQUEST;
+		break;
+	case SearchGameResponseStatus::INTERNAL_ERROR:
+		return ModelMM::SearchGameResponseStatus::INTERNAL_ERROR;
+		break;
+	default:
+		return ModelMM::SearchGameResponseStatus::DEFAULT;
+		break;
+	} 
+}
+
+bool Client::CallRPC_AcceptGame(const TYPE_CHAR* lemon_id)
+{
+	gRPC_ClientMM  gRPC_Client;
+	return gRPC_Client.CallRPC_AcceptGame(TYPE_Conv(lemon_id), THROW_HOOK);
+}
+
+bool Client::CallRPC_CancelSearch()
+{
+	gRPC_ClientMM  gRPC_Client;
+	return gRPC_Client.CallRPC_CancelSearch(accountID, sign, THROW_HOOK);
+}
 
 ItemsList::ItemsList(ModelItems::Item* &items, int size) : size(size), items(nullptr)
 {
@@ -272,7 +432,9 @@ ItemsList::ItemsList(const ItemsList& itemsList) : size(itemsList.size), items(n
 
 ItemsList::~ItemsList()
 {
-	delete[]items;
+	if(items != nullptr)
+		delete[]items;
+	items = nullptr;
 }
 
 PlayerItemsClient::~PlayerItemsClient()
