@@ -1,12 +1,14 @@
 set Arr[0]=auth.proto
 set Arr[1]=common.proto
 set Arr[2]=internalAuth.proto
-set Arr[3]=internalItems.proto
-set Arr[4]=internalMm.proto
-set Arr[5]=items.proto
-set Arr[6]=mm.proto
-set Arr[7]=users.proto
-set Arr[8]=websocket.proto
+set Arr[3]=internalCarousel.proto
+set Arr[4]=internalItems.proto
+set Arr[5]=internalMm.proto
+set Arr[6]=items.proto
+set Arr[7]=mm.proto
+set Arr[8]=updates.proto
+set Arr[9]=users.proto
+
 set "x=0"
 
 if not defined GRPCARCHITECTURE (goto :setWin) else (goto :okWin)

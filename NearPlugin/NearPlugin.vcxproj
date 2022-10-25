@@ -183,6 +183,8 @@
     <ClCompile Include="protocol\common.pb.cc" />
     <ClCompile Include="protocol\items.grpc.pb.cc" />
     <ClCompile Include="protocol\items.pb.cc" />
+    <ClCompile Include="protocol\mm.grpc.pb.cc" />
+    <ClCompile Include="protocol\mm.pb.cc" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
@@ -206,6 +208,8 @@
     <ClInclude Include="protocol\common.pb.h" />
     <ClInclude Include="protocol\items.grpc.pb.h" />
     <ClInclude Include="protocol\items.pb.h" />
+    <ClInclude Include="protocol\mm.grpc.pb.h" />
+    <ClInclude Include="protocol\mm.pb.h" />
     <ClInclude Include="src\ed25519.h" />
     <ClInclude Include="src\fe.h" />
     <ClInclude Include="src\fixedint.h" />

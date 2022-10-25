@@ -7,6 +7,7 @@
 #include <grpcpp/security/credentials.h>
 #include "protocol/auth.grpc.pb.h"
 #include "protocol/items.grpc.pb.h"
+#include "protocol/mm.grpc.pb.h"
 
 #ifdef WIN32
 
@@ -34,13 +35,28 @@ using game::battlemon::auth::VerifyCodeResponse;
 using game::battlemon::auth::AuthService;
 
 using game::battlemon::items::ItemsService;
-using game::battlemon::items::PlayersItemsRequest;
-using game::battlemon::items::PlayersItemsResponse;
+using game::battlemon::items::GetBundlesRequest;
+using game::battlemon::items::GetBundlesResponse;
+using game::battlemon::items::CreateBundleRequest;
+using game::battlemon::items::WeaponBundle;
+using game::battlemon::items::EditBundleRequest;
+using game::battlemon::items::RemoveBundleRequest;
+using game::battlemon::items::AttachBundleRequest;
+using game::battlemon::items::DetachBundleRequest;
 using game::battlemon::items::ItemsResponse;
 using game::battlemon::items::ItemsRequest;
-using game::battlemon::items::PlayerItems;
-using game::battlemon::items::SetMyItemsRequest;
 using game::battlemon::common::Empty;
+
+using game::battlemon::mm::MMService;
+using game::battlemon::mm::AcceptGameRequest;
+using game::battlemon::mm::SearchGameResponseStatus;
+using game::battlemon::mm::SearchGameResponse;
+using game::battlemon::mm::AcceptGameRequest;
+using game::battlemon::mm::CancelSearchRequest;
+using game::battlemon::mm::SearchGameRequest;
+using game::battlemon::mm::GameMode;
+
+
 
 #define HOOK_ERROR char*& error, void(*errorH)(const std::string& copy, char*& error)
 
@@ -98,34 +114,54 @@ protected:
 	std::unique_ptr<ServiceStub> stub;
 	std::string error;
 
+	void CreateContext(ClientContext & context,std::string meta_key[], std::string meta_value[], const int number)
+	{
+		for (size_t i = 0; i < number; i++)
+		{
+			context.AddMetadata(meta_key[i], meta_value[i]);
+		}
+	}
+
 public:
 	gRPC_Client()
 	{
 		stub = std::unique_ptr<ServiceStub>(Service::NewStub((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(getSslOptions())))));
 	}
+
 	~gRPC_Client() {}
 };
 
 class gRPC_ClientAuth : public gRPC_Client<AuthService, AuthService::Stub>
 {
-    bool GetOneCode(const SendCodeRequest& write, SendCodeResponse* read);
-    bool GetOneVerify(const VerifyCodeRequest& write, VerifyCodeResponse* read);
+	//bool CallRPC(ClientContext& context, const SendCodeRequest& write, SendCodeResponse* read);
+	//bool CallRPC(ClientContext& context, const VerifyCodeRequest& write, VerifyCodeResponse* read);
 
 public:
 
-    SendCodeResponse CallRPCSendCode(const std::string& publicKey, HOOK_ERROR);
-    VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, HOOK_ERROR);
+	SendCodeResponse CallRPCSendCode(const std::string& publicKey, HOOK_ERROR);
+	VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, HOOK_ERROR);
 };
 
 
 class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
 {
-	bool GetOneItems(const ItemsRequest& write, ItemsResponse* read, const std::string& nearID, const std::string& sign);
-	bool GetOnePlayersItems(const PlayersItemsRequest& write, PlayersItemsResponse* read);
-	bool GetOneSetMyItems(SetMyItemsRequest& write, Empty* read, const std::string& nearID, const std::string& sign);
 
 public:
 	ItemsResponse CallRPC_GetItems(const std::string& nearID, const std::string& sign, HOOK_ERROR);
-	PlayersItemsResponse CallRPC_GetPlayersItems(const std::string& room_id, int index, const std::string* near_ids, HOOK_ERROR);
-	void CallRPC_SetMyItems(const std::string& room_id, int index, const std::string* nft_ids, const std::string& nearID, const std::string& sign, HOOK_ERROR);
+	GetBundlesResponse CallRPC_GetBundles(const std::string& nearID, const std::string& sign, HOOK_ERROR);
+	WeaponBundle CallRPC_CreateBundle(const std::string& nearID, const std::string& sign, HOOK_ERROR);
+	WeaponBundle CallRPC_EditBundle(const std::string &bundle_id, HOOK_ERROR);
+	bool CallRPC_RemoveBundle(const std::string& bundle_id, HOOK_ERROR);
+	bool CallRPC_AttachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR);
+	bool CallRPC_DetachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR);
 };
+
+class gRPC_ClientMM : public gRPC_Client<MMService, MMService::Stub>
+{
+
+public:
+	SearchGameResponse CallRPC_SearchGame(const int& MatchType, const int& MatchMode, HOOK_ERROR);
+	bool CallRPC_AcceptGame(const std::string& lemon_id, HOOK_ERROR);
+	bool CallRPC_CancelSearch(const std::string& nearID, const std::string& sign, HOOK_ERROR);
+};
+
