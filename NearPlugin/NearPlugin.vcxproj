@@ -174,9 +174,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gRPCResponse.cpp" />
     <ClCompile Include="GRPC_Client.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="EdKeys.cpp" />
+    <ClCompile Include="ModelItem.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />
     <ClCompile Include="protocol\common.grpc.pb.cc" />
@@ -199,8 +201,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GRPC_Client.h" />
-    <ClInclude Include="Client.h" />
     <ClInclude Include="EdKeys.h" />
+    <ClInclude Include="Helper.h" />
+    <ClInclude Include="include\Client.h" />
+    <ClInclude Include="include\gRPCResponse.h" />
     <ClInclude Include="include\ModelItem.h" />
     <ClInclude Include="protocol\auth.grpc.pb.h" />
     <ClInclude Include="protocol\auth.pb.h" />

@@ -1,4 +1,6 @@
 #pragma once
+#include "Helper.h"
+#include "include/ModelItem.h"
 
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
@@ -37,10 +39,8 @@ using game::battlemon::auth::AuthService;
 using game::battlemon::items::ItemsService;
 using game::battlemon::items::GetBundlesRequest;
 using game::battlemon::items::GetBundlesResponse;
-using game::battlemon::items::CreateBundleRequest;
 using game::battlemon::items::WeaponBundle;
 using game::battlemon::items::EditBundleRequest;
-using game::battlemon::items::RemoveBundleRequest;
 using game::battlemon::items::AttachBundleRequest;
 using game::battlemon::items::DetachBundleRequest;
 using game::battlemon::items::ItemsResponse;
@@ -56,9 +56,6 @@ using game::battlemon::mm::CancelSearchRequest;
 using game::battlemon::mm::SearchGameRequest;
 using game::battlemon::mm::GameMode;
 
-
-
-#define HOOK_ERROR char*& error, void(*errorH)(const std::string& copy, char*& error)
 
 class gRPC_SSL
 {
@@ -149,19 +146,17 @@ class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
 public:
 	ItemsResponse CallRPC_GetItems(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 	GetBundlesResponse CallRPC_GetBundles(const std::string& nearID, const std::string& sign, HOOK_ERROR);
-	WeaponBundle CallRPC_CreateBundle(const std::string& nearID, const std::string& sign, HOOK_ERROR);
-	WeaponBundle CallRPC_EditBundle(const std::string &bundle_id, HOOK_ERROR);
-	bool CallRPC_RemoveBundle(const std::string& bundle_id, HOOK_ERROR);
-	bool CallRPC_AttachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR);
-	bool CallRPC_DetachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR);
+	WeaponBundle CallRPC_EditBundle(ModelItems::EditBundleRequest& request, HOOK_ERROR);
+	bool CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request, HOOK_ERROR);
+	bool CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request, HOOK_ERROR);
 };
 
 class gRPC_ClientMM : public gRPC_Client<MMService, MMService::Stub>
 {
 
 public:
-	SearchGameResponse CallRPC_SearchGame(const int& MatchType, const int& MatchMode, HOOK_ERROR);
-	bool CallRPC_AcceptGame(const std::string& lemon_id, HOOK_ERROR);
+	SearchGameResponse CallRPC_SearchGame(ModelMM::SearchGameRequest* Request, HOOK_ERROR);
+	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest* Request, HOOK_ERROR);
 	bool CallRPC_CancelSearch(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 };
 

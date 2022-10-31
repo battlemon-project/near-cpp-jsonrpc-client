@@ -131,28 +131,20 @@ GetBundlesResponse gRPC_ClientItems::CallRPC_GetBundles(const std::string& nearI
     return read;
 }
 
-WeaponBundle gRPC_ClientItems::CallRPC_CreateBundle(const std::string& nearID, const std::string& sign, HOOK_ERROR)
-{
-    CreateBundleRequest write;
-    WeaponBundle read;
-
-    std::string meta[] = { "nearid" , "sign" };
-    std::string value[] = { nearID , sign };
-    ClientContext context;
-    CreateContext(context, meta, value, 2);
-    
-    if (CallRPC<ItemsService::Stub, CreateBundleRequest, WeaponBundle>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::CreateBundle))
-    {
-        errorH(this->error, error);
-    }
-    return read;
-}
-
-WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(const std::string& bundle_id, HOOK_ERROR)
+WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(ModelItems::EditBundleRequest& request, HOOK_ERROR)
 {
     EditBundleRequest write;
     WeaponBundle read;
-    write.set_bundle_id(bundle_id);
+    write.set_bundle_num(request.getBundle_num());
+    write.set_title(request.getTitle());
+
+    game::battlemon::items::WeaponBundleItem item;
+    item.set_skin(request.getItems()->skin);
+
+    ModelItems::WeaponBundleItem* itemsU = request.getItems();
+
+    item.set_item_type(Helper::ConvWeaponBundleItemTypeToProto(itemsU->item_type));
+    item.set_slot_type(Helper::WeaponBundleSlotTypeToProto(itemsU->slot_type));
 
     ClientContext context;
 
@@ -164,28 +156,13 @@ WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(const std::string& bundle_id, 
     return read;
 }
 
-bool gRPC_ClientItems::CallRPC_RemoveBundle(const std::string& bundle_id, HOOK_ERROR)
-{
-    RemoveBundleRequest write; 
-    Empty read;
-    write.set_bundle_id(bundle_id);
-
-    ClientContext context;
-    if (CallRPC<ItemsService::Stub, RemoveBundleRequest, Empty>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::RemoveBundle))
-    {
-        errorH(this->error, error);
-        return false;
-    }
-
-    return true;
-}
-
-bool gRPC_ClientItems::CallRPC_AttachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR)
+bool gRPC_ClientItems::CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request, HOOK_ERROR)
 {
     AttachBundleRequest write;
     Empty read;
-    write.set_bundle_id(bundle_id);
-    write.set_lemon_id(lemon_id);
+
+    write.set_bundle_num(request.get_bundle_num());
+    write.set_lemon_id(request.get_lemon_id());
 
     ClientContext context;
     if (CallRPC<ItemsService::Stub, AttachBundleRequest, Empty>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::AttachBundle))
@@ -197,12 +174,13 @@ bool gRPC_ClientItems::CallRPC_AttachBundle(const std::string& bundle_id, const 
     return true;
 }
 
-bool gRPC_ClientItems::CallRPC_DetachBundle(const std::string& bundle_id, const std::string& lemon_id, HOOK_ERROR)
+bool gRPC_ClientItems::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request, HOOK_ERROR)
 {
     DetachBundleRequest write;
     Empty read;
-    write.set_bundle_id(bundle_id);
-    write.set_lemon_id(lemon_id);
+
+    write.set_bundle_num(request.get_bundle_num());
+    write.set_lemon_id(request.get_lemon_id());
 
     ClientContext context;
     if (CallRPC<ItemsService::Stub, DetachBundleRequest, Empty>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::DetachBundle))
@@ -220,7 +198,7 @@ bool gRPC_ClientItems::CallRPC_DetachBundle(const std::string& bundle_id, const 
 
 
 
-SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(const int& MatchType, const int& MatchMode, HOOK_ERROR)
+SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest* Request, HOOK_ERROR)
 {
     SearchGameRequest write;
     SearchGameResponse read;
@@ -228,25 +206,27 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(const int& MatchType, const
     GameMode gameMode;
     game::battlemon::mm::MatchMode value;
     
-    switch (MatchType)
+    switch (Request->game_mode.match_type)
     {
-    case 0:
+    case ModelMM::MatchType::DEATH_MATCH:
         gameMode.set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
         break;
-    case 1:
+    case ModelMM::MatchType::CATCH_THE_FLAG:
         gameMode.set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
+        break;
+    default:
         break;
     }
 
-    switch (MatchMode)
+    switch (Request->game_mode.match_mode)
     {
-    case 0:
+    case ModelMM::MatchMode::NONE:
         gameMode.set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
-    case 1:
+    case ModelMM::MatchMode::EQUIPMENT:
         gameMode.set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
         break;
-    case 2:
+    case ModelMM::MatchMode::REALISM:
         gameMode.set_match_mode(game::battlemon::mm::MatchMode::REALISM);
         break;
     }
@@ -262,12 +242,12 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(const int& MatchType, const
     return read;
 }
 
-bool gRPC_ClientMM::CallRPC_AcceptGame(const std::string& lemon_id, HOOK_ERROR)
+bool gRPC_ClientMM::CallRPC_AcceptGame(ModelMM::AcceptGameRequest* Request, HOOK_ERROR)
 {
     AcceptGameRequest write;
     Empty read;
 
-    write.set_lemon_id(lemon_id);
+    write.set_lemon_id(Request->lemon_id);
     ClientContext context;
 
     if (CallRPC<MMService::Stub, AcceptGameRequest, Empty>(stub.get(), context, write, &read, this->error, &MMService::Stub::AcceptGame))

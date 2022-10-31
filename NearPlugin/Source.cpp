@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Client.h"
+#include "include/Client.h"
 #include <thread>
 #include <ctime>
 
@@ -9,7 +9,7 @@ int main()
 {
     try
     {
-        Client client("J:\\source\\GitRepos\\battlemon-project\\near-cpp-jsonrpc-client\\NearPlugin\\data\\", "testnet", TypeInp::REGISTRATION);
+        Client client("J:\\source\\GitRepos\\battlemon-project\\near-cpp-jsonrpc-client\\NearPlugin\\data\\", "testnet", Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION);
 
         std::string url = std::string("https://wallet.") + std::string("testnet") + ".near.org/login?title=rndname^&success_url=" + REDIRECT + "^&public_key=" + client.GetPublicKey();
 
