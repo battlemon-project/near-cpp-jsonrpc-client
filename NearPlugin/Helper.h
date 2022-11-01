@@ -65,8 +65,8 @@ namespace Helper
 			break;
 		default:
 			break;
-}
-}
+		}
+	}
 
 	ModelItems::WeaponBundleItemType ConvWeaponBundleItemTypeToCPP(const game::battlemon::items::WeaponBundleItemType& item_type)
 	{
@@ -91,6 +91,7 @@ namespace Helper
 			return ModelItems::WeaponBundleItemType::BUNDLE_ITEM_PERK;
 			break;
 		default:
+			return ModelItems::WeaponBundleItemType::NONE;
 			break;
 		}
 	}
@@ -163,6 +164,7 @@ namespace Helper
 			return ModelItems::WeaponBundleSlotType::BUNDLE_SLOT_PERK_TWO;
 			break;
 		default:
+			return ModelItems::WeaponBundleSlotType::NONE;
 			break;
 		}
 	}

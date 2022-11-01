@@ -8,7 +8,7 @@
 
 gRPC_ResponseItem::gRPC_ResponseItem(Client** client, void* inRequest, Type_Call_gRPC::Type_gRPCItem type_gRPC):gRPC_Response(client, type_gRPC)
 {
-	gRPC_read = nullptr;
+	free_gRPC();
 	switch (type_gRPC)
 	{
 	case Type_Call_gRPC::Type_gRPCItem::NONE:
@@ -19,15 +19,14 @@ gRPC_ResponseItem::gRPC_ResponseItem(Client** client, void* inRequest, Type_Call
 	case Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES:
 		CallRPC_GetBundles();
 		break;
-	case Type_Call_gRPC::Type_gRPCItem::CREATE_BUNDLE:
-		break;
 	case Type_Call_gRPC::Type_gRPCItem::EDIT_BUNDLE:
-		break;
-	case Type_Call_gRPC::Type_gRPCItem::REMOVE_BUNDLE:
+		CallRPC_EditBundle(*(ModelItems::EditBundleRequest*)inRequest);
 		break;
 	case Type_Call_gRPC::Type_gRPCItem::ATTACH_BUNDLE:
+		CallRPC_AttachBundle(*(ModelItems::AttachBundleRequest*)inRequest);
 		break;
 	case Type_Call_gRPC::Type_gRPCItem::DETACH_BUNDLE:
+		CallRPC_DetachBundle(*(ModelItems::DetachBundleRequest*)inRequest);
 		break;
 	default:
 		break;
@@ -48,14 +47,8 @@ void gRPC_ResponseItem::free_gRPC()
 		case Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES:
 			delete GET_BUNDLES_RESPONSE;
 			break;
-		case Type_Call_gRPC::Type_gRPCItem::CREATE_BUNDLE:
-			delete WEAPON_BUNDLE;
-			break;
 		case Type_Call_gRPC::Type_gRPCItem::EDIT_BUNDLE:
 			delete WEAPON_BUNDLE;
-			break;
-		case Type_Call_gRPC::Type_gRPCItem::REMOVE_BUNDLE:
-			delete COMMON_EMPTY;
 			break;
 		case Type_Call_gRPC::Type_gRPCItem::ATTACH_BUNDLE:
 			delete COMMON_EMPTY;
@@ -143,7 +136,7 @@ ModelItems::WeaponBundle gRPC_ResponseItem::gRPC_GetBundle(int index)
 		wb.level = GET_BUNDLES_RESPONSE->bundles(index).level();
 		ModelItems::WeaponBundleItem* item = wb.WeaponList.getObjectPtr();
 
-		for (size_t i = 0; i < GET_BUNDLES_RESPONSE->bundles(index).items_size(); i++)
+		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles(index).items_size(); i++)
 		{
 			switch (GET_BUNDLES_RESPONSE->bundles(index).items().Get(i).item_type())
 			{
@@ -213,7 +206,7 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_GetBundlesArray()
 		ModelItems::WeaponBundle* itemOUT = nullptr;
 		ObjectList<ModelItems::WeaponBundle> itemsList(ITEMS_RESPONSE->items().size());
 
-		for (size_t i = 0; i < ITEMS_RESPONSE->items().size(); i++)
+		for (int i = 0; i < ITEMS_RESPONSE->items().size(); i++)
 		{
 			itemOUT[i] = gRPC_GetBundle(i);
 		}
@@ -278,40 +271,42 @@ bool gRPC_ResponseItem::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& re
 void gRPC_ResponseMM::free_gRPC()
 {
 	if(gRPC_read!=nullptr)
-	switch (type_gRPC)
-	{
-	case Type_Call_gRPC::Type_gRPC_MM::NONE:
-		break;
-	case Type_Call_gRPC::Type_gRPC_MM::SEARCH_GAME:
-		delete SEARCH_GAME_RESPONSE;
-		break;
-	case Type_Call_gRPC::Type_gRPC_MM::ACCEPT_GAME:
-	case Type_Call_gRPC::Type_gRPC_MM::CANCEL_SEARCH:
-		delete (bool*)gRPC_read;
-		break;
-	default:
-		break;
-	}
+		switch (type_gRPC)
+		{
+		case Type_Call_gRPC::Type_gRPC_MM::NONE:
+			break;
+		case Type_Call_gRPC::Type_gRPC_MM::SEARCH_GAME:
+			delete SEARCH_GAME_RESPONSE;
+			break;
+		case Type_Call_gRPC::Type_gRPC_MM::ACCEPT_GAME:
+		case Type_Call_gRPC::Type_gRPC_MM::CANCEL_SEARCH:
+			delete (bool*)gRPC_read;
+			break;
+		default:
+			break;
+		}
 	type_gRPC = Type_Call_gRPC::Type_gRPC_MM::NONE;
 	gRPC_read = nullptr;
 }
 
-void gRPC_ResponseMM::CallRPC_SearchGame(void* inRequest)
+void gRPC_ResponseMM::CallRPC_SearchGame(ModelMM::SearchGameRequest& inRequest)
 {
 	gRPC_ClientMM  gRPC_Client;
-	gRPC_read = new game::battlemon::mm::SearchGameResponse(gRPC_Client.CallRPC_SearchGame((ModelMM::SearchGameRequest*)inRequest, THROW_HOOK));
+	gRPC_read = new game::battlemon::mm::SearchGameResponse(gRPC_Client.CallRPC_SearchGame(inRequest, THROW_HOOK));
 }
 
-bool gRPC_ResponseMM::CallRPC_AcceptGame(void* inRequest)
+bool gRPC_ResponseMM::CallRPC_AcceptGame(ModelMM::AcceptGameRequest& inRequest)
 {
 	gRPC_ClientMM  gRPC_Client;
-	gRPC_read = new bool(gRPC_Client.CallRPC_AcceptGame((ModelMM::AcceptGameRequest*)inRequest, THROW_HOOK));
+	gRPC_read = new bool(gRPC_Client.CallRPC_AcceptGame(inRequest, THROW_HOOK));
+	return *(bool*)gRPC_read;
 }
 
 bool gRPC_ResponseMM::CallRPC_CancelSearch()
 {
 	gRPC_ClientMM  gRPC_Client;
 	gRPC_read = new bool(gRPC_Client.CallRPC_CancelSearch((*client)->GetAccount(), (*client)->GetSing(), THROW_HOOK));
+	return *(bool*)gRPC_read;
 }
 
 
@@ -361,15 +356,17 @@ bool gRPC_ResponseMM::getResponse_CancelSearch()
 
 gRPC_ResponseMM::gRPC_ResponseMM(Client** client, void* inRequest, Type_Call_gRPC::Type_gRPC_MM type_gRPC) :gRPC_Response(client, type_gRPC)
 {
+	free_gRPC();
 	switch (type_gRPC)
 	{
 	case Type_Call_gRPC::Type_gRPC_MM::NONE:
+
 		break;
 	case Type_Call_gRPC::Type_gRPC_MM::SEARCH_GAME:
-		CallRPC_SearchGame(inRequest);
+		CallRPC_SearchGame(*(ModelMM::SearchGameRequest*)inRequest);
 		break;
 	case Type_Call_gRPC::Type_gRPC_MM::ACCEPT_GAME:
-		CallRPC_AcceptGame(inRequest);
+		CallRPC_AcceptGame(*(ModelMM::AcceptGameRequest*)inRequest);
 		break;
 	case Type_Call_gRPC::Type_gRPC_MM::CANCEL_SEARCH:
 		CallRPC_CancelSearch();

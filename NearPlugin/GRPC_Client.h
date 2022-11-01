@@ -155,8 +155,8 @@ class gRPC_ClientMM : public gRPC_Client<MMService, MMService::Stub>
 {
 
 public:
-	SearchGameResponse CallRPC_SearchGame(ModelMM::SearchGameRequest* Request, HOOK_ERROR);
-	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest* Request, HOOK_ERROR);
+	SearchGameResponse CallRPC_SearchGame(ModelMM::SearchGameRequest& Request, HOOK_ERROR);
+	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest& Request, HOOK_ERROR);
 	bool CallRPC_CancelSearch(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 };
 

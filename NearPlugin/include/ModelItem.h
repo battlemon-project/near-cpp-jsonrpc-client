@@ -1,5 +1,24 @@
 #pragma once
 
+#if PLATFORM_WINDOWS
+#define __APPLE__ 0
+#define _WIN32 1
+#define __linux__ 0
+#elif PLATFORM_MAC
+#define __APPLE__ 1
+#define _WIN32 0
+#define __linux__ 0
+#elif PLATFORM_LINUX
+#define __APPLE__ 0
+#define _WIN32 0
+#define __linux__ 1
+#endif
+
+#if _WIN32
+#define TYPE_CHAR char
+#else
+#define TYPE_CHAR char16_t
+#endif
 
 template <typename TargetClassList>
 class ObjectList
@@ -126,7 +145,7 @@ namespace ModelMM
 
 	struct AcceptGameRequest
 	{
-		char* lemon_id;
+		TYPE_CHAR* lemon_id;
 	};
 
 	class CancelSearchRequest
@@ -137,22 +156,22 @@ namespace ModelMM
 namespace ModelItems
 {
 	enum class OutfitKind
-		{
-			CAP = 0,
-			CLOTH = 1,
-			FIRE_ARM = 2,
-			COLD_ARM = 3,
-			BACK = 4,
-			DEFAULT = 5
-		};
+	{
+		CAP = 0,
+		CLOTH = 1,
+		FIRE_ARM = 2,
+		COLD_ARM = 3,
+		BACK = 4,
+		DEFAULT = 5
+	};
 
 	class OutfitModel
 	{
 		bool copy;
 
 	public:
-		char* flavour = nullptr;
-		char* token_id = nullptr;
+		TYPE_CHAR* flavour = nullptr;
+		TYPE_CHAR* token_id = nullptr;
 		OutfitKind kind;
 
 
@@ -196,13 +215,13 @@ namespace ModelItems
 	struct WeaponBundleItem
 	{
 		WeaponBundleItemType item_type;
-		char* skin;
+		TYPE_CHAR* skin;
 		WeaponBundleSlotType slot_type;
 
 		ModelItems::WeaponBundleItem& operator=(const ModelItems::WeaponBundleItem& from);
 
 		WeaponBundleItem() :item_type(WeaponBundleItemType::NONE), skin(nullptr), slot_type(WeaponBundleSlotType::NONE) {};
-		WeaponBundleItem(WeaponBundleItemType item_type, WeaponBundleSlotType slot_type, char* skin) : item_type(item_type), slot_type(slot_type), skin(skin){};
+		WeaponBundleItem(WeaponBundleItemType item_type, WeaponBundleSlotType slot_type, TYPE_CHAR* skin) : item_type(item_type), slot_type(slot_type), skin(skin){};
 		WeaponBundleItem(const WeaponBundleItem& copy);
 		~WeaponBundleItem() {};
 	};
@@ -212,7 +231,7 @@ namespace ModelItems
 		int bundle_num;
 		ObjectList<WeaponBundleItem> WeaponList;
 
-		char* title;
+		TYPE_CHAR* title;
 		int level;
 
 		ModelItems::WeaponBundle& operator=(const ModelItems::WeaponBundle& from);
@@ -234,11 +253,11 @@ namespace ModelItems
 	public:
 		OutfitModel cap;
 		OutfitModel cloth;
-		char* exo = nullptr;
-		char* eyes = nullptr;
-		char* head = nullptr;
-		char* teeth = nullptr;
-		char* face = nullptr;
+		TYPE_CHAR* exo = nullptr;
+		TYPE_CHAR* eyes = nullptr;
+		TYPE_CHAR* head = nullptr;
+		TYPE_CHAR* teeth = nullptr;
+		TYPE_CHAR* face = nullptr;
 		OutfitModel fire_arm;
 		OutfitModel cold_arm;
 		OutfitModel back;
@@ -264,9 +283,9 @@ namespace ModelItems
 
 	struct Item
 	{
-		char* token_id = nullptr;
-		char* media = nullptr;
-		char* owner_id = nullptr;
+		TYPE_CHAR* token_id = nullptr;
+		TYPE_CHAR* media = nullptr;
+		TYPE_CHAR* owner_id = nullptr;
 		bool in_fight;
 		LemonModel lemon;
 		OutfitModel outfit;
@@ -286,31 +305,31 @@ namespace ModelItems
 	{
 		const int bundle_num;
 		ObjectList<ModelItems::WeaponBundleItem> items;
-		const char* title;
+		const TYPE_CHAR* title;
 
 	public:
-		EditBundleRequest(int bundle_num, char* title, WeaponBundleItem* items, int size) :bundle_num(bundle_num), items(items, size), title(title) {};
+		EditBundleRequest(int bundle_num, TYPE_CHAR* title, WeaponBundleItem* items, int size) :bundle_num(bundle_num), items(items, size), title(title) {};
 
 		const int& getBundle_num() const { return bundle_num; };
 		ModelItems::WeaponBundleItem* getItems() { return items.getObjectPtr(); };
-		const char* getTitle() const { return title; };
+		const TYPE_CHAR* getTitle() const { return title; };
 	};
 
 	class AttachBundleRequest
 	{
 		const int bundle_num;
-		const char* lemon_id;
+		const TYPE_CHAR* lemon_id;
 
 	public:
-		AttachBundleRequest(const int& bundle_num, const char*& lemon_id) :bundle_num(bundle_num), lemon_id(lemon_id) {};
+		AttachBundleRequest(const int& bundle_num, const TYPE_CHAR*& lemon_id) :bundle_num(bundle_num), lemon_id(lemon_id) {};
 		const int& get_bundle_num() const { return bundle_num; };
-		const char* get_lemon_id() const { return lemon_id; };
+		const TYPE_CHAR* get_lemon_id() const { return lemon_id; };
 	};
 
 	class DetachBundleRequest :public AttachBundleRequest
 	{
 	public:
-		DetachBundleRequest(const int& bundle_num, const char*& lemon_id) : AttachBundleRequest(bundle_num, lemon_id) {};
+		DetachBundleRequest(const int& bundle_num, const TYPE_CHAR*& lemon_id) : AttachBundleRequest(bundle_num, lemon_id) {};
 	};
 }
 
@@ -324,9 +343,7 @@ namespace Type_Call_gRPC
 		//items.proto
 		GET_ITEMS,							//return ItemsResponse
 		GET_BUNDLES,						//return GetBundlesResponse
-		CREATE_BUNDLE,						//return WeaponBundle
 		EDIT_BUNDLE,						//return WeaponBundle
-		REMOVE_BUNDLE,						//return common.Empty
 		ATTACH_BUNDLE,						//return common.Empty
 		DETACH_BUNDLE						//return common.Empty
 	};

@@ -1,29 +1,5 @@
 #pragma once
 #include "include/ModelItem.h"
-#if PLATFORM_WINDOWS
-#define __APPLE__ 0
-#define _WIN32 1
-#define __linux__ 0
-#elif PLATFORM_MAC
-#define __APPLE__ 1
-#define _WIN32 0
-#define __linux__ 0
-#elif PLATFORM_LINUX
-#define __APPLE__ 0
-#define _WIN32 0
-#define __linux__ 1
-#endif
-
-#if __linux__
-#define _GLIBCXX_USE_CXX11_ABI 0
-#endif
-
-#if _WIN32
-#define TYPE_CHAR char
-#else
-#define TYPE_CHAR char16_t
-#endif
-
 
 class Client
 {

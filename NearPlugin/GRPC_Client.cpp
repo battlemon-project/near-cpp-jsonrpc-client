@@ -136,7 +136,7 @@ WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(ModelItems::EditBundleRequest&
     EditBundleRequest write;
     WeaponBundle read;
     write.set_bundle_num(request.getBundle_num());
-    write.set_title(request.getTitle());
+    write.set_title(TYPE_Conv(request.getTitle()));
 
     game::battlemon::items::WeaponBundleItem item;
     item.set_skin(request.getItems()->skin);
@@ -162,7 +162,7 @@ bool gRPC_ClientItems::CallRPC_AttachBundle(ModelItems::AttachBundleRequest& req
     Empty read;
 
     write.set_bundle_num(request.get_bundle_num());
-    write.set_lemon_id(request.get_lemon_id());
+    write.set_lemon_id(TYPE_Conv(request.get_lemon_id()));
 
     ClientContext context;
     if (CallRPC<ItemsService::Stub, AttachBundleRequest, Empty>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::AttachBundle))
@@ -180,7 +180,7 @@ bool gRPC_ClientItems::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& req
     Empty read;
 
     write.set_bundle_num(request.get_bundle_num());
-    write.set_lemon_id(request.get_lemon_id());
+    write.set_lemon_id(TYPE_Conv(request.get_lemon_id()));
 
     ClientContext context;
     if (CallRPC<ItemsService::Stub, DetachBundleRequest, Empty>(stub.get(), context, write, &read, this->error, &ItemsService::Stub::DetachBundle))
@@ -198,15 +198,14 @@ bool gRPC_ClientItems::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& req
 
 
 
-SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest* Request, HOOK_ERROR)
+SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest& Request, HOOK_ERROR)
 {
     SearchGameRequest write;
     SearchGameResponse read;
 
     GameMode gameMode;
-    game::battlemon::mm::MatchMode value;
     
-    switch (Request->game_mode.match_type)
+    switch (Request.game_mode.match_type)
     {
     case ModelMM::MatchType::DEATH_MATCH:
         gameMode.set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
@@ -218,7 +217,7 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest*
         break;
     }
 
-    switch (Request->game_mode.match_mode)
+    switch (Request.game_mode.match_mode)
     {
     case ModelMM::MatchMode::NONE:
         gameMode.set_match_mode(game::battlemon::mm::MatchMode::NONE);
@@ -242,12 +241,12 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest*
     return read;
 }
 
-bool gRPC_ClientMM::CallRPC_AcceptGame(ModelMM::AcceptGameRequest* Request, HOOK_ERROR)
+bool gRPC_ClientMM::CallRPC_AcceptGame(ModelMM::AcceptGameRequest& Request, HOOK_ERROR)
 {
     AcceptGameRequest write;
     Empty read;
 
-    write.set_lemon_id(Request->lemon_id);
+    write.set_lemon_id(TYPE_Conv(Request.lemon_id));
     ClientContext context;
 
     if (CallRPC<MMService::Stub, AcceptGameRequest, Empty>(stub.get(), context, write, &read, this->error, &MMService::Stub::AcceptGame))

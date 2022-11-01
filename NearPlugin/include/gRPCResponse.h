@@ -63,8 +63,8 @@ class gRPC_ResponseMM : public gRPC_Response<Type_Call_gRPC::Type_gRPC_MM>
 	void free_gRPC() override;
 
 	//call server			
-	void CallRPC_SearchGame(void* inRequest);	//SearchGameResponse
-	bool CallRPC_AcceptGame(void* inRequest);													//common.Empty
+	void CallRPC_SearchGame(ModelMM::SearchGameRequest& inRequest);	//SearchGameResponse
+	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest& inRequest);													//common.Empty
 	bool CallRPC_CancelSearch();																		//common.Empty
 
 public:
