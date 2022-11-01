@@ -178,6 +178,7 @@
     <ClCompile Include="GRPC_Client.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="EdKeys.cpp" />
+    <ClCompile Include="Helper.cpp" />
     <ClCompile Include="ModelItem.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />

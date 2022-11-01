@@ -277,7 +277,7 @@ namespace ModelItems
 				}
 			}
 		};
-		LemonModel(const LemonModel& from);
+		LemonModel(const LemonModel& copy);
 		~LemonModel();
 	};
 

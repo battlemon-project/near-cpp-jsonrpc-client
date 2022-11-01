@@ -202,6 +202,11 @@ ModelItems::LemonModel::~LemonModel()
 	attached_bundles.~ObjectList();
 }
 
+ModelItems::LemonModel::LemonModel(const LemonModel& copy):cap(copy.cap), cloth(copy.cloth), exo(copy.exo), eyes(copy.eyes), head(copy.head), teeth(copy.teeth)
+, face(copy.face), fire_arm(copy.fire_arm), cold_arm(copy.cold_arm), back(copy.back)
+{
+};
+
 ModelItems::WeaponBundleItem::WeaponBundleItem(const WeaponBundleItem& copy)
 {
 	item_type = copy.item_type;
@@ -241,5 +246,35 @@ ModelItems::LemonModel& ModelItems::LemonModel::operator=(const ModelItems::Lemo
 	cold_arm = from.cloth;
 	back = from.back;
 	attached_bundles = from.attached_bundles;
+	return *this;
+}
+
+ModelItems::WeaponBundleItem& ModelItems::WeaponBundleItem::operator=(const ModelItems::WeaponBundleItem& from)
+{
+	item_type = from.item_type;
+	skin = from.skin;
+	slot_type = from.slot_type;
+	return *this;
+}
+
+ModelItems::WeaponBundle& ModelItems::WeaponBundle::operator=(const ModelItems::WeaponBundle& from)
+{
+	bundle_num = from.bundle_num;
+	WeaponList = from.WeaponList;
+	title = from.title;
+	level = from.level;
+
+	return *this;
+}
+
+ModelItems::Item& ModelItems::Item::operator=(const ModelItems::Item& from)
+{
+	token_id = from.token_id;
+	media = from.media;
+	owner_id = from.owner_id;
+	in_fight = from.in_fight;
+	lemon = from.lemon;
+	outfit = from.outfit;
+
 	return *this;
 }
