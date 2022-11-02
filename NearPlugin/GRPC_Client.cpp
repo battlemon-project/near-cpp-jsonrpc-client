@@ -139,7 +139,7 @@ WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(ModelItems::EditBundleRequest&
     write.set_title(TYPE_Conv(request.getTitle()));
 
     game::battlemon::items::WeaponBundleItem item;
-    item.set_skin(request.getItems()->skin);
+    item.set_skin(TYPE_Conv(request.getItems()->skin));
 
     ModelItems::WeaponBundleItem* itemsU = request.getItems();
 
@@ -227,6 +227,9 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest&
         break;
     case ModelMM::MatchMode::REALISM:
         gameMode.set_match_mode(game::battlemon::mm::MatchMode::REALISM);
+        break;
+    case ModelMM::MatchMode::DEFAULT:
+        gameMode.set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
     }
     write.set_allocated_game_mode(&gameMode);

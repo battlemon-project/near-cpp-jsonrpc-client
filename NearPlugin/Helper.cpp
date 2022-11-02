@@ -20,6 +20,15 @@ void Helper::free(char* data)
 	}
 }
 
+void Helper::free(char16_t* data)
+{
+	if (data != nullptr)
+	{
+		delete[]data;
+		data = nullptr;
+	}
+}
+
 game::battlemon::items::WeaponBundleItemType Helper::ConvWeaponBundleItemTypeToProto(const ModelItems::WeaponBundleItemType& item_type)
 
 {
@@ -153,11 +162,29 @@ ModelItems::WeaponBundleSlotType Helper::WeaponBundleSlotTypeToCPP(const game::b
 }
 
 #if defined(__unix__) || defined(__APPLE__)
-std::string Helper::convUTF(const char16_t* utp16)
+std::string Helper::convUTF8(const char16_t* utp16)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
 	std::u16string utf16_string(utp16);
 	std::string UTF8 = convert.to_bytes(utf16_string);
 	return UTF8;
 }
+
+std::u16string Helper::convUTF16(std::string utp8)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+	std::u16string UTF16 = convert.from_bytes(utp8);
+	return UTF16;
+}
+
+void Helper::allocateMemoryTo16_t(const std::u16string& copy, char16_t*& target)
+{
+	if (target == nullptr && copy != u"")
+	{
+		target = new char16_t[copy.size() + 1];
+		std::copy(copy.begin(), copy.end(), target);
+		target[copy.size()] = '\0';
+	}
+}
+
 #endif

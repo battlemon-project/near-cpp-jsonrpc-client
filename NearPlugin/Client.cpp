@@ -1,21 +1,6 @@
 #include "Helper.h"
 
-#ifdef __APPLE__
-#include <thread>
-#include <chrono>
-#include <locale>
-#include <codecvt>
-#endif
 
-#ifdef __unix__
-//#include <threads.h>
-
-#include <thread>
-#include <chrono>
-#include <locale>
-#include <codecvt>
-
-#endif
 
 #include "include/Client.h"
 #include "EdKeys.h"

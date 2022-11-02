@@ -17,6 +17,9 @@ set(SOURSCES
     NearPlugin/Client.cpp
     NearPlugin/EdKeys.cpp
     NearPlugin/GRPC_Client.cpp
+	NearPlugin/gRPCResponse.cpp
+	NearPlugin/Helper.cpp
+	NearPlugin/ModelItem.cpp
     NearPlugin/src/add_scalar.c
     NearPlugin/src/fe.c
     NearPlugin/src/ge.c
@@ -29,11 +32,17 @@ set(SOURSCES
     NearPlugin/src/verify.c
     NearPlugin/protocol/auth.pb.cc
     NearPlugin/protocol/auth.grpc.pb.cc
+    NearPlugin/protocol/items.pb.cc
+    NearPlugin/protocol/items.grpc.pb.cc
+    NearPlugin/protocol/mm.pb.cc
+    NearPlugin/protocol/mm.grpc.pb.cc
+    NearPlugin/protocol/common.pb.cc
+    NearPlugin/protocol/common.grpc.pb.cc
 )
 set(HEADERS
-    NearPlugin/Client.h
     NearPlugin/EdKeys.h
     NearPlugin/GRPC_Client.h
+	NearPlugin/Helper.h
     NearPlugin/src/ed25519.h
     NearPlugin/src/fe.h
     NearPlugin/src/fixedint.h
@@ -43,7 +52,18 @@ set(HEADERS
     NearPlugin/src/sha512.h
     NearPlugin/protocol/auth.pb.h
     NearPlugin/protocol/auth.grpc.pb.h
+    NearPlugin/protocol/items.pb.h
+    NearPlugin/protocol/items.grpc.pb.h
+    NearPlugin/protocol/mm.pb.h
+    NearPlugin/protocol/mm.grpc.pb.h
+    NearPlugin/protocol/common.pb.h
+    NearPlugin/protocol/common.grpc.pb.h
+	NearPlugin/include/ModelItem.h
+	NearPlugin/include/Client.h
+	NearPlugin/include/gRPCResponse.h
 )
+include_directories(NearPlugin)
+
 
 set(GRPCLIB_ROOT ${CMAKE_INSTALL_PREFIX})
 include_directories(${CMAKE_INSTALL_PREFIX}/include/)
