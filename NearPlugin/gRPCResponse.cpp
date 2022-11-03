@@ -132,7 +132,7 @@ ModelItems::WeaponBundle gRPC_ResponseItem::gRPC_GetBundle(int index)
 
 		wb.bundle_num = GET_BUNDLES_RESPONSE->bundles(index).bundle_num();
 
-		wb.title = (TYPE_CHAR*)GET_BUNDLES_RESPONSE->bundles(index).title().c_str();
+		wb.title = (TYPE_CHAR*)TYPE_ReConv(GET_BUNDLES_RESPONSE->bundles(index).title()).c_str();
 		wb.level = GET_BUNDLES_RESPONSE->bundles(index).level();
 		ModelItems::WeaponBundleItem* item = wb.WeaponList.getObjectPtr();
 

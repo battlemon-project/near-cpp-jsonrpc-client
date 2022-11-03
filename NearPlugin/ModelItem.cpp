@@ -283,3 +283,98 @@ ModelItems::Item& ModelItems::Item::operator=(const ModelItems::Item& from)
 
 	return *this;
 }
+
+
+ModelItems::OutfitModel::OutfitModel(bool copy) :copy(copy)
+{
+}
+
+ModelItems::OutfitModel::OutfitModel(const OutfitModel& copy)
+{
+	flavour = copy.flavour;
+	token_id = copy.token_id;
+	kind = copy.kind;
+}
+
+ModelItems::WeaponBundleItem::WeaponBundleItem() :item_type(WeaponBundleItemType::NONE), skin(nullptr), slot_type(WeaponBundleSlotType::NONE)
+{
+}
+
+ModelItems::WeaponBundleItem::WeaponBundleItem(WeaponBundleItemType item_type, WeaponBundleSlotType slot_type, TYPE_CHAR* skin) : item_type(item_type), slot_type(slot_type), skin(skin)
+{
+}
+
+ModelItems::WeaponBundleItem::~WeaponBundleItem()
+{
+}
+
+ModelItems::WeaponBundle::WeaponBundle() :bundle_num(-1), title(nullptr), level(-1), WeaponList(ObjectList<WeaponBundleItem>(-1))
+{
+}
+
+ModelItems::WeaponBundle::WeaponBundle(int size_WeaponList) : bundle_num(-1), title(nullptr), level(-1), WeaponList(size_WeaponList)
+{
+}
+
+ModelItems::WeaponBundle::~WeaponBundle()
+{
+	WeaponList.~ObjectList();
+}
+
+ModelItems::LemonModel::LemonModel(bool copy) :copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy)
+{
+}
+
+ModelItems::LemonModel::LemonModel(int size_attached_bundles, int size_items[], bool copy) :attached_bundles(size_attached_bundles), copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy)
+{
+	if (size_attached_bundles != -1)
+	{
+		for (int i = 0; i < size_attached_bundles; i++)
+		{
+			attached_bundles.setObject(WeaponBundle(size_items[i]), i);
+		}
+	}
+}
+
+ModelItems::Item::Item() :copy(true), lemon(true), outfit(true), token_id(nullptr), media(nullptr), owner_id(nullptr), in_fight(false)
+{
+}
+
+ModelItems::EditBundleRequest::EditBundleRequest(int bundle_num, TYPE_CHAR* title, WeaponBundleItem* items, int size) :bundle_num(bundle_num), items(items, size), title(title) 
+{
+}
+
+const int& ModelItems::EditBundleRequest::getBundle_num() const
+{ 
+	return bundle_num; 
+}
+
+ModelItems::WeaponBundleItem* ModelItems::EditBundleRequest::getItems() 
+{ 
+	return items.getObjectPtr(); 
+}
+
+const TYPE_CHAR* ModelItems::EditBundleRequest::getTitle() const 
+{ 
+	return title; 
+
+
+}
+
+ModelItems::AttachBundleRequest::AttachBundleRequest(const int& bundle_num, const TYPE_CHAR*& lemon_id) :bundle_num(bundle_num), lemon_id(lemon_id) 
+{
+}
+
+const int& ModelItems::AttachBundleRequest::get_bundle_num() const
+{ 
+	return bundle_num; 
+}
+
+const TYPE_CHAR* ModelItems::AttachBundleRequest::get_lemon_id() const 
+{ 
+	return lemon_id; 
+}
+
+ModelItems::DetachBundleRequest::DetachBundleRequest(const int& bundle_num, const TYPE_CHAR*& lemon_id) : AttachBundleRequest(bundle_num, lemon_id) 
+{
+}
