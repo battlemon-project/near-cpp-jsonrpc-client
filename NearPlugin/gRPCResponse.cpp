@@ -72,6 +72,47 @@ gRPC_ResponseItem::~gRPC_ResponseItem()
 	Helper::free(error);
 }
 
+ModelItems::WeaponBundle gRPC_ResponseItem::gRPC_EditBundle()
+{
+	
+	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::EDIT_BUNDLE && gRPC_read != nullptr)
+	{
+		ModelItems::WeaponBundle WB(WEAPON_BUNDLE->items().size());
+
+		for (int i = 0; i < WEAPON_BUNDLE->items().size(); i++)
+		{
+			ModelItems::WeaponBundleItem WBI;
+			WBI.item_type = Helper::ConvWeaponBundleItemTypeToCPP(WEAPON_BUNDLE->items(i).item_type());
+			WBI.slot_type = Helper::WeaponBundleSlotTypeToCPP(WEAPON_BUNDLE->items(i).slot_type());
+			WBI.skin = (TYPE_CHAR*)WEAPON_BUNDLE->items(i).skin().c_str();
+			WB.WeaponList.setObject(WBI, i);
+		}
+
+		WB.bundle_num = WEAPON_BUNDLE->bundle_num();
+		WB.level = WEAPON_BUNDLE->level();
+		WB.title = (TYPE_CHAR*)WEAPON_BUNDLE->title().c_str();
+
+		return WB;
+	}
+
+	
+	return ModelItems::WeaponBundle(-1);
+}
+
+bool gRPC_ResponseItem::gRPC_AttachBundle()
+{
+	if(type_gRPC == Type_Call_gRPC::Type_gRPCItem::ATTACH_BUNDLE && gRPC_read != nullptr)
+		return *((bool*)gRPC_read);
+	return false;
+}
+
+bool gRPC_ResponseItem::gRPC_DetachBundle()
+{
+	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::DETACH_BUNDLE && gRPC_read != nullptr)
+		return *((bool*)gRPC_read);
+	return false;
+}
+
 ModelItems::Item gRPC_ResponseItem::gRPC_GetItem(int index)
 {
 	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_ITEMS)
@@ -202,13 +243,11 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_GetBundlesArray()
 {
 	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES)
 	{
-		type_gRPC = Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES;
-		ModelItems::WeaponBundle* itemOUT = nullptr;
-		ObjectList<ModelItems::WeaponBundle> itemsList(ITEMS_RESPONSE->items().size());
+		ObjectList<ModelItems::WeaponBundle> itemsList(GET_BUNDLES_RESPONSE->bundles().size());
 
-		for (int i = 0; i < ITEMS_RESPONSE->items().size(); i++)
+		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles().size(); i++)
 		{
-			itemOUT[i] = gRPC_GetBundle(i);
+			itemsList.setObject(gRPC_GetBundle(i), i);
 		}
 
 		return itemsList;
@@ -221,8 +260,26 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_GetBundlesArray()
 
 ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_CopyDataBundles()
 {
+	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES)
+	{
+		ModelItems::WeaponBundle item;
+		ObjectList<ModelItems::WeaponBundle> itemsList(GET_BUNDLES_RESPONSE->bundles().size());
+
+		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles().size(); i++)
+		{
+			TYPE_Copy(GET_BUNDLES_RESPONSE->bundles(i).title(),item.title);
+			item.level = GET_BUNDLES_RESPONSE->bundles(i).level();
+			item.bundle_num = GET_BUNDLES_RESPONSE->bundles(i).bundle_num();
+
+			itemsList.setObject(gRPC_GetBundle(i), i);
+		}
+
+		return itemsList;
+	}
+
 	return ObjectList<ModelItems::WeaponBundle>(-1);
 }
+
 
 void gRPC_ResponseItem::CallRPC_GetItems()
 {
@@ -249,20 +306,18 @@ void gRPC_ResponseItem::CallRPC_EditBundle(ModelItems::EditBundleRequest& reques
 	gRPC_read = new game::battlemon::items::WeaponBundle(grpcClient.CallRPC_EditBundle(request, THROW_HOOK));
 }
 
-bool gRPC_ResponseItem::CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request)
+void gRPC_ResponseItem::CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request)
 {
 	free_gRPC();
 	gRPC_ClientItems grpcClient;
 	gRPC_read = new bool(grpcClient.CallRPC_AttachBundle(request, THROW_HOOK));
-	return *((bool*)gRPC_read);
 }
 
-bool gRPC_ResponseItem::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request)
+void gRPC_ResponseItem::CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request)
 {
 	free_gRPC();
 	gRPC_ClientItems grpcClient;
 	gRPC_read = new bool(grpcClient.CallRPC_DetachBundle(request, THROW_HOOK));
-	return *((bool*)gRPC_read);
 }
 
 

@@ -37,7 +37,7 @@ public:
 			list = nullptr;
 	};
 	ObjectList(TargetClassList* list, int size) : list(list), size(size) {};
-	ObjectList(const ObjectList& objectList) : size(objectList.size), list(nullptr)
+	ObjectList(const ObjectList& objectList) :list(nullptr), size(objectList.size)
 	{
 		//owner++;
 		if (size != -1)
@@ -74,8 +74,8 @@ public:
 	};
 
 	int getSize() const { return size; };
-	TargetClassList* getObjectPtr() { return list; };
-	TargetClassList& getObject(int id)
+	TargetClassList* getObjectPtr() const { return list; };
+	TargetClassList& getObject(int id) const
 	{
 		return list[id];
 	};
@@ -315,6 +315,51 @@ namespace ModelItems
 		DetachBundleRequest(const int& bundle_num, const TYPE_CHAR*& lemon_id);
 	};
 }
+
+namespace ModelInternalMM
+{
+	struct InternalUserLeftBattleRequest
+	{
+		TYPE_CHAR* near_id;
+		TYPE_CHAR* room_id;
+	};
+
+	struct InternalPlayerResult
+	{
+		TYPE_CHAR* near_id;
+		int place;
+	};
+
+	struct SaveBattleResultRequest
+	{
+		TYPE_CHAR* room_id;
+		ObjectList<ModelInternalMM::InternalPlayerResult> results;
+	};
+
+	struct RoomInfoRequest
+	{
+		TYPE_CHAR* room_id;
+	};
+	struct RoomPlayerInfo
+	{
+		TYPE_CHAR* near_id;
+		ModelItems::Item lemon;
+	};
+
+	struct RoomInfoResponse
+	{
+		TYPE_CHAR* room_id;
+		ModelMM::GameMode mode;
+		ObjectList<ModelInternalMM::RoomPlayerInfo> players;
+	};
+
+	struct CreateRoomRequest
+	{
+		ModelMM::GameMode mode;
+		ObjectList<TYPE_CHAR*> near_ids;
+	};
+}
+
 
 namespace Type_Call_gRPC
 {

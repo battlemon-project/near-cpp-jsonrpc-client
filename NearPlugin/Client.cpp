@@ -16,7 +16,7 @@ Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, Type_Call_gRPC::T
 	{
 		if (ED25519->LoadKeys(TYPE_Conv(inpText), TYPE_Conv(dir)))
 		{
-			AuthServiceClient(Type_Call_gRPC::Type_gRPC_Auth::AUTHORIZATION);
+			//AuthServiceClient(Type_Call_gRPC::Type_gRPC_Auth::AUTHORIZATION);
 			Helper::allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 		}
 		else
@@ -28,10 +28,10 @@ Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, Type_Call_gRPC::T
 		ED25519->GeneratingKeys(THROW_HOOK);
 		if (error != nullptr) return;
 
-		if (AuthServiceClient(Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION))
-		{
-			ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
-		}
+		//if (AuthServiceClient(Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION))
+		//{
+		//	ED25519->SaveKeys(this->accountID, TYPE_Conv(dir));
+		//}
 
 		Helper::allocateMemory(ED25519->GetPubKey58(), this->keyPub58);
 	}
@@ -49,10 +49,10 @@ Client::~Client()
 		delete ED25519;
 		keyPair = nullptr;
 	}
-	free(accountID);
-	free(keyPub58);
-	free(error);
-	free(sign);
+	Helper::free(accountID);
+	Helper::free(keyPub58);
+	Helper::free(error);
+	Helper::free(sign);
 }
 
 bool Client::IsValidKeys()
