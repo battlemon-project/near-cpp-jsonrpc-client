@@ -62,8 +62,6 @@ void gRPC_ResponseItem::free_gRPC()
 		gRPC_read = nullptr;
 		return;
 	}
-
-	SET_ERROR("check free_gRPC");
 }
 
 gRPC_ResponseItem::~gRPC_ResponseItem()
@@ -131,19 +129,19 @@ ObjectList<ModelItems::Item> gRPC_ResponseItem::gRPC_GetItemsArray()
 	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_ITEMS)
 	{
 		type_gRPC = Type_Call_gRPC::Type_gRPCItem::GET_ITEMS;
-		ModelItems::Item* itemOUT = nullptr;
-		ObjectList<ModelItems::Item> itemsList(ITEMS_RESPONSE->items().size());
 
-		for (int i = 0; i < ITEMS_RESPONSE->items().size(); i++)
+		int size = ITEMS_RESPONSE->items().size();
+		ModelItems::Item* itemOUT = new ModelItems::Item[size];
+		for (int i = 0; i < size; i++)
 		{
 			itemOUT[i] = gRPC_GetItem(i);
 		}
 
-		return itemsList;
+		return ObjectList<ModelItems::Item>(itemOUT, size);
 	}
 
-	ObjectList<ModelItems::Item> itemsList(-1);
-	return itemsList;
+	ObjectList<ModelItems::Item> itemsListErr(-1);
+	return itemsListErr;
 }
 
 ObjectList<ModelItems::Item> gRPC_ResponseItem::gRPC_CopyDataItems()
@@ -151,18 +149,19 @@ ObjectList<ModelItems::Item> gRPC_ResponseItem::gRPC_CopyDataItems()
 	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_ITEMS)
 	{
 		type_gRPC = Type_Call_gRPC::Type_gRPCItem::GET_ITEMS;
-		ObjectList<ModelItems::Item> itemsList(ITEMS_RESPONSE->items().size());
 
-		for (int i = 0; i < ITEMS_RESPONSE->items().size(); i++)
+		int size = ITEMS_RESPONSE->items().size();
+		ModelItems::Item* itemOUT = new ModelItems::Item[ITEMS_RESPONSE->items().size()];
+
+		for (int i = 0; i < size; i++)
 		{
-			itemsList.setObject(ModelItems::Item(gRPC_read, i, true), i);
+			itemOUT[i] = ModelItems::Item(gRPC_read, i, true);
 		}
 
-		return itemsList;
+		return ObjectList<ModelItems::Item>(itemOUT, size);
 	}
 
-	ObjectList<ModelItems::Item> itemsList(-1);
-	return itemsList;
+	return ObjectList<ModelItems::Item>(-1);
 }
 
 ModelItems::WeaponBundle gRPC_ResponseItem::gRPC_GetBundle(int index)
@@ -243,18 +242,17 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_GetBundlesArray()
 {
 	if (type_gRPC == Type_Call_gRPC::Type_gRPCItem::GET_BUNDLES)
 	{
-		ObjectList<ModelItems::WeaponBundle> itemsList(GET_BUNDLES_RESPONSE->bundles().size());
+		int size = GET_BUNDLES_RESPONSE->bundles().size();
+		ModelItems::WeaponBundle* wbOut = new ModelItems::WeaponBundle[size];
 
-		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles().size(); i++)
+		for (int i = 0; i < size; i++)
 		{
-			itemsList.setObject(gRPC_GetBundle(i), i);
+			wbOut[i] = gRPC_GetBundle(i);
 		}
 
-		return itemsList;
+		return ObjectList<ModelItems::WeaponBundle>(wbOut, size);
 	}
 
-	ObjectList<ModelItems::WeaponBundle> itemsList(-1);
-	return itemsList;
 	return ObjectList<ModelItems::WeaponBundle>(-1);
 }
 
@@ -265,16 +263,19 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_CopyDataBundles()
 		ModelItems::WeaponBundle item;
 		ObjectList<ModelItems::WeaponBundle> itemsList(GET_BUNDLES_RESPONSE->bundles().size());
 
+		int size = GET_BUNDLES_RESPONSE->bundles().size();
+		ModelItems::WeaponBundle* wbOut = new ModelItems::WeaponBundle[size];
+
 		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles().size(); i++)
 		{
 			TYPE_Copy(GET_BUNDLES_RESPONSE->bundles(i).title(),item.title);
 			item.level = GET_BUNDLES_RESPONSE->bundles(i).level();
 			item.bundle_num = GET_BUNDLES_RESPONSE->bundles(i).bundle_num();
 
-			itemsList.setObject(gRPC_GetBundle(i), i);
+			wbOut[i] = item;
 		}
 
-		return itemsList;
+		return ObjectList<ModelItems::WeaponBundle>(wbOut, size);
 	}
 
 	return ObjectList<ModelItems::WeaponBundle>(-1);
