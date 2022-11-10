@@ -20,6 +20,8 @@
 #define TYPE_CHAR char16_t
 #endif
 
+typedef bool Empty;
+
 template <typename TargetClassList>
 class ObjectList
 {
@@ -40,7 +42,7 @@ public:
 	ObjectList(const ObjectList& objectList) :list(nullptr), size(objectList.size)
 	{
 		//owner++;
-		if (size != -1)
+		if (size > 0)
 		{
 			list = new TargetClassList[size];
 			for (int i = 0; i < size; i++)
@@ -62,7 +64,7 @@ public:
 	{
 		size = copyObjectList.getSize();
 		//owner++;
-		if (size != -1)
+		if (size > 0)
 		{
 			list = new TargetClassList[size];
 			for (int i = 0; i < size; i++)
@@ -163,6 +165,13 @@ namespace ModelItems
 		COLD_ARM = 3,
 		BACK = 4,
 		DEFAULT = 5
+	};
+
+	enum class Model
+	{
+		LEMON,
+		OUTFIT_MODEL,
+		DEFAULT
 	};
 
 	class OutfitModel
@@ -266,6 +275,7 @@ namespace ModelItems
 
 	struct Item
 	{
+		Model model;
 		TYPE_CHAR* token_id;
 		TYPE_CHAR* media;
 		TYPE_CHAR* owner_id;
@@ -281,7 +291,7 @@ namespace ModelItems
 
 		~Item();
 
-		const bool copy;
+		const bool copy = false;
 	};
 
 	class EditBundleRequest
@@ -294,7 +304,7 @@ namespace ModelItems
 		EditBundleRequest(int bundle_num, TYPE_CHAR* title, WeaponBundleItem* items, int size);
 
 		const int& getBundle_num() const;
-		ModelItems::WeaponBundleItem* getItems();
+		ObjectList<ModelItems::WeaponBundleItem>& getItems();
 		const TYPE_CHAR* getTitle() const;
 	};
 
@@ -359,6 +369,53 @@ namespace ModelInternalMM
 		ObjectList<TYPE_CHAR*> near_ids;
 	};
 }
+
+namespace ModelUpdates
+{
+	struct Update
+	{
+		TYPE_CHAR* id; // update id
+		long long timestamp; // millisec
+		TYPE_CHAR* message; //UpdateMessage's bytes in base64
+	};
+
+	struct RoomPlayer
+	{
+		TYPE_CHAR* near_id;
+		ModelItems::Item lemon;
+	};
+
+	struct RoomNeedAccept
+	{
+		bool manual_accept;
+		int time_to_accept;
+	};
+
+	struct RoomInfo
+	{
+		TYPE_CHAR* room_id;
+		TYPE_CHAR* server_ip;
+		ObjectList<ModelUpdates::RoomPlayer> players;
+	};
+
+	enum class UpdateCase
+	{
+		LEMON,
+		OUTFIT_MODEL,
+		DEFAULT
+	};
+
+	struct UpdateMessage
+	{
+		UpdateCase update;
+		RoomNeedAccept room_need_accept;
+		Empty room_accepting_canceled;
+		RoomInfo room_found;
+		RoomInfo room_teammates;
+		RoomInfo room_ready;
+	};
+}
+
 
 
 namespace Type_Call_gRPC

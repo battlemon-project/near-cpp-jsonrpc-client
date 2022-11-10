@@ -85,13 +85,26 @@ ModelItems::Item& operator<<(ModelItems::Item& itemsUE, const game::battlemon::i
 	TYPE_Copy(itemResponse.token_id().c_str(), itemsUE.token_id);
 	TYPE_Copy(itemResponse.media().c_str(), itemsUE.media);
 	TYPE_Copy(itemResponse.owner_id().c_str(), itemsUE.owner_id);
-	itemsUE.lemon << itemResponse.lemon();
-	itemsUE.outfit << itemResponse.outfit();
+	switch (itemResponse.model_case())
+	{
+	case game::battlemon::items::Item::kLemon:
+		itemsUE.model = ModelItems::Model::LEMON;
+		itemsUE.lemon << itemResponse.lemon();
+		break;
+	case game::battlemon::items::Item::kOutfit:
+		itemsUE.model = ModelItems::Model::OUTFIT_MODEL;
+		itemsUE.outfit << itemResponse.outfit();
+		break;
+	case game::battlemon::items::Item::MODEL_NOT_SET:
+	default:
+		itemsUE.model = ModelItems::Model::DEFAULT;
+		break;
+	}
 	return itemsUE;
 }
 
 
-ModelItems::Item::Item(void* item, int index, bool copy):copy(copy),lemon(copy), outfit(copy)
+ModelItems::Item::Item(void* item, int index, bool copy):copy(copy),lemon(copy), outfit(copy), token_id(nullptr), media(nullptr), owner_id(nullptr), in_fight(false), model(ModelItems::Model::DEFAULT)
 {
 	if (item != nullptr)
 	{
@@ -105,66 +118,86 @@ ModelItems::Item::Item(void* item, int index, bool copy):copy(copy),lemon(copy),
 			this->token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).token_id()).c_str();
 			this->media = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).media()).c_str();
 			this->owner_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).owner_id()).c_str();
-			this->lemon.exo = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().exo()).c_str();
-			this->lemon.eyes = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().eyes()).c_str();
-			this->lemon.head = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().head()).c_str();
-			this->lemon.teeth = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().teeth()).c_str();
-			this->lemon.face = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().face()).c_str();
-
-			this->lemon.cap.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().flavour()).c_str();
-			this->lemon.cap.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().token_id()).c_str();
-			this->lemon.cap.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().kind();
-
-			this->lemon.cloth.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().flavour()).c_str();
-			this->lemon.cloth.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().token_id()).c_str();
-			this->lemon.cloth.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().kind();
-
-
-			this->lemon.fire_arm.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().flavour()).c_str();
-			this->lemon.fire_arm.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().token_id()).c_str();
-			this->lemon.fire_arm.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().kind();
-
-			this->lemon.cold_arm.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().flavour()).c_str();
-			this->lemon.cold_arm.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().token_id()).c_str();
-			this->lemon.cold_arm.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().kind();
-
-			this->lemon.back.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().flavour()).c_str();
-			this->lemon.back.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().token_id()).c_str();
-			this->lemon.back.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().kind();
-
-			ObjectList<ModelItems::WeaponBundle> attached_bundles(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().size());
-			ModelItems::WeaponBundle* wp = attached_bundles.getObjectPtr();
-
-			for (int i = 0; i < ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().size(); i++)
+			
+			
+			switch (((game::battlemon::items::ItemsResponse*)item)->items(index).model_case())
 			{
-				wp[i].bundle_num = ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).bundle_num();
+			case game::battlemon::items::Item::kLemon:
+				this->model = ModelItems::Model::LEMON;
+				this->lemon.exo = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().exo()).c_str();
+				this->lemon.eyes = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().eyes()).c_str();
+				this->lemon.head = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().head()).c_str();
+				this->lemon.teeth = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().teeth()).c_str();
+				this->lemon.face = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().face()).c_str();
+
+				this->lemon.cap.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().flavour()).c_str();
+				this->lemon.cap.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().token_id()).c_str();
+				this->lemon.cap.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cap().kind();
+
+				this->lemon.cloth.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().flavour()).c_str();
+				this->lemon.cloth.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().token_id()).c_str();
+				this->lemon.cloth.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cloth().kind();
 
 
-				wp[i].title = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).title()).c_str();
-				wp[i].level = ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).level();
+				this->lemon.fire_arm.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().flavour()).c_str();
+				this->lemon.fire_arm.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().token_id()).c_str();
+				this->lemon.fire_arm.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().fire_arm().kind();
 
-				for (int itms_index = 0; itms_index < ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().size(); itms_index++)
+				this->lemon.cold_arm.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().flavour()).c_str();
+				this->lemon.cold_arm.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().token_id()).c_str();
+				this->lemon.cold_arm.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().cold_arm().kind();
+
+				this->lemon.back.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().flavour()).c_str();
+				this->lemon.back.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().token_id()).c_str();
+				this->lemon.back.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().back().kind();
 				{
-					ModelItems::WeaponBundleItem* WeaponBundleItemPtr = wp[i].WeaponList.getObjectPtr();
+					ObjectList<ModelItems::WeaponBundle> attached_bundles(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().size());
+					ModelItems::WeaponBundle* wp = attached_bundles.getObjectPtr();
 
-					WeaponBundleItemPtr[itms_index].item_type = Helper::ConvWeaponBundleItemTypeToCPP(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).item_type());
-					WeaponBundleItemPtr[itms_index].skin = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).skin()).c_str();
-					WeaponBundleItemPtr[itms_index].slot_type = Helper::WeaponBundleSlotTypeToCPP(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).slot_type());
+					for (int i = 0; i < ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().size(); i++)
+					{
+						wp[i].bundle_num = ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).bundle_num();
+
+
+						wp[i].title = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).title()).c_str();
+						wp[i].level = ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).level();
+
+						for (int itms_index = 0; itms_index < ((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().size(); itms_index++)
+						{
+							ModelItems::WeaponBundleItem* WeaponBundleItemPtr = wp[i].WeaponList.getObjectPtr();
+
+							WeaponBundleItemPtr[itms_index].item_type = Helper::ConvWeaponBundleItemTypeToCPP(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).item_type());
+							WeaponBundleItemPtr[itms_index].skin = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).skin()).c_str();
+							WeaponBundleItemPtr[itms_index].slot_type = Helper::WeaponBundleSlotTypeToCPP(((game::battlemon::items::ItemsResponse*)item)->items(index).lemon().attached_bundles().Get(i).items().Get(itms_index).slot_type());
+						}
+					}
+					this->lemon.attached_bundles = attached_bundles;
 				}
+				break;
+			case game::battlemon::items::Item::kOutfit:
+				this->model = ModelItems::Model::OUTFIT_MODEL;
+				this->outfit.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().flavour()).c_str();
+				this->outfit.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().token_id()).c_str();
+				this->outfit.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().kind();
+				break;
+			case game::battlemon::items::Item::MODEL_NOT_SET:
+			default:
+				this->model = ModelItems::Model::DEFAULT;
+				break;
 			}
-			this->lemon.attached_bundles = attached_bundles;
-			this->outfit.flavour = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().flavour()).c_str();
-			this->outfit.token_id = (TYPE_CHAR*)TYPE_ReConv(((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().token_id()).c_str();
-			this->outfit.kind << ((game::battlemon::items::ItemsResponse*)item)->items(index).outfit().kind();
-
-
 		}
 	}
 }
 
-ModelItems::Item::Item(const Item& copyItem):lemon(copyItem.lemon), outfit(copyItem.outfit), copy(copyItem.copy), token_id(copyItem.token_id),
-											media(copyItem.media), owner_id(copyItem.owner_id), in_fight(copyItem.in_fight)
+ModelItems::Item::Item(const Item& copyItem):copy(copyItem.copy), lemon(copyItem.lemon), outfit(copyItem.outfit), token_id(copyItem.token_id),
+											media(copyItem.media), owner_id(copyItem.owner_id), in_fight(copyItem.in_fight), model(copyItem.model)
 {
+	if (copy)
+	{
+		TYPE_Copy(copyItem.token_id, token_id);
+		TYPE_Copy(copyItem.media, media);
+		TYPE_Copy(copyItem.owner_id, owner_id);
+	}
 }
 
 
@@ -207,9 +240,17 @@ ModelItems::LemonModel::~LemonModel()
 	attached_bundles.~ObjectList();
 }
 
-ModelItems::LemonModel::LemonModel(const LemonModel& copy):cap(copy.cap), cloth(copy.cloth), exo(copy.exo), eyes(copy.eyes), head(copy.head), teeth(copy.teeth)
+ModelItems::LemonModel::LemonModel(const LemonModel& copy):copy(copy.copy), cap(copy.cap), cloth(copy.cloth), exo(copy.exo), eyes(copy.eyes), head(copy.head), teeth(copy.teeth)
 , face(copy.face), fire_arm(copy.fire_arm), cold_arm(copy.cold_arm), back(copy.back)
 {
+	if (this->copy)
+	{
+		TYPE_Copy(copy.exo, exo);
+		TYPE_Copy(copy.eyes, eyes);
+		TYPE_Copy(copy.head, head);
+		TYPE_Copy(copy.teeth, teeth);
+		TYPE_Copy(copy.face, face);
+	}
 };
 
 ModelItems::WeaponBundleItem::WeaponBundleItem(const WeaponBundleItem& copy)
@@ -285,11 +326,11 @@ ModelItems::Item& ModelItems::Item::operator=(const ModelItems::Item& from)
 }
 
 
-ModelItems::OutfitModel::OutfitModel(bool copy) :copy(copy)
+ModelItems::OutfitModel::OutfitModel(bool copy) :copy(copy), flavour(nullptr), token_id(nullptr), kind(ModelItems::OutfitKind::DEFAULT)
 {
 }
 
-ModelItems::OutfitModel::OutfitModel(const OutfitModel& copy)
+ModelItems::OutfitModel::OutfitModel(const OutfitModel& copy): copy(copy.copy)
 {
 	flavour = copy.flavour;
 	token_id = copy.token_id;
@@ -321,11 +362,12 @@ ModelItems::WeaponBundle::~WeaponBundle()
 	WeaponList.~ObjectList();
 }
 
-ModelItems::LemonModel::LemonModel(bool copy) :copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy)
+ModelItems::LemonModel::LemonModel(bool copy) :copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy), exo(nullptr), eyes(nullptr), head(nullptr), teeth(nullptr), face(nullptr)
 {
 }
 
-ModelItems::LemonModel::LemonModel(int size_attached_bundles, int size_items[], bool copy) :attached_bundles(size_attached_bundles), copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy)
+ModelItems::LemonModel::LemonModel(int size_attached_bundles, int size_items[], bool copy) :attached_bundles(size_attached_bundles), copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy), 
+																							exo(nullptr), eyes(nullptr), head(nullptr), teeth(nullptr), face(nullptr)
 {
 	if (size_attached_bundles != -1)
 	{
@@ -336,7 +378,7 @@ ModelItems::LemonModel::LemonModel(int size_attached_bundles, int size_items[], 
 	}
 }
 
-ModelItems::Item::Item() :copy(true), lemon(true), outfit(true), token_id(nullptr), media(nullptr), owner_id(nullptr), in_fight(false)
+ModelItems::Item::Item() :copy(true), lemon(true), outfit(true), token_id(nullptr), media(nullptr), owner_id(nullptr), in_fight(false), model(ModelItems::Model::DEFAULT)
 {
 }
 
@@ -349,9 +391,9 @@ const int& ModelItems::EditBundleRequest::getBundle_num() const
 	return bundle_num; 
 }
 
-ModelItems::WeaponBundleItem* ModelItems::EditBundleRequest::getItems() 
+ObjectList<ModelItems::WeaponBundleItem>& ModelItems::EditBundleRequest::getItems()
 { 
-	return items.getObjectPtr(); 
+	return items; 
 }
 
 const TYPE_CHAR* ModelItems::EditBundleRequest::getTitle() const 
