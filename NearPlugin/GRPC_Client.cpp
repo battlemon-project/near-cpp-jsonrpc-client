@@ -94,8 +94,6 @@ VerifyCodeResponse gRPC_ClientAuth::CallRPCVerifyCode(const std::string& publicK
 
 //        gRPC_ClientItems
 
-
-
 ItemsResponse gRPC_ClientItems::CallRPC_GetItems(const std::string& nearID, const std::string& sign, HOOK_ERROR)
 {
     ItemsRequest write;
@@ -138,13 +136,16 @@ WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(ModelItems::EditBundleRequest&
     write.set_bundle_num(request.getBundle_num());
     write.set_title(TYPE_Conv(request.getTitle()));
 
-    game::battlemon::items::WeaponBundleItem item;
-    item.set_skin(TYPE_Conv(request.getItems()->skin));
+    ObjectList<ModelItems::WeaponBundleItem>* itemsU = &request.getItems();
 
-    ModelItems::WeaponBundleItem* itemsU = request.getItems();
 
-    item.set_item_type(Helper::ConvWeaponBundleItemTypeToProto(itemsU->item_type));
-    item.set_slot_type(Helper::WeaponBundleSlotTypeToProto(itemsU->slot_type));
+    for (int i = 0; i < itemsU->getSize(); i++)
+    {
+        game::battlemon::items::WeaponBundleItem* wr = write.add_items();
+        wr->set_skin(TYPE_Conv(itemsU->getObject(i).skin));
+        wr->set_item_type(Helper::ConvWeaponBundleItemTypeToProto(itemsU->getObject(i).item_type));
+        wr->set_slot_type(Helper::WeaponBundleSlotTypeToProto(itemsU->getObject(i).slot_type));
+    }
 
     ClientContext context;
 
@@ -152,7 +153,6 @@ WeaponBundle gRPC_ClientItems::CallRPC_EditBundle(ModelItems::EditBundleRequest&
     {
         errorH(this->error, error);
     }
-
     return read;
 }
 
@@ -203,15 +203,15 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest&
     SearchGameRequest write;
     SearchGameResponse read;
 
-    GameMode gameMode;
+    GameMode* gameMode = (GameMode*)&write.game_mode();
     
     switch (Request.game_mode.match_type)
     {
     case ModelMM::MatchType::DEATH_MATCH:
-        gameMode.set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
+        (*gameMode).set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
         break;
     case ModelMM::MatchType::CATCH_THE_FLAG:
-        gameMode.set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
+        (*gameMode).set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
         break;
     default:
         break;
@@ -220,20 +220,19 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(ModelMM::SearchGameRequest&
     switch (Request.game_mode.match_mode)
     {
     case ModelMM::MatchMode::NONE:
-        gameMode.set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
     case ModelMM::MatchMode::EQUIPMENT:
-        gameMode.set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
         break;
     case ModelMM::MatchMode::REALISM:
-        gameMode.set_match_mode(game::battlemon::mm::MatchMode::REALISM);
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::REALISM);
         break;
     case ModelMM::MatchMode::DEFAULT:
-        gameMode.set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
     }
-    write.set_allocated_game_mode(&gameMode);
-
+    
     ClientContext context;
 
     if (CallRPC<MMService::Stub, SearchGameRequest, SearchGameResponse>(stub.get(), context, write, &read, this->error, &MMService::Stub::SearchGame))
@@ -278,4 +277,115 @@ bool gRPC_ClientMM::CallRPC_CancelSearch(const std::string& nearID, const std::s
     }
 
     return true;
+}
+
+
+
+// internalMM
+
+bool gRPC_ClientInternalMM::CallRPC_UserLeftBattle(ModelInternalMM::InternalUserLeftBattleRequest& Request, HOOK_ERROR)
+{
+    InternalUserLeftBattleRequest write;
+    Empty read;
+
+    write.set_near_id(Request.near_id);
+    write.set_room_id(Request.room_id);
+
+    ClientContext context;
+
+    if (CallRPC<InternalMMService::Stub, InternalUserLeftBattleRequest, Empty>(stub.get(), context, write, &read, this->error, &InternalMMService::Stub::UserLeftBattle))
+    {
+        errorH(this->error, error);
+        return false;
+    }
+
+    return true;
+}
+
+bool gRPC_ClientInternalMM::SaveBattleResult(ModelInternalMM::SaveBattleResultRequest& Request, HOOK_ERROR)
+{
+    SaveBattleResultRequest write;
+    Empty read;
+
+    write.set_room_id(Request.room_id);
+
+    ModelInternalMM::InternalPlayerResult* ptr = Request.results.getObjectPtr();
+    for (int i = 0; i < Request.results.getSize(); i++)
+    {
+        game::battlemon::mm::internal::InternalPlayerResult* ipr = write.add_results();
+        ipr->set_near_id(ptr[i].near_id);
+        ipr->set_place(ptr[i].place);
+    }
+
+    ClientContext context;
+
+    if (CallRPC<InternalMMService::Stub, SaveBattleResultRequest, Empty>(stub.get(), context, write, &read, this->error, &InternalMMService::Stub::SaveBattleResult))
+    {
+        errorH(this->error, error);
+        return false;
+    }
+    return true;
+}
+
+RoomInfoResponse gRPC_ClientInternalMM::GetRoomInfo(ModelInternalMM::RoomInfoRequest& Request, HOOK_ERROR)
+{
+    RoomInfoRequest write;
+    RoomInfoResponse read;
+
+    write.set_room_id(Request.room_id);
+
+
+    ClientContext context;
+
+    if (CallRPC<InternalMMService::Stub, RoomInfoRequest, RoomInfoResponse>(stub.get(), context, write, &read, this->error, &InternalMMService::Stub::GetRoomInfo))
+    {
+        errorH(this->error, error);
+        return read;
+    }
+    return read;
+}
+
+RoomInfoResponse gRPC_ClientInternalMM::CreateRoomWithPlayers(ModelInternalMM::CreateRoomRequest& Request, HOOK_ERROR)
+{
+    CreateRoomRequest write;
+    RoomInfoResponse read;
+
+    GameMode* gameMode = (GameMode*)&write.mode();
+
+    switch (Request.mode.match_type)
+    {
+    case ModelMM::MatchType::DEATH_MATCH:
+        (*gameMode).set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
+        break;
+    case ModelMM::MatchType::CATCH_THE_FLAG:
+        (*gameMode).set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
+        break;
+    default:
+        break;
+    }
+
+    switch (Request.mode.match_mode)
+    {
+    case ModelMM::MatchMode::NONE:
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        break;
+    case ModelMM::MatchMode::EQUIPMENT:
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
+        break;
+    case ModelMM::MatchMode::REALISM:
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::REALISM);
+        break;
+    case ModelMM::MatchMode::DEFAULT:
+        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        break;
+    }
+
+    ClientContext context;
+
+    if (CallRPC<InternalMMService::Stub, CreateRoomRequest, RoomInfoResponse>(stub.get(), context, write, &read, this->error, &InternalMMService::Stub::CreateRoomWithPlayers))
+    {
+        errorH(this->error, error);
+        return read;
+    }
+    return read;
 }

@@ -9,6 +9,7 @@
 #include <grpcpp/security/credentials.h>
 #include "protocol/auth.grpc.pb.h"
 #include "protocol/items.grpc.pb.h"
+#include "protocol/internalMm.grpc.pb.h"
 #include "protocol/mm.grpc.pb.h"
 
 #ifdef WIN32
@@ -56,6 +57,14 @@ using game::battlemon::mm::CancelSearchRequest;
 using game::battlemon::mm::SearchGameRequest;
 using game::battlemon::mm::GameMode;
 
+
+using game::battlemon::mm::internal::InternalMMService;
+using game::battlemon::mm::internal::InternalUserLeftBattleRequest;
+using game::battlemon::mm::internal::SaveBattleResultRequest;
+using game::battlemon::mm::internal::RoomInfoRequest;
+using game::battlemon::mm::internal::RoomInfoResponse;
+RoomInfoResponse;
+using game::battlemon::mm::internal::CreateRoomRequest;
 
 class gRPC_SSL
 {
@@ -160,3 +169,11 @@ public:
 	bool CallRPC_CancelSearch(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 };
 
+class gRPC_ClientInternalMM : public gRPC_Client<InternalMMService, InternalMMService::Stub>
+{
+public:
+	bool CallRPC_UserLeftBattle(ModelInternalMM::InternalUserLeftBattleRequest& Request, HOOK_ERROR);
+	bool SaveBattleResult(ModelInternalMM::SaveBattleResultRequest& Request, HOOK_ERROR);
+	RoomInfoResponse GetRoomInfo(ModelInternalMM::RoomInfoRequest& Request, HOOK_ERROR);
+	RoomInfoResponse CreateRoomWithPlayers(ModelInternalMM::CreateRoomRequest& Request, HOOK_ERROR);
+};
