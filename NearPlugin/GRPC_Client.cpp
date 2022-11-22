@@ -221,15 +221,14 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(const std::string& nearID, 
     SearchGameRequest write;
     SearchGameResponse read;
 
-    GameMode* gameMode = (GameMode*)&write.game_mode();
-    
+    GameMode* gameMode = new GameMode();
     switch (Request.game_mode->match_type)
     {
     case ModelMM::MatchType::DEATH_MATCH:
-        (*gameMode).set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
+        gameMode->set_match_type(game::battlemon::mm::MatchType::DEATH_MATCH);
         break;
     case ModelMM::MatchType::CATCH_THE_FLAG:
-        (*gameMode).set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
+        gameMode->set_match_type(game::battlemon::mm::MatchType::CATCH_THE_FLAG);
         break;
     default:
         break;
@@ -238,18 +237,19 @@ SearchGameResponse gRPC_ClientMM::CallRPC_SearchGame(const std::string& nearID, 
     switch (Request.game_mode->match_mode)
     {
     case ModelMM::MatchMode::NONE:
-        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        gameMode->set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
     case ModelMM::MatchMode::EQUIPMENT:
-        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
+        gameMode->set_match_mode(game::battlemon::mm::MatchMode::EQUIPMENT);
         break;
     case ModelMM::MatchMode::REALISM:
-        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::REALISM);
+        gameMode->set_match_mode(game::battlemon::mm::MatchMode::REALISM);
         break;
     case ModelMM::MatchMode::DEFAULT:
-        (*gameMode).set_match_mode(game::battlemon::mm::MatchMode::NONE);
+        gameMode->set_match_mode(game::battlemon::mm::MatchMode::NONE);
         break;
     }
+    write.set_allocated_game_mode(gameMode);
     
     std::string meta[] = { "nearid" , "sign" };
     std::string value[] = { nearID , sign };
