@@ -72,9 +72,6 @@
     <ClCompile Include="protocol\common.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\mm.grpc.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -88,6 +85,18 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Helper.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\internalMm.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\internalMm.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\updates.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\updates.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -153,6 +162,18 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="include\gRPCResponse.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\internalMm.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\internalMm.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\updates.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\updates.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

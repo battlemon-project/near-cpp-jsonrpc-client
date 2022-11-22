@@ -49,10 +49,10 @@ Client::~Client()
 		delete ED25519;
 		keyPair = nullptr;
 	}
-	Helper::free(accountID);
-	Helper::free(keyPub58);
-	Helper::free(error);
-	Helper::free(sign);
+	Helper::free(&accountID);
+	Helper::free(&keyPub58);
+	Helper::free(&error);
+	Helper::free(&sign);
 }
 
 bool Client::IsValidKeys()
@@ -76,33 +76,33 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 	return false;
 }
 
-bool Client::AuthServiceClient(Type_Call_gRPC::Type_gRPC_Auth type)
+bool Client::AuthServiceClient(const TYPE_CHAR* url)
 {
 	std::string PubKey = ED25519->GetPubKey58();
-	gRPC_ClientAuth grpcClient;
-
-	if (Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION == type)
-	{
-
-		int i = 0;
-		while (i < 30)
-		{
-			if (ChekClient(PubKey, grpcClient,this->error, this->keyPair, this->sign, this->accountID))
-			{
-				return true;
-			}
-			i++;
-			std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
-		}
-
-		Helper::allocateMemory("error AuthService", this->error);
-
-		return false;
-	}
-	else
-	{
-		return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
-	}
+	gRPC_ClientAuth grpcClient(true, url);
+	return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
+	//if (Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION == type)
+	//{
+	//
+	//	int i = 0;
+	//	while (i < 30)
+	//	{
+	//		if (ChekClient(PubKey, grpcClient,this->error, this->keyPair, this->sign, this->accountID))
+	//		{
+	//			return true;
+	//		}
+	//		i++;
+	//		std::this_thread::sleep_for(std::chrono::nanoseconds(1000000000));
+	//	}
+	//
+	//	Helper::allocateMemory("error AuthService", this->error);
+	//
+	//	return false;
+	//}
+	//else
+	//{
+	//	return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
+	//}
 }
 
 

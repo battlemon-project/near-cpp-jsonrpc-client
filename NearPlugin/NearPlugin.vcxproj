@@ -33,14 +33,14 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -78,19 +78,21 @@
     <IncludePath>$(SolutionDir)\packages\grpc\third_party\protobuf\src;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(SolutionDir)\packages\grpc\.buildWin32\third_party\protobuf\Release;$(SolutionDir)\packages\grpc\.buildWin32\Release;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\synchronization\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\base\Release;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\time\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\debugging\Release;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\numeric\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\base\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\debugging\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\strings\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\types\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\hash\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\cares\cares\lib\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\boringssl-with-bazel\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\profiling\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\container\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\random\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\re2\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\abseil-cpp\absl\status\Release\;$(SolutionDir)\packages\grpc\.buildWin32\third_party\zlib\Release\;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\lib\Win32\VS2015\Release;$(WindowsSDK_LibraryPath_x86);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)\packages\grpc\.buildWin64\third_party\protobuf\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\synchronization\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\time\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Debug;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\numeric\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\strings\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\types\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\hash\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\cares\cares\lib\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\boringssl-with-bazel\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\profiling\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\container\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\random\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\re2\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\status\Debug\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\zlib\Debug\;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)\packages\grpc\third_party\protobuf\src;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <TargetExt>.lib</TargetExt>
+    <LibraryPath>$(SolutionDir)\packages\grpc\install_Win64Debug\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\packages\grpc\install_Win64Debug\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.lib</TargetExt>
     <TargetName>NearRPC</TargetName>
-    <IncludePath>$(SolutionDir)\packages\grpc\third_party\protobuf\src;$(SolutionDir)\packages\grpc\include;$(SolutionDir)\packages\grpc\third_party\abseil-cpp;J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\packages\grpc\.buildWin64\third_party\protobuf\Release;$(SolutionDir)\packages\grpc\.buildWin64\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\synchronization\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\time\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Release;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\numeric\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\base\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\debugging\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\strings\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\types\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\hash\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\cares\cares\lib\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\boringssl-with-bazel\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\profiling\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\container\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\random\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\re2\Release\;$(SolutionDir)\packages\grpc\.buildWin64\third_party\abseil-cpp\absl\status\Release\;J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\packages\grpc\install_Win64Release\include;J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\zlib\v1.2.8\include\Win64\VS2015;J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\OpenSSL\1.1.1k\include\Win64\VS2015;$(IncludePath)</IncludePath>
+    <LibraryPath>J:\UnrealEngine-4.27.2-release\Engine\Source\ThirdParty\;$(SolutionDir)\packages\grpc\install_Win64Release\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\lib\Win64</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -133,13 +135,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)\packages\protobuf\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\NearPlugin\Ed25519;%(AdditionalIncludeDirectories);$(SolutionDir)\packages\grpc\install_Win64Debug\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobufd.lib;address_sorting.lib;gpr.lib;J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\packages\grpc\.buildWin64\Release\grpc.lib;J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\packages\grpc\.buildWin64\Release\grpc++.lib;upb.lib;absl_synchronization.lib;absl_graphcycles_internal.lib;absl_base.lib;absl_civil_time.lib;absl_debugging_internal.lib;absl_demangle_internal.lib;absl_int128.lib;absl_log_severity.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_stacktrace.lib;absl_strings.lib;absl_strings_internal.lib;absl_symbolize.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_city.lib;absl_bad_optional_access.lib;absl_bad_variant_access.lib;cares.lib;absl_cord.lib;absl_cord_internal.lib;absl_cordz_functions.lib;absl_cordz_handle.lib;absl_cordz_info.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_internal_platform.lib;absl_random_internal_pool_urbg.lib;absl_random_internal_randen.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_slow.lib;absl_random_internal_seed_material.lib;absl_random_seed_gen_exception.lib;absl_random_seed_sequences.lib;absl_raw_hash_set.lib;re2.lib;absl_status.lib;absl_statusor.lib;absl_str_format_internal.lib;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libcrypto.lib;J:\UE_4.27\Engine\Source\ThirdParty\OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libssl.lib;J:\UE_4.27\Engine\Source\ThirdParty\zlib\v1.2.8\lib\Win64\VS2015\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>absl_cord.lib;absl_str_format_internal.lib;absl_strings.lib;absl_strings_internal.lib;absl_status.lib;absl_statusor.lib;absl_bad_optional_access.lib;absl_stacktrace.lib;absl_symbolize.lib;absl_int128.lib;absl_bad_variant_access.lib;absl_city.lib;absl_civil_time.lib;absl_cord_internal.lib;absl_cordz_functions.lib;address_sorting.lib;cares.lib;gpr.lib;grpc.lib;grpc++.lib;libprotobufd.lib;upb.lib;absl_base.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_graphcycles_internal.lib;absl_synchronization.lib;absl_cordz_handle.lib;absl_cordz_info.lib;absl_demangle_internal.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_log_severity.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_seed_sequences.lib;absl_random_internal_platform.lib;absl_random_seed_gen_exception.lib;absl_random_internal_seed_material.lib;absl_random_internal_randen_slow.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen.lib;absl_random_internal_pool_urbg.lib;re2.lib;absl_raw_hash_set.lib;crypt32.lib;ws2_32.lib;absl_debugging_internal.lib;absl_strerror.lib;crypto.lib;ssl.lib;zlibstaticd.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,8 +166,8 @@
       <AdditionalDependencies>absl_cord.lib;absl_str_format_internal.lib;absl_strings.lib;absl_strings_internal.lib;absl_status.lib;absl_statusor.lib;absl_bad_optional_access.lib;absl_stacktrace.lib;absl_symbolize.lib;absl_int128.lib;absl_bad_variant_access.lib;absl_city.lib;absl_civil_time.lib;absl_cord_internal.lib;absl_cordz_functions.lib;address_sorting.lib;cares.lib;gpr.lib;grpc.lib;grpc++.lib;libprotobuf.lib;upb.lib;absl_base.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_graphcycles_internal.lib;absl_synchronization.lib;absl_cordz_handle.lib;absl_cordz_info.lib;absl_demangle_internal.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_log_severity.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_seed_sequences.lib;absl_random_internal_platform.lib;absl_random_seed_gen_exception.lib;absl_random_internal_seed_material.lib;absl_random_internal_randen_slow.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen.lib;absl_random_internal_pool_urbg.lib;re2.lib;absl_raw_hash_set.lib;crypt32.lib;ws2_32.lib;absl_debugging_internal.lib;absl_strerror.lib;OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libcrypto.lib;OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libssl.lib;zlib\v1.2.8\lib\Win64\VS2015\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>del /q J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include\*.h &amp; ^
+copy /y J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\include\*.h J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include</Command>
     </PostBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
@@ -184,11 +186,14 @@
     <ClCompile Include="protocol\auth.pb.cc" />
     <ClCompile Include="protocol\common.grpc.pb.cc" />
     <ClCompile Include="protocol\common.pb.cc" />
+    <ClCompile Include="protocol\internalMm.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalMm.pb.cc" />
     <ClCompile Include="protocol\items.grpc.pb.cc" />
     <ClCompile Include="protocol\items.pb.cc" />
     <ClCompile Include="protocol\mm.grpc.pb.cc" />
     <ClCompile Include="protocol\mm.pb.cc" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="protocol\updates.grpc.pb.cc" />
+    <ClCompile Include="protocol\updates.pb.cc" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />
@@ -211,10 +216,14 @@
     <ClInclude Include="protocol\auth.pb.h" />
     <ClInclude Include="protocol\common.grpc.pb.h" />
     <ClInclude Include="protocol\common.pb.h" />
+    <ClInclude Include="protocol\internalMm.grpc.pb.h" />
+    <ClInclude Include="protocol\internalMm.pb.h" />
     <ClInclude Include="protocol\items.grpc.pb.h" />
     <ClInclude Include="protocol\items.pb.h" />
     <ClInclude Include="protocol\mm.grpc.pb.h" />
     <ClInclude Include="protocol\mm.pb.h" />
+    <ClInclude Include="protocol\updates.grpc.pb.h" />
+    <ClInclude Include="protocol\updates.pb.h" />
     <ClInclude Include="src\ed25519.h" />
     <ClInclude Include="src\fe.h" />
     <ClInclude Include="src\fixedint.h" />

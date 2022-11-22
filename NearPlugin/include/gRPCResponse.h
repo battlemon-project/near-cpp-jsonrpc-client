@@ -24,6 +24,7 @@ public:
 	};
 
 	Type_Call_gRPC GetCall_gRPC() const { return type_gRPC; };
+	char* GetError() const { return error; };
 
 	gRPC_Response(Client** client, Type_Call_gRPC type_gRPC) :client((const Client**)client), type_gRPC(type_gRPC), error(nullptr), gRPC_read(nullptr){};
 	gRPC_Response() = delete;
@@ -37,15 +38,15 @@ class gRPC_ResponseItem : public gRPC_Response<Type_Call_gRPC::Type_gRPCItem>
 	void free_gRPC() override;
 
 	//call server																													
-	void CallRPC_GetItems();																										//return ItemsResponse
-	void CallRPC_GetBundles();																										//return GetBundlesResponse
-	void CallRPC_EditBundle(ModelItems::EditBundleRequest& request);		//return WeaponBundle
-	void CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request);												//return common.Empty
-	void CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request);												//return common.Empty
+	void CallRPC_GetItems(const bool& ssl, const TYPE_CHAR* url);																										//return ItemsResponse
+	void CallRPC_GetBundles(const bool& ssl, const TYPE_CHAR* url);																										//return GetBundlesResponse
+	void CallRPC_EditBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::EditBundleRequest& request);		//return WeaponBundle
+	void CallRPC_AttachBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::AttachBundleRequest& request);												//return common.Empty
+	void CallRPC_DetachBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::DetachBundleRequest& request);												//return common.Empty
 
 public:
 
-	gRPC_ResponseItem(Client** client, void* inRequest, Type_Call_gRPC::Type_gRPCItem type_gRPC = Type_Call_gRPC::Type_gRPCItem::NONE);
+	gRPC_ResponseItem(Client** client, void* inRequest, const bool& ssl, const TYPE_CHAR* url, Type_Call_gRPC::Type_gRPCItem type_gRPC = Type_Call_gRPC::Type_gRPCItem::NONE);
 	gRPC_ResponseItem() = delete;
 	~gRPC_ResponseItem();
 
@@ -69,9 +70,9 @@ class gRPC_ResponseMM : public gRPC_Response<Type_Call_gRPC::Type_gRPC_MM>
 	void free_gRPC() override;
 
 	//call server			
-	void CallRPC_SearchGame(ModelMM::SearchGameRequest& inRequest);	//SearchGameResponse
-	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest& inRequest);													//common.Empty
-	bool CallRPC_CancelSearch();																		//common.Empty
+	void CallRPC_SearchGame(const bool& ssl, const TYPE_CHAR* url, ModelMM::SearchGameRequest& inRequest);	//SearchGameResponse
+	void CallRPC_AcceptGame(const bool& ssl, const TYPE_CHAR* url, ModelMM::AcceptGameRequest& inRequest);													//common.Empty
+	void CallRPC_CancelSearch(const bool& ssl, const TYPE_CHAR* url);																		//common.Empty
 
 public:
 
@@ -79,8 +80,48 @@ public:
 	bool getResponse_AcceptGame();
 	bool getResponse_CancelSearch();
 
-	gRPC_ResponseMM(Client** client, void* inRequest, Type_Call_gRPC::Type_gRPC_MM type_gRPC = Type_Call_gRPC::Type_gRPC_MM::NONE);
+	gRPC_ResponseMM(Client** client, void* inRequest, const bool& ssl, const TYPE_CHAR* url, Type_Call_gRPC::Type_gRPC_MM type_gRPC = Type_Call_gRPC::Type_gRPC_MM::NONE);
 	gRPC_ResponseMM() = delete;
 	~gRPC_ResponseMM();
 
+};
+
+class gRPC_ResponseInternalMM : public gRPC_Response<Type_Call_gRPC::Type_gRPC_InternalMM>
+{
+
+	void free_gRPC() override;
+
+	//call server			
+	void CallRPC_UserLeftBattle(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::InternalUserLeftBattleRequest& inRequest);
+	void CallRPC_SaveBattleResult(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::SaveBattleResultRequest& inRequest);
+	void CallRPC_GetRoomInfo(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::RoomInfoRequest& inRequest);
+	void CallRPC_CreateRoomWithPlayers(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::CreateRoomRequest& inRequest);
+	void CallRPC_DedicatedServerIsReady(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::DedicatedServerIsReadyRequest& inRequest);
+public:
+
+	bool getResponse_UserLeftBattle();
+	bool getResponse_SaveBattleResult();
+	ModelInternalMM::RoomInfoResponse getResponse_GetRoomInfo();
+	ModelInternalMM::RoomInfoResponse getResponse_CreateRoomWithPlayers();
+	bool getResponse_DedicatedServerIsReady();
+
+
+	gRPC_ResponseInternalMM(Client** client, void* inRequest, const bool& ssl, const TYPE_CHAR* url, Type_Call_gRPC::Type_gRPC_InternalMM type_gRPC = Type_Call_gRPC::Type_gRPC_InternalMM::NONE);
+	gRPC_ResponseInternalMM() = delete;
+	~gRPC_ResponseInternalMM();
+
+};
+
+class gRPC_ResponseUptate
+{
+	void* messageData;
+public:
+	gRPC_ResponseUptate();
+	~gRPC_ResponseUptate();
+
+	const ModelUpdates::MessageData& writeUpdate(const ModelUpdates::Update& Request);
+	const ModelUpdates::MessageData& writeUpdateMessage(const ModelUpdates::UpdateMessage& Request);
+	const ModelUpdates::MessageData& writeRoomNeedAccept(const ModelUpdates::RoomNeedAccept& Request);
+	const ModelUpdates::MessageData& writeRoomInfo(const ModelUpdates::RoomInfo& Request);
+	const ModelUpdates::MessageData& writeRoomPlayer(const ModelUpdates::RoomPlayer& Request);
 };

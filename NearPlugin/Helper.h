@@ -2,7 +2,9 @@
 
 #include <string>
 #include "include/ModelItem.h"
-#include "protocol/items.pb.h"
+#include "protocol/items.grpc.pb.h"
+#include "protocol/internalMm.grpc.pb.h"
+#include "protocol/mm.grpc.pb.h"
 
 #if defined(__unix__) || defined(__APPLE__)
 //#include <threads.h>
@@ -19,7 +21,7 @@
 #define WEAPON_BUNDLE ((game::battlemon::items::WeaponBundle*)gRPC_read)
 #define COMMON_EMPTY ((game::battlemon::common::Empty*)gRPC_read)
 #define SEARCH_GAME_RESPONSE ((game::battlemon::mm::SearchGameResponse*)gRPC_read)
-
+#define ROOM_INFO_RESPONSE ((game::battlemon::mm::internal::RoomInfoResponse*)gRPC_read)
 
 #define HOOK_ERROR char*& error, void(*errorH)(const std::string& copy, char*& error)
 #define THROW_HOOK error, Helper::allocateMemory
@@ -30,7 +32,7 @@
 namespace Helper
 {
 	void allocateMemory(const std::string& copy, char*& target);
-	void free(char* data);
+	void free(char** data);
 	void free(char16_t* data);
 
 	game::battlemon::items::WeaponBundleItemType ConvWeaponBundleItemTypeToProto(const ModelItems::WeaponBundleItemType& item_type);
@@ -40,7 +42,6 @@ namespace Helper
 	game::battlemon::items::WeaponBundleSlotType WeaponBundleSlotTypeToProto(const ModelItems::WeaponBundleSlotType& slot_type);
 
 	ModelItems::WeaponBundleSlotType WeaponBundleSlotTypeToCPP(const game::battlemon::items::WeaponBundleSlotType& slot_type);
-
 #if defined(__unix__) || defined(__APPLE__)
 	std::string convUTF8(const char16_t* utp16);
 	std::u16string convUTF16(std::string utp8);

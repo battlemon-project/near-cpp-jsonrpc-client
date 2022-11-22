@@ -11,6 +11,7 @@
 #include "protocol/items.grpc.pb.h"
 #include "protocol/internalMm.grpc.pb.h"
 #include "protocol/mm.grpc.pb.h"
+#include "protocol/updates.grpc.pb.h"
 
 #ifdef WIN32
 
@@ -63,8 +64,10 @@ using game::battlemon::mm::internal::InternalUserLeftBattleRequest;
 using game::battlemon::mm::internal::SaveBattleResultRequest;
 using game::battlemon::mm::internal::RoomInfoRequest;
 using game::battlemon::mm::internal::RoomInfoResponse;
-RoomInfoResponse;
 using game::battlemon::mm::internal::CreateRoomRequest;
+using game::battlemon::mm::internal::DedicatedServerIsReadyRequest;
+
+
 
 class gRPC_SSL
 {
@@ -129,9 +132,12 @@ protected:
 	}
 
 public:
-	gRPC_Client()
+	gRPC_Client(const bool& ssl, std::string url = "game.battlemon.com")
 	{
-		stub = std::unique_ptr<ServiceStub>(Service::NewStub((grpc::CreateChannel("game.battlemon.com", grpc::SslCredentials(getSslOptions())))));
+		if(ssl)
+			stub = std::unique_ptr<ServiceStub>(Service::NewStub((grpc::CreateChannel(url, grpc::SslCredentials(getSslOptions())))));
+		else
+			stub = std::unique_ptr<ServiceStub>(Service::NewStub((grpc::CreateChannel(url, grpc::InsecureChannelCredentials()))));
 	}
 
 	~gRPC_Client() {}
@@ -143,7 +149,7 @@ class gRPC_ClientAuth : public gRPC_Client<AuthService, AuthService::Stub>
 	//bool CallRPC(ClientContext& context, const VerifyCodeRequest& write, VerifyCodeResponse* read);
 
 public:
-
+	gRPC_ClientAuth(const bool& ssl, std::string url);
 	SendCodeResponse CallRPCSendCode(const std::string& publicKey, HOOK_ERROR);
 	VerifyCodeResponse CallRPCVerifyCode(const std::string& publicKey, const std::string& sign, HOOK_ERROR);
 };
@@ -153,27 +159,57 @@ class gRPC_ClientItems : public gRPC_Client<ItemsService, ItemsService::Stub>
 {
 
 public:
+	gRPC_ClientItems(const bool& ssl, std::string url);
+
 	ItemsResponse CallRPC_GetItems(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 	GetBundlesResponse CallRPC_GetBundles(const std::string& nearID, const std::string& sign, HOOK_ERROR);
-	WeaponBundle CallRPC_EditBundle(ModelItems::EditBundleRequest& request, HOOK_ERROR);
-	bool CallRPC_AttachBundle(ModelItems::AttachBundleRequest& request, HOOK_ERROR);
-	bool CallRPC_DetachBundle(ModelItems::DetachBundleRequest& request, HOOK_ERROR);
+	WeaponBundle CallRPC_EditBundle(const std::string& nearID, const std::string& sign, ModelItems::EditBundleRequest& request, HOOK_ERROR);
+	bool CallRPC_AttachBundle(const std::string& nearID, const std::string& sign, ModelItems::AttachBundleRequest& request, HOOK_ERROR);
+	bool CallRPC_DetachBundle(const std::string& nearID, const std::string& sign, ModelItems::DetachBundleRequest& request, HOOK_ERROR);
 };
 
 class gRPC_ClientMM : public gRPC_Client<MMService, MMService::Stub>
 {
 
 public:
-	SearchGameResponse CallRPC_SearchGame(ModelMM::SearchGameRequest& Request, HOOK_ERROR);
-	bool CallRPC_AcceptGame(ModelMM::AcceptGameRequest& Request, HOOK_ERROR);
+	gRPC_ClientMM(const bool& ssl, std::string url);
+	SearchGameResponse CallRPC_SearchGame(const std::string& nearID, const std::string& sign, ModelMM::SearchGameRequest& Request, HOOK_ERROR);
+	bool CallRPC_AcceptGame(const std::string& nearID, const std::string& sign, ModelMM::AcceptGameRequest& Request, HOOK_ERROR);
 	bool CallRPC_CancelSearch(const std::string& nearID, const std::string& sign, HOOK_ERROR);
 };
 
 class gRPC_ClientInternalMM : public gRPC_Client<InternalMMService, InternalMMService::Stub>
 {
 public:
+	gRPC_ClientInternalMM(const bool& ssl, std::string url);
 	bool CallRPC_UserLeftBattle(ModelInternalMM::InternalUserLeftBattleRequest& Request, HOOK_ERROR);
-	bool SaveBattleResult(ModelInternalMM::SaveBattleResultRequest& Request, HOOK_ERROR);
-	RoomInfoResponse GetRoomInfo(ModelInternalMM::RoomInfoRequest& Request, HOOK_ERROR);
-	RoomInfoResponse CreateRoomWithPlayers(ModelInternalMM::CreateRoomRequest& Request, HOOK_ERROR);
+	bool CallRPC_SaveBattleResult(ModelInternalMM::SaveBattleResultRequest& Request, HOOK_ERROR);
+	RoomInfoResponse CallRPC_GetRoomInfo(ModelInternalMM::RoomInfoRequest& Request, HOOK_ERROR);
+	RoomInfoResponse CallRPC_CreateRoomWithPlayers(ModelInternalMM::CreateRoomRequest& Request, HOOK_ERROR);
+	bool CallRPC_DedicatedServerIsReady(ModelInternalMM::DedicatedServerIsReadyRequest& Request, HOOK_ERROR);
+};
+
+class ClientUpdates
+{
+	ModelUpdates::MessageData message;
+	unsigned char type;
+	void free();
+
+public:
+	ClientUpdates();
+	~ClientUpdates();
+
+	void writeUpdate(const ModelUpdates::Update& Request);
+	void writeUpdateMessage(const ModelUpdates::UpdateMessage& Request);
+	void writeRoomNeedAccept(const ModelUpdates::RoomNeedAccept& Request);
+	void writeRoomInfo(const ModelUpdates::RoomInfo& Request);
+	void writeRoomPlayer(const ModelUpdates::RoomPlayer& Request);
+
+	ModelUpdates::Update readUpdate(const ModelUpdates::MessageData& message);
+	ModelUpdates::UpdateMessage readUpdateMessage(const ModelUpdates::MessageData& message);
+	ModelUpdates::RoomNeedAccept readRoomNeedAccept(const ModelUpdates::MessageData& message);
+	ModelUpdates::RoomInfo readRoomInfo(const ModelUpdates::MessageData& message);
+	ModelUpdates::RoomPlayer readRoomPlayer(const ModelUpdates::MessageData& message);
+
+	const ModelUpdates::MessageData& getMessageData() const;
 };

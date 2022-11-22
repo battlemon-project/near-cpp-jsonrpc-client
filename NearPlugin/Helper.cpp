@@ -11,12 +11,12 @@ void Helper::allocateMemory(const std::string& copy, char*& target)
 	}
 }
 
-void Helper::free(char* data)
+void Helper::free(char** data)
 {
 	if (data != nullptr)
 	{
-		delete[]data;
-		data = nullptr;
+		delete[] *data;
+		*data = nullptr;
 	}
 }
 
