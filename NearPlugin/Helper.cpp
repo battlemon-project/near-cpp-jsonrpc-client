@@ -20,12 +20,12 @@ void Helper::free(char** data)
 	}
 }
 
-void Helper::free(char16_t* data)
+void Helper::free(char16_t** data)
 {
 	if (data != nullptr)
 	{
 		delete[]data;
-		data = nullptr;
+		*data = nullptr;
 	}
 }
 

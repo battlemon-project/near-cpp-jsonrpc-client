@@ -33,7 +33,7 @@ namespace Helper
 {
 	void allocateMemory(const std::string& copy, char*& target);
 	void free(char** data);
-	void free(char16_t* data);
+	void free(char16_t** data);
 
 	game::battlemon::items::WeaponBundleItemType ConvWeaponBundleItemTypeToProto(const ModelItems::WeaponBundleItemType& item_type);
 
@@ -49,7 +49,7 @@ namespace Helper
 }
 #define TYPE_Conv(str) Helper::convUTF8(str)
 #define TYPE_ReConv(str) Helper::convUTF16(str)
-#define TYPE_Copy(str,chr) Helper::allocateMemoryTo16_t(Helper::convUTF16(str), chr)
+#define TYPE_Copy(str,chr) Helper::allocateMemoryTo16_t(str, chr)
 #else
 #define TYPE_Conv(str) str
 #define TYPE_ReConv(str) str

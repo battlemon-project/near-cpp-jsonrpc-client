@@ -11,7 +11,6 @@
 #include "protocol/items.grpc.pb.h"
 #include "protocol/internalMm.grpc.pb.h"
 #include "protocol/mm.grpc.pb.h"
-#include "protocol/updates.grpc.pb.h"
 
 #ifdef WIN32
 
@@ -66,8 +65,6 @@ using game::battlemon::mm::internal::RoomInfoRequest;
 using game::battlemon::mm::internal::RoomInfoResponse;
 using game::battlemon::mm::internal::CreateRoomRequest;
 using game::battlemon::mm::internal::DedicatedServerIsReadyRequest;
-
-
 
 class gRPC_SSL
 {
@@ -189,6 +186,8 @@ public:
 	bool CallRPC_DedicatedServerIsReady(ModelInternalMM::DedicatedServerIsReadyRequest& Request, HOOK_ERROR);
 };
 
+
+/*
 class ClientUpdates
 {
 	ModelUpdates::MessageData message;
@@ -212,4 +211,4 @@ public:
 	ModelUpdates::RoomPlayer readRoomPlayer(const ModelUpdates::MessageData& message);
 
 	const ModelUpdates::MessageData& getMessageData() const;
-};
+};*/

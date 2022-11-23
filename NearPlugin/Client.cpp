@@ -79,7 +79,7 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 bool Client::AuthServiceClient(const TYPE_CHAR* url)
 {
 	std::string PubKey = ED25519->GetPubKey58();
-	gRPC_ClientAuth grpcClient(true, url);
+	gRPC_ClientAuth grpcClient(true, TYPE_Conv(url));
 	return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->sign, this->accountID);
 	//if (Type_Call_gRPC::Type_gRPC_Auth::REGISTRATION == type)
 	//{

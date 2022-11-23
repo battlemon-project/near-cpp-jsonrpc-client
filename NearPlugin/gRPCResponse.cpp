@@ -220,6 +220,9 @@ ModelItems::WeaponBundle gRPC_ResponseItem::gRPC_GetBundle(int index)
 			case game::battlemon::items::WeaponBundleSlotType::BUNDLE_SLOT_PERK_TWO:
 				item[i].slot_type = ModelItems::WeaponBundleSlotType::BUNDLE_SLOT_PERK_TWO;
 				break;
+			case game::battlemon::items::WeaponBundleSlotType::BUNDLE_SLOT_SECONDARY:
+				item[i].slot_type = ModelItems::WeaponBundleSlotType::BUNDLE_SLOT_SECONDARY;
+				break;
 			default:
 				break;
 			}
@@ -264,10 +267,9 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_CopyDataBundles()
 
 		int size = GET_BUNDLES_RESPONSE->bundles().size();
 		ModelItems::WeaponBundle* wbOut = new ModelItems::WeaponBundle[size];
-
 		for (int i = 0; i < GET_BUNDLES_RESPONSE->bundles().size(); i++)
 		{
-			TYPE_Copy(GET_BUNDLES_RESPONSE->bundles(i).title(),item.title);
+			TYPE_Copy(TYPE_ReConv(GET_BUNDLES_RESPONSE->bundles(i).title()),item.title);
 			item.level = GET_BUNDLES_RESPONSE->bundles(i).level();
 			item.bundle_num = GET_BUNDLES_RESPONSE->bundles(i).bundle_num();
 
@@ -284,7 +286,7 @@ ObjectList<ModelItems::WeaponBundle> gRPC_ResponseItem::gRPC_CopyDataBundles()
 void gRPC_ResponseItem::CallRPC_GetItems(const bool& ssl, const TYPE_CHAR* url)
 {
 	free_gRPC();
-	gRPC_ClientItems grpcClient(ssl, url);
+	gRPC_ClientItems grpcClient(ssl, TYPE_Conv(url));
 	if ((*client) != nullptr)
 		gRPC_read = new ItemsResponse(grpcClient.CallRPC_GetItems((*client)->GetAccount(), (*client)->GetSing(), THROW_HOOK));
 	else
@@ -294,7 +296,7 @@ void gRPC_ResponseItem::CallRPC_GetItems(const bool& ssl, const TYPE_CHAR* url)
 void gRPC_ResponseItem::CallRPC_GetBundles(const bool& ssl, const TYPE_CHAR* url)
 {
 	free_gRPC();
-	gRPC_ClientItems grpcClient(ssl, url);
+	gRPC_ClientItems grpcClient(ssl, TYPE_Conv(url));
 	gRPC_read = new game::battlemon::items::GetBundlesResponse(grpcClient.CallRPC_GetBundles((*client)->GetAccount(), (*client)->GetSing(), THROW_HOOK));
 }
 
@@ -302,21 +304,21 @@ void gRPC_ResponseItem::CallRPC_GetBundles(const bool& ssl, const TYPE_CHAR* url
 void gRPC_ResponseItem::CallRPC_EditBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::EditBundleRequest& request)
 {
 	free_gRPC();
-	gRPC_ClientItems grpcClient(ssl, url);
+	gRPC_ClientItems grpcClient(ssl, TYPE_Conv(url));
 	gRPC_read = new game::battlemon::items::WeaponBundle(grpcClient.CallRPC_EditBundle((*client)->GetAccount(), (*client)->GetSing(), request, THROW_HOOK));
 }
 
 void gRPC_ResponseItem::CallRPC_AttachBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::AttachBundleRequest& request)
 {
 	free_gRPC();
-	gRPC_ClientItems grpcClient(ssl, url);
+	gRPC_ClientItems grpcClient(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(grpcClient.CallRPC_AttachBundle((*client)->GetAccount(), (*client)->GetSing(), request, THROW_HOOK));
 }
 
 void gRPC_ResponseItem::CallRPC_DetachBundle(const bool& ssl, const TYPE_CHAR* url, ModelItems::DetachBundleRequest& request)
 {
 	free_gRPC();
-	gRPC_ClientItems grpcClient(ssl, url);
+	gRPC_ClientItems grpcClient(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(grpcClient.CallRPC_DetachBundle((*client)->GetAccount(), (*client)->GetSing(), request, THROW_HOOK));
 }
 
@@ -346,19 +348,19 @@ void gRPC_ResponseMM::free_gRPC()
 
 void gRPC_ResponseMM::CallRPC_SearchGame(const bool& ssl, const TYPE_CHAR* url, ModelMM::SearchGameRequest& inRequest)
 {
-	gRPC_ClientMM  gRPC_Client(ssl, url);
+	gRPC_ClientMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new game::battlemon::mm::SearchGameResponse(gRPC_Client.CallRPC_SearchGame((*client)->GetAccount(), (*client)->GetSing(), inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseMM::CallRPC_AcceptGame(const bool& ssl, const TYPE_CHAR* url, ModelMM::AcceptGameRequest& inRequest)
 {
-	gRPC_ClientMM  gRPC_Client(ssl, url);
+	gRPC_ClientMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(gRPC_Client.CallRPC_AcceptGame((*client)->GetAccount(), (*client)->GetSing(), inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseMM::CallRPC_CancelSearch(const bool& ssl, const TYPE_CHAR* url)
 {
-	gRPC_ClientMM  gRPC_Client(ssl, url);
+	gRPC_ClientMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(gRPC_Client.CallRPC_CancelSearch((*client)->GetAccount(), (*client)->GetSing(), THROW_HOOK));
 }
 
@@ -499,31 +501,31 @@ void gRPC_ResponseInternalMM::free_gRPC()
 
 void gRPC_ResponseInternalMM::CallRPC_UserLeftBattle(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::InternalUserLeftBattleRequest& inRequest)
 {
-	gRPC_ClientInternalMM  gRPC_Client(ssl, url);
+	gRPC_ClientInternalMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(gRPC_Client.CallRPC_UserLeftBattle(inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseInternalMM::CallRPC_SaveBattleResult(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::SaveBattleResultRequest& inRequest)
 {
-	gRPC_ClientInternalMM  gRPC_Client(ssl, url);
+	gRPC_ClientInternalMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(gRPC_Client.CallRPC_SaveBattleResult(inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseInternalMM::CallRPC_GetRoomInfo(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::RoomInfoRequest& inRequest)
 {
-	gRPC_ClientInternalMM  gRPC_Client(ssl, url);
+	gRPC_ClientInternalMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new game::battlemon::mm::internal::RoomInfoResponse(gRPC_Client.CallRPC_GetRoomInfo(inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseInternalMM::CallRPC_CreateRoomWithPlayers(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::CreateRoomRequest& inRequest)
 {
-	gRPC_ClientInternalMM  gRPC_Client(ssl, url);
+	gRPC_ClientInternalMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new game::battlemon::mm::internal::RoomInfoResponse(gRPC_Client.CallRPC_CreateRoomWithPlayers(inRequest, THROW_HOOK));
 }
 
 void gRPC_ResponseInternalMM::CallRPC_DedicatedServerIsReady(const bool& ssl, const TYPE_CHAR* url, ModelInternalMM::DedicatedServerIsReadyRequest& inRequest)
 {
-	gRPC_ClientInternalMM  gRPC_Client(ssl, url);
+	gRPC_ClientInternalMM  gRPC_Client(ssl, TYPE_Conv(url));
 	gRPC_read = new bool(gRPC_Client.CallRPC_DedicatedServerIsReady(inRequest, THROW_HOOK));
 }
 
@@ -566,7 +568,7 @@ bool gRPC_ResponseInternalMM::getResponse_DedicatedServerIsReady()
 		return *((bool*)gRPC_read);
 	return false;
 }
-
+/*
 gRPC_ResponseUptate::gRPC_ResponseUptate():messageData(new ClientUpdates())
 {
 }
@@ -605,5 +607,5 @@ const ModelUpdates::MessageData& gRPC_ResponseUptate::writeRoomPlayer(const Mode
 {
 	((ClientUpdates*)messageData)->writeRoomPlayer(Request);
 	return ((ClientUpdates*)messageData)->getMessageData();
-}
+}*/
 

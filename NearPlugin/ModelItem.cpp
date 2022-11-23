@@ -1,6 +1,7 @@
 #include "include/ModelItem.h"
 #include "Helper.h"
 
+#include "protocol/updates.grpc.pb.h"
 
 
 ModelItems::OutfitKind& operator<<(ModelItems::OutfitKind& OutfitKindUE, const game::battlemon::items::OutfitKind& OutfitKindResponse)
@@ -33,8 +34,8 @@ ModelItems::OutfitModel& operator<<(ModelItems::OutfitModel& OutfitModellUE, con
 {
 	if (OutfitModellUE.copy)
 	{
-		TYPE_Copy(OutfitModelResponse.flavour().c_str(), OutfitModellUE.flavour);
-		TYPE_Copy(OutfitModelResponse.token_id().c_str(), OutfitModellUE.token_id);
+		TYPE_Copy(TYPE_ReConv(OutfitModelResponse.flavour().c_str()), OutfitModellUE.flavour);
+		TYPE_Copy(TYPE_ReConv(OutfitModelResponse.token_id().c_str()), OutfitModellUE.token_id);
 	}
 	else
 	{
@@ -51,11 +52,11 @@ ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LemonModelUE, const g
 {
 	if (LemonModelUE.copy)
 	{
-		TYPE_Copy(LemonModelResponse.exo().c_str(), LemonModelUE.exo);
-		TYPE_Copy(LemonModelResponse.eyes().c_str(), LemonModelUE.eyes);
-		TYPE_Copy(LemonModelResponse.head().c_str(), LemonModelUE.head);
-		TYPE_Copy(LemonModelResponse.teeth().c_str(), LemonModelUE.teeth);
-		TYPE_Copy(LemonModelResponse.face().c_str(), LemonModelUE.face);
+		TYPE_Copy(TYPE_ReConv(LemonModelResponse.exo().c_str()), LemonModelUE.exo);
+		TYPE_Copy(TYPE_ReConv(LemonModelResponse.eyes().c_str()), LemonModelUE.eyes);
+		TYPE_Copy(TYPE_ReConv(LemonModelResponse.head().c_str()), LemonModelUE.head);
+		TYPE_Copy(TYPE_ReConv(LemonModelResponse.teeth().c_str()), LemonModelUE.teeth);
+		TYPE_Copy(TYPE_ReConv(LemonModelResponse.face().c_str()), LemonModelUE.face);
 	}
 	else
 	{
@@ -80,10 +81,10 @@ ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LemonModelUE, const g
 	for (int i = 0; i < size; i++)
 	{
 		wp[i].bundle_num = LemonModelResponse.attached_bundles().Get(i).bundle_num();
-		
-		if (wp[i].copy = LemonModelUE.copy)
+		wp[i].copy = LemonModelUE.copy;
+		if (wp[i].copy)
 		{
-			TYPE_Copy(LemonModelResponse.attached_bundles().Get(i).title().c_str(), wp[i].title);
+			TYPE_Copy(TYPE_ReConv(LemonModelResponse.attached_bundles().Get(i).title().c_str()), wp[i].title);
 		}
 		else
 		{
@@ -96,10 +97,10 @@ ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LemonModelUE, const g
 		for (int itms_index = 0; itms_index < sizeItems; itms_index++)
 		{
 			WeaponBundleItemPtr[itms_index].item_type =	Helper::ConvWeaponBundleItemTypeToCPP(LemonModelResponse.attached_bundles().Get(i).items().Get(itms_index).item_type());
-			
-			if (WeaponBundleItemPtr[itms_index].copy = LemonModelUE.copy)
+			WeaponBundleItemPtr[itms_index].copy = LemonModelUE.copy;
+			if (WeaponBundleItemPtr[itms_index].copy)
 			{
-				TYPE_Copy(LemonModelResponse.attached_bundles().Get(i).items().Get(itms_index).skin().c_str(), WeaponBundleItemPtr[itms_index].skin);
+				TYPE_Copy(TYPE_ReConv(LemonModelResponse.attached_bundles().Get(i).items().Get(itms_index).skin().c_str()), WeaponBundleItemPtr[itms_index].skin);
 			}
 			else
 			{
@@ -117,9 +118,9 @@ ModelItems::LemonModel& operator<<(ModelItems::LemonModel& LemonModelUE, const g
 ModelItems::Item& operator<<(ModelItems::Item& itemsUE, const game::battlemon::items::Item& itemResponse)
 {
 	itemsUE.in_fight = itemResponse.in_fight();
-	TYPE_Copy(itemResponse.token_id().c_str(), itemsUE.token_id);
-	TYPE_Copy(itemResponse.media().c_str(), itemsUE.media);
-	TYPE_Copy(itemResponse.owner_id().c_str(), itemsUE.owner_id);
+	TYPE_Copy(TYPE_ReConv(itemResponse.token_id().c_str()), itemsUE.token_id);
+	TYPE_Copy(TYPE_ReConv(itemResponse.media().c_str()), itemsUE.media);
+	TYPE_Copy(TYPE_ReConv(itemResponse.owner_id().c_str()), itemsUE.owner_id);
 	switch (itemResponse.model_case())
 	{
 	case game::battlemon::items::Item::kLemon:
@@ -147,9 +148,9 @@ ModelItems::Item::Item(void* item, bool copy):copy(copy),lemon(copy), outfit(cop
 		if (copy)
 		{
 			this->in_fight = itemLoc->in_fight();
-			TYPE_Copy(itemLoc->token_id().c_str(), this->token_id);
-			TYPE_Copy(itemLoc->media().c_str(), this->media);
-			TYPE_Copy(itemLoc->owner_id().c_str(), this->owner_id);
+			TYPE_Copy(TYPE_ReConv(itemLoc->token_id().c_str()), this->token_id);
+			TYPE_Copy(TYPE_ReConv(itemLoc->media().c_str()), this->media);
+			TYPE_Copy(TYPE_ReConv(itemLoc->owner_id().c_str()), this->owner_id);
 			switch (itemLoc->model_case())
 			{
 			case game::battlemon::items::Item::kLemon:
@@ -273,11 +274,16 @@ ModelItems::LemonModel::LemonModel(const LemonModel& copy):copy(copy.copy), cap(
 	attached_bundles = copy.attached_bundles;
 };
 
-ModelItems::WeaponBundleItem::WeaponBundleItem(const WeaponBundleItem& copy)
+ModelItems::WeaponBundleItem::WeaponBundleItem(const WeaponBundleItem& copy):copy(copy.copy), item_type(copy.item_type), slot_type(copy.slot_type)
 {
-	item_type = copy.item_type;
-	skin = copy.skin;
-	slot_type = copy.slot_type;
+	if (copy.copy)
+	{
+		TYPE_Copy(copy.skin, skin);
+	}
+	else
+	{
+		skin = copy.skin;
+	}
 };
 
 ModelItems::WeaponBundle::WeaponBundle(const WeaponBundle& copy)
@@ -441,7 +447,7 @@ ModelItems::WeaponBundleItem::~WeaponBundleItem()
 	}
 }
 
-ModelItems::WeaponBundle::WeaponBundle() :bundle_num(-1), title(nullptr), level(-1), WeaponList(ObjectList<WeaponBundleItem>(-1))
+ModelItems::WeaponBundle::WeaponBundle() :bundle_num(-1), title(nullptr), level(-1), WeaponList(ObjectList<WeaponBundleItem>(-1)), copy(false)
 {
 }
 
@@ -526,13 +532,13 @@ ModelInternalMM::RoomInfoResponse::RoomInfoResponse(void* readRoomInfoResponsePt
 
 	if (copy)
 	{
-		TYPE_Copy(((game::battlemon::mm::internal::RoomInfoResponse*)readRoomInfoResponsePtr)->room_id(), this->room_id);
+		TYPE_Copy(TYPE_ReConv(((game::battlemon::mm::internal::RoomInfoResponse*)readRoomInfoResponsePtr)->room_id()), this->room_id);
 
 		for (int i = 0; i < size; i++)
 		{
 			players[i].copy = copy;
 			const game::battlemon::mm::internal::RoomPlayerInfo* pi = &((game::battlemon::mm::internal::RoomInfoResponse*)readRoomInfoResponsePtr)->players().Get(i);
-			TYPE_Copy(pi->near_id(), players[i].near_id);
+			TYPE_Copy(TYPE_ReConv(pi->near_id()), players[i].near_id);
 			players[i].lemon = ModelItems::Item((void*)&pi->lemon(), copy);
 		}
 	}
@@ -609,4 +615,41 @@ ModelInternalMM::RoomInfoRequest::RoomInfoRequest(const TYPE_CHAR* const room_id
 
 ModelInternalMM::RoomPlayerInfo::RoomPlayerInfo()
 {
+}
+
+ModelUpdates::MessageData::MessageData(const void* Data, const unsigned long &ByteSize) :Data(Data), ByteSize(ByteSize)
+{
+}
+
+using game::battlemon::updates::RoomInfo;
+using game::battlemon::updates::RoomNeedAccept;
+using game::battlemon::updates::Update;
+using game::battlemon::updates::UpdateMessage;
+using game::battlemon::updates::RoomPlayer;
+
+ModelUpdates::Update ModelUpdates::MessageData::ReadUpdate() const
+{
+	game::battlemon::updates::Update update;
+	return ModelUpdates::Update();
+}
+
+ModelUpdates::UpdateMessage ModelUpdates::MessageData::ReadUpdateMessage() const
+{
+
+	return ModelUpdates::UpdateMessage();
+}
+
+ModelUpdates::RoomNeedAccept ModelUpdates::MessageData::ReadRoomNeedAccept() const
+{
+	return ModelUpdates::RoomNeedAccept();
+}
+
+ModelUpdates::RoomInfo ModelUpdates::MessageData::ReadRoomInfo() const
+{
+	return ModelUpdates::RoomInfo();
+}
+
+ModelUpdates::RoomPlayer ModelUpdates::MessageData::ReadRoomPlayer() const
+{
+	return ModelUpdates::RoomPlayer();
 }

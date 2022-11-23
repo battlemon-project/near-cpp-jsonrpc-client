@@ -412,7 +412,7 @@ RoomInfoResponse gRPC_ClientInternalMM::CallRPC_CreateRoomWithPlayers(ModelInter
 
     for (int i = 0; i < Request.near_ids->getSize(); i++)
     {
-        write.set_near_ids(i, Request.near_ids->getObject(i));
+        write.set_near_ids(i, TYPE_Conv(Request.near_ids->getObject(i)));
     }
 
     ClientContext context;
@@ -444,6 +444,7 @@ bool gRPC_ClientInternalMM::CallRPC_DedicatedServerIsReady(ModelInternalMM::Dedi
 
 ///Updates.Proto
 
+/*
 ClientUpdates::ClientUpdates(): type('0')
 {
     this->message.Data = nullptr;
@@ -494,13 +495,12 @@ void ClientUpdates::writeUpdate(const ModelUpdates::Update& Request)
     message.Data = new game::battlemon::updates::Update();
     game::battlemon::updates::Update* messageUpdate = (game::battlemon::updates::Update*)message.Data;
 
-    messageUpdate->set_id(Request.id);
+    messageUpdate->set_id(TYPE_Conv(Request.id));
     messageUpdate->set_timestamp(Request.timestamp);
-    messageUpdate->set_message(Request.message);
+    messageUpdate->set_message(TYPE_Conv(Request.message));
 
     message.ByteSize = messageUpdate->ByteSizeLong() + 4;
 }
-
 void ClientUpdates::writeUpdateMessage(const ModelUpdates::UpdateMessage& Request)
 {
     if (type != '0')
@@ -528,24 +528,24 @@ void ClientUpdates::writeUpdateMessage(const ModelUpdates::UpdateMessage& Reques
     case ModelUpdates::UpdateCase::ROOM_FOUND:
     {
         ::game::battlemon::updates::RoomInfo* room_found = new ::game::battlemon::updates::RoomInfo();
-        room_found->set_room_id(Request.room_found.room_id);
-        room_found->set_server_ip(Request.room_found.server_ip);
+        room_found->set_room_id(TYPE_Conv(Request.room_found.room_id));
+        room_found->set_server_ip(TYPE_Conv(Request.room_found.server_ip));
         messageUpdateMessage->set_allocated_room_found(room_found);
         break;
     }
     case ModelUpdates::UpdateCase::ROOM_TEAMMATES:
     {
         ::game::battlemon::updates::RoomInfo* room_teammates = new ::game::battlemon::updates::RoomInfo();
-        room_teammates->set_room_id(Request.room_teammates.room_id);
-        room_teammates->set_server_ip(Request.room_teammates.server_ip);
+        room_teammates->set_room_id(TYPE_Conv(Request.room_teammates.room_id));
+        room_teammates->set_server_ip(TYPE_Conv(Request.room_teammates.server_ip));
         messageUpdateMessage->set_allocated_room_teammates(room_teammates);
         break;
     }
     case ModelUpdates::UpdateCase::ROOM_READY:
     {
         ::game::battlemon::updates::RoomInfo* room_ready = new ::game::battlemon::updates::RoomInfo();
-        room_ready->set_room_id(Request.room_ready.room_id);
-        room_ready->set_server_ip(Request.room_ready.server_ip);
+        room_ready->set_room_id(TYPE_Conv(Request.room_ready.room_id));
+        room_ready->set_server_ip(TYPE_Conv(Request.room_ready.server_ip));
         messageUpdateMessage->set_allocated_room_ready(room_ready);
         break;
     }
@@ -677,8 +677,8 @@ void ClientUpdates::writeRoomInfo(const ModelUpdates::RoomInfo& Request)
     message.Data = new game::battlemon::updates::RoomInfo();
     game::battlemon::updates::RoomInfo* messageRoomInfo = (game::battlemon::updates::RoomInfo*)message.Data;
 
-    messageRoomInfo->set_room_id(Request.room_id);
-    messageRoomInfo->set_server_ip(Request.server_ip);
+    messageRoomInfo->set_room_id(TYPE_Conv(Request.room_id));
+    messageRoomInfo->set_server_ip(TYPE_Conv(Request.server_ip));
 
     ModelUpdates::RoomPlayer* ptr = Request.players->getObjectPtr();
     for (int i = 0; i < Request.players->getSize(); i++)
@@ -741,3 +741,4 @@ ModelUpdates::RoomPlayer ClientUpdates::readRoomPlayer(const ModelUpdates::Messa
 
     return ModelUpdates::RoomPlayer();
 }
+*/

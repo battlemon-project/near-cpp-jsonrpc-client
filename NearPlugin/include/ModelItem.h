@@ -54,6 +54,7 @@ public:
 		if (list != nullptr && owner)
 			delete[]list;
 		list = nullptr;
+		size = -1;
 	}
 
 	ObjectList& operator=(const ObjectList& copyObjectList)
@@ -414,12 +415,6 @@ namespace ModelInternalMM
 
 namespace ModelUpdates
 {
-	struct MessageData
-	{
-		void* Data;
-		unsigned long ByteSize;
-	};
-
 	struct Update
 	{
 		TYPE_CHAR* id; // update id
@@ -464,6 +459,19 @@ namespace ModelUpdates
 		RoomInfo room_found;
 		RoomInfo room_teammates;
 		RoomInfo room_ready;
+	};
+
+	class MessageData
+	{
+		const void* Data;
+		const unsigned long ByteSize;
+	public:
+		MessageData(const void* Data, const unsigned long &ByteSize);
+		ModelUpdates::Update ReadUpdate() const;
+		ModelUpdates::UpdateMessage ReadUpdateMessage() const;
+		ModelUpdates::RoomNeedAccept ReadRoomNeedAccept() const;
+		ModelUpdates::RoomInfo ReadRoomInfo() const;
+		ModelUpdates::RoomPlayer ReadRoomPlayer() const;
 	};
 }
 
