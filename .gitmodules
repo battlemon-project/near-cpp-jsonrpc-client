@@ -4,6 +4,3 @@
 [submodule "packages/protocol"]
 	path = packages/protocol
 	url = https://github.com/battlemon-project/protocol.git
-[submodule "packages/grpc"]
-	path = packages/grpc
-	url = https://github.com/grpc/grpc.git

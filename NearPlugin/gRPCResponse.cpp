@@ -446,6 +446,7 @@ gRPC_ResponseMM::~gRPC_ResponseMM()
 gRPC_ResponseInternalMM::gRPC_ResponseInternalMM(Client** client, void* inRequest, const bool& ssl, const TYPE_CHAR* url, Type_Call_gRPC::Type_gRPC_InternalMM type_gRPC) :gRPC_Response(client, type_gRPC)
 {
 	free_gRPC();
+	this->type_gRPC = type_gRPC;
 	switch (type_gRPC)
 	{
 	case Type_Call_gRPC::Type_gRPC_InternalMM::NONE:
@@ -568,44 +569,93 @@ bool gRPC_ResponseInternalMM::getResponse_DedicatedServerIsReady()
 		return *((bool*)gRPC_read);
 	return false;
 }
-/*
-gRPC_ResponseUptate::gRPC_ResponseUptate():messageData(new ClientUpdates())
+
+
+void gRPC_ResponseUptate::free_gRPC()
 {
+	if (message.Data != nullptr)
+	{
+		delete (game::battlemon::updates::UpdateMessage*)message.Data;
+	}
+	message.Data = nullptr;
 }
 
+
+
+gRPC_ResponseUptate::gRPC_ResponseUptate(ModelUpdates::MessageData& message): message(new game::battlemon::updates::UpdateMessage(), 0)
+{
+	ClientUpdates clientUpdates(this->message.Data, message);
+}
 gRPC_ResponseUptate::~gRPC_ResponseUptate()
 {
-	delete (ClientUpdates*)messageData;
-	messageData = nullptr;
+	free_gRPC();
 }
 
-const ModelUpdates::MessageData& gRPC_ResponseUptate::writeUpdate(const ModelUpdates::Update& Request)
+void gRPC_ResponseUptate::readUpdateMessage(ModelUpdates::UpdateMessage& out)
 {
-	((ClientUpdates*)messageData)->writeUpdate(Request);
-	return ((ClientUpdates*)messageData)->getMessageData();
+	game::battlemon::updates::UpdateMessage* um = (game::battlemon::updates::UpdateMessage*)message.Data;
+	switch (um->update_case())
+	{
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kRoomNeedAccept:
+	{
+		out.set_update(ModelUpdates::UpdateCase::ROOM_NEED_ACCEPT);
+		const ::game::battlemon::updates::RoomNeedAccept RNA = um->room_need_accept();
+		ModelUpdates::RoomNeedAccept* roomNeedAccept;
+		out.CreateOneof(roomNeedAccept);
+		roomNeedAccept->manual_accept = RNA.manual_accept();
+		roomNeedAccept->time_to_accept = RNA.time_to_accept();
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kRoomAcceptingCanceled:
+		out.set_update(ModelUpdates::UpdateCase::ROOM_ACCEPTING_CANCELED);
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kRoomFound:
+	{
+		out.set_update(ModelUpdates::UpdateCase::ROOM_FOUND);
+		const ::game::battlemon::updates::RoomInfo* RI = &um->room_found();
+
+		readRoomInfo(out, (void*)RI);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kRoomTeammates:
+	{
+		out.set_update(ModelUpdates::UpdateCase::ROOM_TEAMMATES);
+		const ::game::battlemon::updates::RoomInfo* RI = &um->room_teammates();
+		readRoomInfo(out, (void*)RI);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kRoomReady:
+	{
+		out.set_update(ModelUpdates::UpdateCase::ROOM_READY);
+		const ::game::battlemon::updates::RoomInfo* RI = &um->room_ready();
+		readRoomInfo(out, (void*)RI);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::UPDATE_NOT_SET:
+		out.set_update(ModelUpdates::UpdateCase::DEFAULT);
+		break;
+	default:
+		break;
+	}
 }
 
-const ModelUpdates::MessageData& gRPC_ResponseUptate::writeUpdateMessage(const ModelUpdates::UpdateMessage& Request)
+void gRPC_ResponseUptate::readRoomInfo(ModelUpdates::UpdateMessage& out, void* RoomInfo)
 {
-	((ClientUpdates*)messageData)->writeUpdateMessage(Request);
-	return ((ClientUpdates*)messageData)->getMessageData();
+	const ::game::battlemon::updates::RoomInfo* RI = (const ::game::battlemon::updates::RoomInfo*)RoomInfo;
+	int size = RI->players().size();
+
+	ModelUpdates::RoomInfo* roomInfo = nullptr;
+	out.CreateOneof(roomInfo, size);
+	roomInfo->room_id = (TYPE_CHAR*)RI->room_id().c_str();
+	roomInfo->server_ip = (TYPE_CHAR*)RI->server_ip().c_str();
+
+	//ModelUpdates::RoomPlayer* list = roomInfo->players.getObjectPtr();
+	for (size_t i = 0; i < size; i++)
+	{
+		roomInfo->players[i].lemon = new ModelItems::Item((void*)&RI->players().Get(i).lemon(), false);
+		roomInfo->players[i].near_id = (TYPE_CHAR*)RI->players().Get(i).near_id().c_str();
+		//list[i].lemon
+		//list[i].near_id = (TYPE_CHAR*)RI->players().Get(i).near_id().c_str();
+	}
+	//roomInfo->players.setObjectList(list, size);
 }
-
-const ModelUpdates::MessageData& gRPC_ResponseUptate::writeRoomNeedAccept(const ModelUpdates::RoomNeedAccept& Request)
-{
-	((ClientUpdates*)messageData)->writeRoomNeedAccept(Request);
-	return ((ClientUpdates*)messageData)->getMessageData();
-}
-
-const ModelUpdates::MessageData& gRPC_ResponseUptate::writeRoomInfo(const ModelUpdates::RoomInfo& Request)
-{
-	((ClientUpdates*)messageData)->writeRoomInfo(Request);
-	return ((ClientUpdates*)messageData)->getMessageData();
-}
-
-const ModelUpdates::MessageData& gRPC_ResponseUptate::writeRoomPlayer(const ModelUpdates::RoomPlayer& Request)
-{
-	((ClientUpdates*)messageData)->writeRoomPlayer(Request);
-	return ((ClientUpdates*)messageData)->getMessageData();
-}*/
-

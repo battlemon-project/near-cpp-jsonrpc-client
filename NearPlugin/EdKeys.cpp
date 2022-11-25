@@ -170,8 +170,9 @@ std::string EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
 
 EdKeys::EdKeys():state(false)
 {
-	public_key[0];
-	private_key[0];
+	public_key[0] = '\0';
+	private_key[0] = '\0';
+	sign = "";
 }
 
 EdKeys::~EdKeys()
@@ -217,11 +218,13 @@ void EdKeys::SaveKeys(const std::string& accountID, std::string dir)
         std::string pashProject = dir;
         SaveK(pashProject + accountID + ".pr.bin", private_key, 64);
         SaveK(pashProject + accountID + ".pb.bin", public_key, 32);
+		SaveK(pashProject + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
     }
     else
     {
         SaveK(std::string("/") + "saved" + accountID + ".pr.bin", private_key, 64);
         SaveK(std::string("/") + "saved" + accountID + ".pb.bin", public_key, 32);
+		SaveK(std::string("/") + "saved" + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
     }
 }
 
@@ -248,6 +251,7 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK(pashProject, accountID, ".pr.bin", private_key, 64))
         {
             LoadK(pashProject, accountID, ".pb.bin", public_key, 32);
+			LoadK(pashProject, accountID, ".sign.pb.bin", (void*)sign.c_str(), 89);
 			state = true;
             return true;
         }
@@ -256,10 +260,23 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK((std::string("/") + "saved"), accountID, ".pr.bin", private_key, 64))
         {
             LoadK((std::string("/") + "saved"), accountID, ".pb.bin", public_key, 32);
+			LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (void*)sign.c_str(), 89);
 			state = true;
             return true;
         }
     
+	return false;
+}
+
+void EdKeys::SaveSign(const std::string& accountID, std::string dir)
+{
+	SaveK(std::string("/") + "saved" + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
+}
+
+bool EdKeys::LoadSign(const std::string& accountID, std::string dir)
+{
+	if(LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (void*)sign.c_str(), 89))
+		return true;
 	return false;
 }
 
@@ -271,6 +288,16 @@ std::string EdKeys::GetPubKey58() const
 std::string EdKeys::GetPrKey58() const
 {
 	return EncodeBase58(private_key, 64);
+}
+
+const std::string& EdKeys::GetSign() const
+{
+	return sign;
+}
+
+void EdKeys::SetSign(const std::string& sign)
+{
+	this->sign = sign;
 }
 
 bool EdKeys::IsValid() const

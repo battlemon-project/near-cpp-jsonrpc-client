@@ -1,44 +1,22 @@
-set Arr[0]=auth.proto
-set Arr[1]=common.proto
-set Arr[2]=internalAuth.proto
-set Arr[3]=internalCarousel.proto
-set Arr[4]=internalItems.proto
-set Arr[5]=internalMm.proto
-set Arr[6]=items.proto
-set Arr[7]=mm.proto
-set Arr[8]=updates.proto
-set Arr[9]=users.proto
 
-set "x=0"
-
-if not defined GRPCARCHITECTURE (goto :setWin) else (goto :okWin)
-:setWin
-SET /P GRPCARCHITECTURE="Enter ARCH Win32 or Win64: "
+if not defined GRPC_PATH_PLUGIN (goto :setPATH) else (goto :okPATH)
+:setPATH
+SET /P GRPC_PATH_PLUGIN="GRPC_PATH_PLUGIN: "
 cd packages/protocol
-git pull origin master
+#git pull origin master
 cd ../..
 
-:okWin
+:okPATH
 cd NearPlugin & md protocol
 cd protocol
 del *.cc & del *.h
 cd ../..
 
-
-
-:Loop
-if not defined Arr[%x%] goto :endLoop
-
-call set VAL=%%Arr[%x%]%%
-%cd%/packages/grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=%cd%/packages/protocol/ ^
---cpp_out=%cd%/NearPlugin/protocol/ %cd%/packages/protocol/%VAL%
+%GRPC_PATH_PLUGIN%/protoc.exe -I=%cd%/packages/protocol/ ^
+--cpp_out=%cd%/NearPlugin/protocol/ %cd%/packages/protocol/*.proto
 
 ::proto.grpc.h generate
-%cd%/packages/grpc/.build%GRPCARCHITECTURE%/third_party/protobuf/Release/protoc.exe -I=%cd%/packages/protocol/  ^
+%GRPC_PATH_PLUGIN%/protoc.exe -I=%cd%/packages/protocol/  ^
 --grpc_out=%cd%/NearPlugin/protocol/ ^
---plugin=protoc-gen-grpc="%cd%/packages/grpc/.build%GRPCARCHITECTURE%/Release/grpc_cpp_plugin.exe" %cd%/packages/protocol/%VAL%
-SET /a "x+=1"
-goto :Loop
-
-:endLoop
+--plugin=protoc-gen-grpc="%GRPC_PATH_PLUGIN%/grpc_cpp_plugin.exe" %cd%/packages/protocol/*.proto
 pause

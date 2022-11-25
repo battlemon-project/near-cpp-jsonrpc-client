@@ -435,7 +435,7 @@ ModelItems::WeaponBundleItem::WeaponBundleItem(bool copy) : copy(copy), item_typ
 {
 }
 
-ModelItems::WeaponBundleItem::WeaponBundleItem(WeaponBundleItemType item_type, WeaponBundleSlotType slot_type, TYPE_CHAR* skin) : copy(true), item_type(item_type), slot_type(slot_type), skin(skin)
+ModelItems::WeaponBundleItem::WeaponBundleItem(WeaponBundleItemType& item_type, WeaponBundleSlotType& slot_type, TYPE_CHAR* skin) : copy(true), item_type(item_type), slot_type(slot_type), skin(skin)
 {
 }
 
@@ -455,7 +455,7 @@ ModelItems::WeaponBundle::WeaponBundle(int size_WeaponList, bool copy) : bundle_
 {
 }
 
-ModelItems::WeaponBundle::WeaponBundle(WeaponBundleItem* WeaponList, int size_WeaponList, bool copy) : bundle_num(-1), title(nullptr), level(-1), WeaponList(WeaponList, size_WeaponList), copy(copy)
+ModelItems::WeaponBundle::WeaponBundle(WeaponBundleItem* WeaponList, int& size_WeaponList, bool copy) : bundle_num(-1), title(nullptr), level(-1), WeaponList(WeaponList, size_WeaponList), copy(copy)
 {
 }
 
@@ -471,7 +471,7 @@ ModelItems::LemonModel::LemonModel(bool copy) :copy(copy), cap(copy), cloth(copy
 {
 }
 
-ModelItems::LemonModel::LemonModel(int size_attached_bundles, int size_items[], bool copy) :attached_bundles(size_attached_bundles), copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy), 
+ModelItems::LemonModel::LemonModel(int& size_attached_bundles, int size_items[], bool& copy) :attached_bundles(size_attached_bundles), copy(copy), cap(copy), cloth(copy), fire_arm(copy), cold_arm(copy), back(copy), 
 																							exo(nullptr), eyes(nullptr), head(nullptr), teeth(nullptr), face(nullptr)
 {
 	if (size_attached_bundles != -1)
@@ -528,7 +528,7 @@ ModelInternalMM::RoomInfoResponse::RoomInfoResponse(void* readRoomInfoResponsePt
 	}
 
 	int size = ((game::battlemon::mm::internal::RoomInfoResponse*)readRoomInfoResponsePtr)->players().size();
-	ObjectList<ModelInternalMM::RoomPlayerInfo> players;
+	ModelInternalMM::RoomPlayerInfo* players = new ModelInternalMM::RoomPlayerInfo[size];
 
 	if (copy)
 	{
@@ -553,8 +553,9 @@ ModelInternalMM::RoomInfoResponse::RoomInfoResponse(void* readRoomInfoResponsePt
 			players[i].lemon = ModelItems::Item((void*)&pi->lemon(), copy);
 		}
 	}
-	this->players = players;
+	this->players.setObjectList(players, size);
 }
+
 ModelInternalMM::RoomInfoResponse::RoomInfoResponse(): copy(false), room_id(nullptr), players(0)
 {
 	mode.match_mode = ModelMM::MatchMode::NONE;
@@ -613,43 +614,130 @@ ModelInternalMM::RoomInfoRequest::RoomInfoRequest(const TYPE_CHAR* const room_id
 {
 }
 
+
 ModelInternalMM::RoomPlayerInfo::RoomPlayerInfo()
 {
 }
+ModelUpdates::Update::Update() :id(nullptr), timestamp(-1), message(nullptr)
+{}
 
-ModelUpdates::MessageData::MessageData(const void* Data, const unsigned long &ByteSize) :Data(Data), ByteSize(ByteSize)
+ModelUpdates::RoomPlayer::RoomPlayer() : near_id(nullptr), lemon(nullptr)
 {
 }
 
-using game::battlemon::updates::RoomInfo;
-using game::battlemon::updates::RoomNeedAccept;
-using game::battlemon::updates::Update;
-using game::battlemon::updates::UpdateMessage;
-using game::battlemon::updates::RoomPlayer;
-
-ModelUpdates::Update ModelUpdates::MessageData::ReadUpdate() const
+ModelUpdates::RoomPlayer::~RoomPlayer()
 {
-	game::battlemon::updates::Update update;
-	return ModelUpdates::Update();
+	if (lemon != nullptr)
+	{
+		delete lemon;
+		lemon = nullptr;
+	}
 }
 
-ModelUpdates::UpdateMessage ModelUpdates::MessageData::ReadUpdateMessage() const
+ModelUpdates::RoomNeedAccept::RoomNeedAccept() : manual_accept(false), time_to_accept(-1)
 {
-
-	return ModelUpdates::UpdateMessage();
 }
 
-ModelUpdates::RoomNeedAccept ModelUpdates::MessageData::ReadRoomNeedAccept() const
+ModelUpdates::RoomInfo::RoomInfo(int size): room_id(nullptr), server_ip(nullptr), players(size)
 {
-	return ModelUpdates::RoomNeedAccept();
 }
 
-ModelUpdates::RoomInfo ModelUpdates::MessageData::ReadRoomInfo() const
+ModelUpdates::RoomInfo::RoomInfo() : room_id(nullptr), server_ip(nullptr), players(-1)
 {
-	return ModelUpdates::RoomInfo();
 }
 
-ModelUpdates::RoomPlayer ModelUpdates::MessageData::ReadRoomPlayer() const
+ModelUpdates::RoomInfo::~RoomInfo()
 {
-	return ModelUpdates::RoomPlayer();
+}
+
+ModelUpdates::UpdateMessage::UpdateMessage(ModelUpdates::UpdateCase& update) : room_need_accept(nullptr), roomInfo(nullptr), update(update)
+{
+}
+
+ModelUpdates::UpdateMessage::UpdateMessage() : room_need_accept(nullptr), roomInfo(nullptr), update(ModelUpdates::UpdateCase::DEFAULT)
+{
+}
+
+ModelUpdates::UpdateMessage::~UpdateMessage()
+{
+	switch (update)
+	{
+	case ModelUpdates::UpdateCase::ROOM_NEED_ACCEPT:
+		delete room_need_accept;
+		room_need_accept = nullptr;
+		break;
+	case ModelUpdates::UpdateCase::ROOM_ACCEPTING_CANCELED:
+		break;
+	case ModelUpdates::UpdateCase::ROOM_FOUND:
+	case ModelUpdates::UpdateCase::ROOM_TEAMMATES:
+	case ModelUpdates::UpdateCase::ROOM_READY:
+		delete roomInfo;
+		roomInfo = nullptr;
+		break;
+	case ModelUpdates::UpdateCase::DEFAULT:
+		break;
+	default:
+		break;
+	}
+	update = ModelUpdates::UpdateCase::DEFAULT;
+}
+
+ModelUpdates::MessageData::MessageData() :Data(nullptr), ByteSize(0)
+{
+}
+
+ModelUpdates::MessageData::MessageData(void* Data, const unsigned long &ByteSize) :Data(Data), ByteSize(ByteSize)
+{
+}
+
+bool ModelUpdates::UpdateMessage::CreateOneof(RoomNeedAccept*& roomNeedAccept)
+{
+	if (update == ModelUpdates::UpdateCase::ROOM_NEED_ACCEPT)
+	{
+		roomNeedAccept = room_need_accept = new RoomNeedAccept();
+		return true;
+	}
+	return false;
+}
+
+bool ModelUpdates::UpdateMessage::CreateOneof(RoomInfo*& roomInfo, int size)
+{
+	switch (update)
+	{
+	case ModelUpdates::UpdateCase::ROOM_FOUND:
+	case ModelUpdates::UpdateCase::ROOM_TEAMMATES:
+	case ModelUpdates::UpdateCase::ROOM_READY:
+		roomInfo = this->roomInfo = new RoomInfo(size);
+		break;
+	case ModelUpdates::UpdateCase::DEFAULT:
+	case ModelUpdates::UpdateCase::ROOM_NEED_ACCEPT:
+	case ModelUpdates::UpdateCase::ROOM_ACCEPTING_CANCELED:
+	default:
+		return false;
+		break;
+	}
+	return true;
+}
+
+
+void ModelUpdates::UpdateMessage::set_update(ModelUpdates::UpdateCase update)
+{
+	this->update = update;
+}
+
+
+ModelUpdates::RoomInfo& ModelUpdates::UpdateMessage::get_RoomInfo() const
+{
+	return *roomInfo;
+}
+
+const ModelUpdates::UpdateCase& ModelUpdates::UpdateMessage::get_update() const
+{
+	return update;
+}
+
+
+ModelUpdates::RoomNeedAccept& ModelUpdates::UpdateMessage::getRoomNeedAccept() const
+{
+	return *room_need_accept;
 }

@@ -9,7 +9,7 @@ Rm -R src *.md test.c *.dll
 cd ../../packages
 
 #gRPC: update
-git clone https://github.com/grpc/grpc.git
+git clone --depth 1 --branch v1.49.1 https://github.com/grpc/grpc.git
 cd grpc
 git submodule update --init
 mkdir -p cmake/build

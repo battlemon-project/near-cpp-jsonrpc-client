@@ -11,6 +11,8 @@
 #include "protocol/items.grpc.pb.h"
 #include "protocol/internalMm.grpc.pb.h"
 #include "protocol/mm.grpc.pb.h"
+#include "protocol/updates.grpc.pb.h"
+
 
 #ifdef WIN32
 
@@ -187,28 +189,10 @@ public:
 };
 
 
-/*
+
 class ClientUpdates
 {
-	ModelUpdates::MessageData message;
-	unsigned char type;
-	void free();
 
 public:
-	ClientUpdates();
-	~ClientUpdates();
-
-	void writeUpdate(const ModelUpdates::Update& Request);
-	void writeUpdateMessage(const ModelUpdates::UpdateMessage& Request);
-	void writeRoomNeedAccept(const ModelUpdates::RoomNeedAccept& Request);
-	void writeRoomInfo(const ModelUpdates::RoomInfo& Request);
-	void writeRoomPlayer(const ModelUpdates::RoomPlayer& Request);
-
-	ModelUpdates::Update readUpdate(const ModelUpdates::MessageData& message);
-	ModelUpdates::UpdateMessage readUpdateMessage(const ModelUpdates::MessageData& message);
-	ModelUpdates::RoomNeedAccept readRoomNeedAccept(const ModelUpdates::MessageData& message);
-	ModelUpdates::RoomInfo readRoomInfo(const ModelUpdates::MessageData& message);
-	ModelUpdates::RoomPlayer readRoomPlayer(const ModelUpdates::MessageData& message);
-
-	const ModelUpdates::MessageData& getMessageData() const;
-};*/
+	ClientUpdates(const void* out, const ModelUpdates::MessageData& message);
+};

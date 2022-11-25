@@ -34,10 +34,14 @@ set(SOURSCES
     NearPlugin/protocol/auth.grpc.pb.cc
     NearPlugin/protocol/items.pb.cc
     NearPlugin/protocol/items.grpc.pb.cc
+	NearPlugin/protocol/internalMm.pb.cc
+    NearPlugin/protocol/internalMm.grpc.pb.cc
     NearPlugin/protocol/mm.pb.cc
     NearPlugin/protocol/mm.grpc.pb.cc
     NearPlugin/protocol/common.pb.cc
     NearPlugin/protocol/common.grpc.pb.cc
+    NearPlugin/protocol/updates.grpc.pb.cc
+    NearPlugin/protocol/updates.pb.cc
 )
 set(HEADERS
     NearPlugin/EdKeys.h
@@ -54,10 +58,14 @@ set(HEADERS
     NearPlugin/protocol/auth.grpc.pb.h
     NearPlugin/protocol/items.pb.h
     NearPlugin/protocol/items.grpc.pb.h
+	NearPlugin/protocol/internalMm.pb.h
+    NearPlugin/protocol/internalMm.grpc.pb.h
     NearPlugin/protocol/mm.pb.h
     NearPlugin/protocol/mm.grpc.pb.h
     NearPlugin/protocol/common.pb.h
     NearPlugin/protocol/common.grpc.pb.h
+    NearPlugin/protocol/updates.grpc.pb.h
+    NearPlugin/protocol/updates.pb.h
 	NearPlugin/include/ModelItem.h
 	NearPlugin/include/Client.h
 	NearPlugin/include/gRPCResponse.h

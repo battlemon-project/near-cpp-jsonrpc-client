@@ -110,17 +110,17 @@ public:
 	gRPC_ResponseInternalMM() = delete;
 	~gRPC_ResponseInternalMM();
 
-};/*
+};
+
 class gRPC_ResponseUptate
 {
-	void* messageData;
+	ModelUpdates::MessageData message;
+	void free_gRPC();
+	void readRoomInfo(ModelUpdates::UpdateMessage& out, void* RoomInfo);
 public:
-	gRPC_ResponseUptate();
+	gRPC_ResponseUptate(ModelUpdates::MessageData& message);
 	~gRPC_ResponseUptate();
 
-	const ModelUpdates::MessageData& writeUpdate(const ModelUpdates::Update& Request);
-	const ModelUpdates::MessageData& writeUpdateMessage(const ModelUpdates::UpdateMessage& Request);
-	const ModelUpdates::MessageData& writeRoomNeedAccept(const ModelUpdates::RoomNeedAccept& Request);
-	const ModelUpdates::MessageData& writeRoomInfo(const ModelUpdates::RoomInfo& Request);
-	const ModelUpdates::MessageData& writeRoomPlayer(const ModelUpdates::RoomPlayer& Request);
-};*/
+	void readUpdateMessage(ModelUpdates::UpdateMessage& out);
+
+};

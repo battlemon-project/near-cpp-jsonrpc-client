@@ -194,6 +194,7 @@ copy /y J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\
     <ClCompile Include="protocol\mm.pb.cc" />
     <ClCompile Include="protocol\updates.grpc.pb.cc" />
     <ClCompile Include="protocol\updates.pb.cc" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />
