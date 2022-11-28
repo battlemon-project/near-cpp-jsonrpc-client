@@ -3,13 +3,8 @@ cmake_minimum_required (VERSION 3.5)
 project ("NearRPC")
 
 
-if(APPLE) 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
-set(CMAKE_OSX_ARCHITECTURES "x86_64")
-elseif(UNIX)
-set(CMAKE_OSX_ARCHITECTURES "x86_64")
-endif()
-
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
 set(CMAKE_C_ARCHIVE_FINISH true)
 set(CMAKE_CXX_ARCHIVE_FINISH true)
 
@@ -73,9 +68,8 @@ set(HEADERS
 include_directories(NearPlugin)
 
 
-set(GRPCLIB_ROOT ${CMAKE_INSTALL_PREFIX})
 include_directories(${CMAKE_INSTALL_PREFIX}/include/)
-if (UNIX)
+
 set(LIBS
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_cord.a
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_str_format_internal.a
@@ -131,12 +125,13 @@ set(LIBS
     ${CMAKE_INSTALL_PREFIX}/lib/libre2.a
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_raw_hash_set.a
 )
-endif (UNIX)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -I/usr/lib/llvm-11/include/c++/v1/ -stdlib=libc++ -pthread")
+add_link_options("-fuse-ld=lld")
 
 add_library(NearRPC STATIC ${SOURSCES} ${HEADERS} ${LIBS})
 
-target_link_libraries(NearRPC ${LIBS})
-
+target_link_libraries(NearRPC ${LIBS} -static-libgcc)
 
 set_target_properties(
     NearRPC PROPERTIES
