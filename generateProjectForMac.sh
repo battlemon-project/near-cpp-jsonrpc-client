@@ -2,12 +2,10 @@
 #Ed25519: update
 $ROOT_DIR=$(dirname "$0")
 
-git submodule update --init
-cd NearPlugin/src/src
-cp *.h ..
-cp *.c ..
-cd ..
-Rm -R src *.md test.c *.dll
+cd NearPlugin
+git clone https://github.com/orlp/ed25519.git
+cp -r $ROOT_DIR/NearPlugin/src $ROOT_DIR/NearPlugin
+Rm -R ed25519
 cd $ROOT_DIR/packages
 
 #gRPC: update
