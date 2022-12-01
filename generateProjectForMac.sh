@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 #Ed25519: update
 $ROOT_DIR=$(dirname "$0")
 
-cd NearPlugin
+cd $ROOT_DIR/NearPlugin
 git clone https://github.com/orlp/ed25519.git
 cp -r $ROOT_DIR/NearPlugin/ed25519/src $ROOT_DIR/NearPlugin
 Rm -R ed25519
