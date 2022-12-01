@@ -1,6 +1,6 @@
 #!/bin/sh
 #Ed25519: update
-export ROOT_DIR=$cd
+$ROOT_DIR=$(dirname "$0")
 
 git submodule update --init
 cd NearPlugin/src/src
@@ -18,8 +18,18 @@ mkdir -p cmake/build
 cd cmake/build
 
 #gRPC: generate progect
-read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
-read -p "Roote install libs: " CMAKE_INSTALL_DIR
+if [ -n "$UE_THIRD_PARTY_DIR" ];
+then
+else
+	read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
+fi
+
+if [ -n "$CMAKE_INSTALL_DIR" ];
+then
+else
+	read -p "Roote install libs: " CMAKE_INSTALL_DIR
+fi
+
 
 /Applications/CMake.app/Contents/bin/cmake \
  -DCMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_DIR" \
