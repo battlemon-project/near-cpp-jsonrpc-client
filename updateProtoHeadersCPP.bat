@@ -1,5 +1,5 @@
-
-if not defined GRPC_PATH_PLUGIN (goto :setPATH) else (goto :okPATH)
+set GRPC_PATH_PLUGIN=J:\source\GitRepos\battlemon-project\grpc\install_Win64Release\bin
+IF NOT EXIST GRPC_PATH_PLUGIN (goto :setPATH) else (goto :okPATH)
 :setPATH
 SET /P GRPC_PATH_PLUGIN="GRPC_PATH_PLUGIN: "
 cd packages/protocol
