@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 #Ed25519: update
-$ROOT_DIR=$(dirname "$0")
-
+read -p "SCRIPT_DIR: " ROOT_DIR
 cd $ROOT_DIR/NearPlugin
 git clone https://github.com/orlp/ed25519.git
-cp -r $ROOT_DIR/NearPlugin/ed25519/src $ROOT_DIR/NearPlugin
+cp -r $ROOT_DIR/NearPlugin/ed25519/src $ROOT_DIR/NearPlugin/
 Rm -R ed25519
 cd $ROOT_DIR/packages
 
@@ -16,17 +15,8 @@ mkdir -p cmake/build
 cd cmake/build
 
 #gRPC: generate progect
-if [ -n "$UE_THIRD_PARTY_DIR" ];
-then
-else
 	read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
-fi
-
-if [ -n "$CMAKE_INSTALL_DIR" ];
-then
-else
 	read -p "Roote install libs: " CMAKE_INSTALL_DIR
-fi
 
 
 /Applications/CMake.app/Contents/bin/cmake \
