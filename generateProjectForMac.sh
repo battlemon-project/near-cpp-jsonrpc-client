@@ -4,7 +4,7 @@ $ROOT_DIR=$(dirname "$0")
 
 cd NearPlugin
 git clone https://github.com/orlp/ed25519.git
-cp -r $ROOT_DIR/NearPlugin/src $ROOT_DIR/NearPlugin
+cp -r $ROOT_DIR/NearPlugin/ed25519/src $ROOT_DIR/NearPlugin
 Rm -R ed25519
 cd $ROOT_DIR/packages
 
