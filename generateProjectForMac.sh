@@ -1,6 +1,9 @@
 #!/bin/sh
 #Ed25519: update
 read -p "SCRIPT_DIR: " ROOT_DIR
+read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
+read -p "Roote install libs: " CMAKE_INSTALL_DIR
+
 cd $ROOT_DIR/NearPlugin
 git clone https://github.com/orlp/ed25519.git
 cp -r $ROOT_DIR/NearPlugin/ed25519/src $ROOT_DIR/NearPlugin/
@@ -15,10 +18,6 @@ mkdir -p cmake/build
 cd cmake/build
 
 #gRPC: generate progect
-	read -p "UE_4.27\Engine\Source\ThirdParty: " UE_THIRD_PARTY_DIR
-	read -p "Roote install libs: " CMAKE_INSTALL_DIR
-
-
 /Applications/CMake.app/Contents/bin/cmake \
  -DCMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_DIR" \
  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
@@ -40,6 +39,7 @@ cd cmake/build
  -DSSL_EAY_LIBRARY_DEBUG="$UE_THIRD_PARTY_DIR/OpenSSL/1.1.1k/lib/Mac/libssl.a" \
  -DSSL_EAY_LIBRARY_RELEASE="$UE_THIRD_PARTY_DIR/OpenSSL/1.1.1k/lib/Mac/libssl.a" \
  -DSSL_EAY_RELEASE="$UE_THIRD_PARTY_DIR/OpenSSL/1.1.1k/lib/Mac/libssl.a" \
+ -DOPENSSL_CRYPTO_LIBRARY="$UE_THIRD_PARTY_DIR/OpenSSL/1.1.1k/lib/Mac/libcrypto.a" \
  -G Xcode \
  ../..
  #gRPC: build progect
