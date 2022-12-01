@@ -73,13 +73,14 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 {
 	SendCodeResponse CodeResponse;
 	std::string signatureMessage;
-	if (ED25519->GetSign() == "")
+	std::string sign = ED25519->GetSign();
+	if (sign == "")
 	{
 		CodeResponse = grpcClient.CallRPCSendCode(PubKey, THROW_HOOK);
 		signatureMessage = ED25519->MessageSigning(CodeResponse.code());
 	}
 	else
-		signatureMessage = ED25519->GetSign();
+		signatureMessage = sign;
 
 	VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, THROW_HOOK);
 
@@ -90,13 +91,12 @@ bool ChekClient(const std::string &PubKey, gRPC_ClientAuth &grpcClient, char* &e
 		signatureMessage = ED25519->MessageSigning(CodeResponse.code());
 		accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, THROW_HOOK);
 	}
-	else
-		if (accountID.near_account_id() != "")
-		{
-			ED25519->SetSign(signatureMessage);
-			Helper::allocateMemory(accountID.near_account_id(), accountIDchr);
-			return true;
-		}
+	if (accountID.near_account_id() != "")
+	{
+		ED25519->SetSign(signatureMessage);
+		Helper::allocateMemory(accountID.near_account_id(), accountIDchr);
+		return true;
+	}
 	return false;
 }
 
@@ -105,6 +105,19 @@ bool Client::AuthServiceClient(const TYPE_CHAR* url)
 	std::string PubKey = ED25519->GetPubKey58();
 	gRPC_ClientAuth grpcClient(true, TYPE_Conv(url));
 	return ChekClient(PubKey, grpcClient, this->error, this->keyPair, this->accountID);
+}
+
+void Client::CreateNewSign(const TYPE_CHAR* url)
+{
+	gRPC_ClientAuth grpcClient(true, TYPE_Conv(url));
+	std::string PubKey = ED25519->GetPubKey58();
+	SendCodeResponse CodeResponse = grpcClient.CallRPCSendCode(PubKey, THROW_HOOK);
+	std::string signatureMessage = ED25519->MessageSigning(CodeResponse.code());
+	VerifyCodeResponse accountID = grpcClient.CallRPCVerifyCode(PubKey, signatureMessage, THROW_HOOK);
+	if (accountID.near_account_id() != "")
+	{
+		ED25519->SetSign(signatureMessage);
+	}
 }
 
 

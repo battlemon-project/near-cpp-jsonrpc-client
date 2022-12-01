@@ -2,13 +2,19 @@ cmake_minimum_required (VERSION 3.5)
 
 project ("NearRPC")
 
+if(APPLE) 
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+elseif(UNIX AND NOT APPLE)
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_SYSTEM_PROCESSOR x86_64)
+    set(CMAKE_C_ARCHIVE_FINISH true)
+    set(CMAKE_CXX_ARCHIVE_FINISH true)
+endif()
 
-set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR x86_64)
-set(CMAKE_C_ARCHIVE_FINISH true)
-set(CMAKE_CXX_ARCHIVE_FINISH true)
 
 set(SOURSCES
+	#NearPlugin/Source.cpp
     NearPlugin/Client.cpp
     NearPlugin/EdKeys.cpp
     NearPlugin/GRPC_Client.cpp
@@ -126,11 +132,12 @@ set(LIBS
     ${CMAKE_INSTALL_PREFIX}/lib/libabsl_raw_hash_set.a
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -I/usr/lib/llvm-11/include/c++/v1/ -stdlib=libc++ -pthread")
-add_link_options("-fuse-ld=lld")
+if(UNIX AND NOT APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/lib/llvm-11/include/c++/v1/ -stdlib=libc++ -pthread")
+    add_link_options("-fuse-ld=lld")
+endif()
 
 add_library(NearRPC STATIC ${SOURSCES} ${HEADERS} ${LIBS})
-
 target_link_libraries(NearRPC ${LIBS} -static-libgcc)
 
 set_target_properties(

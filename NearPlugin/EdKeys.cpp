@@ -172,7 +172,7 @@ EdKeys::EdKeys():state(false)
 {
 	public_key[0] = '\0';
 	private_key[0] = '\0';
-	sign = "";
+	sign.resize(89);
 }
 
 EdKeys::~EdKeys()
@@ -251,7 +251,7 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK(pashProject, accountID, ".pr.bin", private_key, 64))
         {
             LoadK(pashProject, accountID, ".pb.bin", public_key, 32);
-			LoadK(pashProject, accountID, ".sign.pb.bin", (void*)sign.c_str(), 89);
+			LoadK(pashProject, accountID, ".sign.pb.bin", (char*)sign.c_str(), 89);
 			state = true;
             return true;
         }
@@ -260,7 +260,7 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
         if (LoadK((std::string("/") + "saved"), accountID, ".pr.bin", private_key, 64))
         {
             LoadK((std::string("/") + "saved"), accountID, ".pb.bin", public_key, 32);
-			LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (void*)sign.c_str(), 89);
+			LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (char*)sign.c_str(), 89);
 			state = true;
             return true;
         }

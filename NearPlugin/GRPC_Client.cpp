@@ -380,8 +380,7 @@ RoomInfoResponse gRPC_ClientInternalMM::CallRPC_CreateRoomWithPlayers(ModelInter
     CreateRoomRequest write;
     RoomInfoResponse read;
 
-    GameMode* gameMode = (GameMode*)&write.mode();
-
+    GameMode* gameMode = new GameMode();
     switch (Request.mode->match_type)
     {
     case ModelMM::MatchType::DEATH_MATCH:
@@ -410,11 +409,14 @@ RoomInfoResponse gRPC_ClientInternalMM::CallRPC_CreateRoomWithPlayers(ModelInter
         break;
     }
 
+    const TYPE_CHAR** ptr = Request.near_ids->getObjectPtr();
     for (int i = 0; i < Request.near_ids->getSize(); i++)
     {
-        write.set_near_ids(i, TYPE_Conv(Request.near_ids->getObject(i)));
+        std::string* near_ids_ptr = write.add_near_ids();
+        *near_ids_ptr = TYPE_Conv(ptr[i]);
     }
-
+    write.set_prev_room_id(TYPE_Conv(Request.prev_room_id));
+    write.set_allocated_mode(gameMode);
     ClientContext context;
 
     if (CallRPC<InternalMMService::Stub, CreateRoomRequest, RoomInfoResponse>(stub.get(), context, write, &read, this->error, &InternalMMService::Stub::CreateRoomWithPlayers))

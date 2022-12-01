@@ -60,35 +60,14 @@ std::string base64_decode(std::string const& encoded_string) {
 
 int main()
 {
-    std::string Accept = "CgIQAw==";
-    std::string found = "GiYKJDZlMmQzMTViLTM2OTYtNDBkYy05ZDRiLWY5YWVjYmE4MmU1MQ==";
-    std::string teammates = "IqUDCiQ2ZTJkMzE1Yi0zNjk2LTQwZGMtOWQ0Yi1mOWFlY2JhODJlNTEa/AIKD3Jhc3RhNDIudGVzdG5ldBLoAgoCMTISLlFtWWVHa2dYTWVBcmhYVHl3NlpjMkptTHN5RnFncDQzNlNVc1dBSGVhSlFBdzkaD3Jhc3RhNDIudGVzdG5ldCqgAgodChdDYXBfQXNzYXVsdF9IZWxtZXRfTUEwMRICMTESHAoVQ2xvdGhfQ2hlZWZfU2FzaF9LQTAxEgE5GAEaGkV4b19TdGVlbF9FeG9za2VsZXRvbl9BQTAxIg9FeWVzX0dyZWVuX0FBMDIqFUhlYWRfRnJlc2hfTGVtb25fQUEwMTITVGVldGhfT2xkc3R5bGVfQUEwNDoaRmFjZV9OaW5qYV9CYWxhY2xhdmFfTkFfMDFCJQoeRmlyZUFybXNfR3JlbmFkZV9MYXVuY2hlcl9BQTAzEgE3GAJKIAoZQ29sZEFybXNfQm90dGxlX1Jvc2VfUkEwMRIBOBgDUiMKG0JhY2tfVGFjdGljYWxfQmFja3BhY2tfTUEwMRICMTAYBA==";
-    std::string ready = "KjUKJDZlMmQzMTViLTM2OTYtNDBkYy05ZDRiLWY5YWVjYmE4MmU1MRINNTQuMTU3LjE2MS45NA==";
-
-    std::string decode = base64_decode(teammates);
-    std::vector<std::string> errors;
-
-    game::battlemon::updates::UpdateMessage updateMessage;
-    updateMessage.FindInitializationErrors(&errors);
-    int size = decode.size();
-    bool res = updateMessage.ParsePartialFromArray(decode.c_str(), size);
-    std::cout << res << "\n";
-    std::cout << updateMessage.InitializationErrorString();
-
-    ModelUpdates::MessageData message_data((void*)decode.c_str(), size);
-
-    gRPC_ResponseUptate ResponseUptate(message_data);
-    ModelUpdates::UpdateMessage out;
-    ResponseUptate.readUpdateMessage(out);
-
     try
     {
-        Client* client = new Client("J:\\source\\GitRepos\\battlemon-project\\near-cpp-jsonrpc-client\\NearPlugin\\data\\", "rasta42.testnet", Type_Call_gRPC::Type_gRPC_Auth::AUTHORIZATION);
-        if (client->AuthServiceClient("game.battlemon.com"))
+        Client* client = new Client(u"J:\\source\\GitRepos\\battlemon-project\\near-cpp-jsonrpc-client\\NearPlugin\\data\\", u"dsbgfnghcjhgds.testnet", Type_Call_gRPC::Type_gRPC_Auth::AUTHORIZATION);
+        if (client->AuthServiceClient(u"game.battlemon.com"))
         {
 
 
-            gRPC_ResponseItem* gRPC_Item = new gRPC_ResponseItem(&client, nullptr, true, "game.battlemon.com", Type_Call_gRPC::Type_gRPCItem::GET_ITEMS);
+            gRPC_ResponseItem* gRPC_Item = new gRPC_ResponseItem(&client, nullptr, true, u"game.battlemon.com", Type_Call_gRPC::Type_gRPCItem::GET_ITEMS);
 
             ObjectList<ModelItems::WeaponBundle> IA;
             IA = gRPC_Item->gRPC_GetBundlesArray();

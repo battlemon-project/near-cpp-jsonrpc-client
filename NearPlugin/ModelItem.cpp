@@ -447,7 +447,7 @@ ModelItems::WeaponBundleItem::~WeaponBundleItem()
 	}
 }
 
-ModelItems::WeaponBundle::WeaponBundle() :bundle_num(-1), title(nullptr), level(-1), WeaponList(ObjectList<WeaponBundleItem>(-1)), copy(false)
+ModelItems::WeaponBundle::WeaponBundle() :bundle_num(-1), title(nullptr), level(-1), WeaponList(-1), copy(false)
 {
 }
 
@@ -590,7 +590,7 @@ ModelInternalMM::SaveBattleResultRequest::SaveBattleResultRequest(const TYPE_CHA
 {
 }
 
-ModelInternalMM::CreateRoomRequest::CreateRoomRequest(const ModelMM::GameMode* mode, const ObjectList<const TYPE_CHAR*>* near_ids):mode(mode), near_ids(near_ids)
+ModelInternalMM::CreateRoomRequest::CreateRoomRequest(const ModelMM::GameMode* mode, const ObjectList<const TYPE_CHAR*>* near_ids, const TYPE_CHAR* prev_room_id):mode(mode), near_ids(near_ids), prev_room_id(prev_room_id)
 {
 }
 
@@ -707,6 +707,7 @@ bool ModelUpdates::UpdateMessage::CreateOneof(RoomInfo*& roomInfo, int size)
 	case ModelUpdates::UpdateCase::ROOM_FOUND:
 	case ModelUpdates::UpdateCase::ROOM_TEAMMATES:
 	case ModelUpdates::UpdateCase::ROOM_READY:
+	case ModelUpdates::UpdateCase::user_is_already_in_battle:
 		roomInfo = this->roomInfo = new RoomInfo(size);
 		break;
 	case ModelUpdates::UpdateCase::DEFAULT:

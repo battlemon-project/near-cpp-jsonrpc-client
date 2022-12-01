@@ -632,7 +632,24 @@ void gRPC_ResponseUptate::readUpdateMessage(ModelUpdates::UpdateMessage& out)
 	}
 		break;
 	case game::battlemon::updates::UpdateMessage::UpdateCase::UPDATE_NOT_SET:
+	{
 		out.set_update(ModelUpdates::UpdateCase::DEFAULT);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kUserIsAlreadyInLine:
+	{
+		out.set_update(ModelUpdates::UpdateCase::user_is_already_in_line);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kUserIsAlreadyInBattle:
+	{
+		out.set_update(ModelUpdates::UpdateCase::user_is_already_in_battle);
+		const ::game::battlemon::updates::RoomInfo* RI = &um->user_is_already_in_battle();
+		readRoomInfo(out, (void*)RI);
+	}
+		break;
+	case game::battlemon::updates::UpdateMessage::UpdateCase::kUserOutOfLine:
+		out.set_update(ModelUpdates::UpdateCase::user_out_of_line);
 		break;
 	default:
 		break;
