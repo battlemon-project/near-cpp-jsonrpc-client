@@ -1,6 +1,6 @@
-[submodule "NearPlugin"]
+[submodule "src"]
 	path = NearPlugin/src
 	url = https://github.com/orlp/ed25519.git
-[submodule "packages"]
+[submodule "protocol"]
 	path = packages/protocol
 	url = https://github.com/battlemon-project/protocol.git

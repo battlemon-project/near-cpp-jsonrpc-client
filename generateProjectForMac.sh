@@ -1,19 +1,20 @@
 #!/bin/sh
 #Ed25519: update
+export ROOT_DIR=$cd
+
 git submodule update --init
 cd NearPlugin/src/src
 cp *.h ..
 cp *.c ..
 cd ..
 Rm -R src *.md test.c *.dll
-cd ../../packages
+cd $ROOT_DIR/packages
 
 #gRPC: update
 git clone --depth 1 --branch v1.49.1 https://github.com/grpc/grpc.git
 cd grpc
 git submodule update --init
 mkdir -p cmake/build
-cd cmake/build
 cd cmake/build
 
 #gRPC: generate progect
@@ -47,7 +48,7 @@ read -p "Roote install libs: " CMAKE_INSTALL_DIR
 /Applications/CMake.app/Contents/bin/cmake --build . --target ALL_BUILD --config Release
 /Applications/CMake.app/Contents/bin/cmake --install .
 
-cd ../../..
+cd $ROOT_DIR
 
 mkdir build
 cd build
@@ -62,7 +63,7 @@ cd build
   -G Xcode \
   ..
 
-  cd ..
+cd $ROOT_DIR
 
 export Arr[0]=auth.proto
 export Arr[1]=common.proto
