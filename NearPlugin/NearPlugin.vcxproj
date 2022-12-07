@@ -50,7 +50,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -166,34 +166,45 @@
       <AdditionalDependencies>absl_cord.lib;absl_str_format_internal.lib;absl_strings.lib;absl_strings_internal.lib;absl_status.lib;absl_statusor.lib;absl_bad_optional_access.lib;absl_stacktrace.lib;absl_symbolize.lib;absl_int128.lib;absl_bad_variant_access.lib;absl_city.lib;absl_civil_time.lib;absl_cord_internal.lib;absl_cordz_functions.lib;address_sorting.lib;cares.lib;gpr.lib;grpc.lib;grpc++.lib;libprotobuf.lib;upb.lib;absl_base.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_graphcycles_internal.lib;absl_synchronization.lib;absl_cordz_handle.lib;absl_cordz_info.lib;absl_demangle_internal.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_log_severity.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_seed_sequences.lib;absl_random_internal_platform.lib;absl_random_seed_gen_exception.lib;absl_random_internal_seed_material.lib;absl_random_internal_randen_slow.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen.lib;absl_random_internal_pool_urbg.lib;re2.lib;absl_raw_hash_set.lib;crypt32.lib;ws2_32.lib;absl_debugging_internal.lib;absl_strerror.lib;OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libcrypto.lib;OpenSSL\1.1.1k\lib\Win64\VS2015\Release\libssl.lib;zlib\v1.2.8\lib\Win64\VS2015\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del /q J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include\*.h &amp; ^
-copy /y J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\include\*.h J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include</Command>
+      <Command>copy /y J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\include\Client.h J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include\Key
+robocopy "J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\protocol" "J:\source\GitRepos\battlemon-project\near-ue-plugin\Plugins\NearPlugin\Content\third_party\include\protocol"  *.h /R:0 /S &gt; nul </Command>
     </PostBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>absl_cord.lib;absl_str_format_internal.lib;absl_debugging_internal.lib;absl_strerror.lib;absl_strings.lib;absl_strings_internal.lib;absl_status.lib;absl_statusor.lib;absl_bad_optional_access.lib;absl_stacktrace.lib;absl_symbolize.lib;absl_int128.lib;absl_bad_variant_access.lib;absl_city.lib;absl_civil_time.lib;absl_cord_internal.lib;absl_cordz_functions.lib;address_sorting.lib;cares.lib;gpr.lib;grpc.lib;grpc++.lib;libprotobuf.lib;upb.lib;absl_base.lib;absl_malloc_internal.lib;absl_raw_logging_internal.lib;absl_spinlock_wait.lib;absl_throw_delegate.lib;absl_time.lib;absl_time_zone.lib;absl_graphcycles_internal.lib;absl_synchronization.lib;absl_cordz_handle.lib;absl_cordz_info.lib;absl_demangle_internal.lib;absl_exponential_biased.lib;absl_hash.lib;absl_hashtablez_sampler.lib;absl_log_severity.lib;absl_low_level_hash.lib;absl_random_distributions.lib;absl_random_seed_sequences.lib;absl_random_internal_platform.lib;absl_random_seed_gen_exception.lib;absl_random_internal_seed_material.lib;absl_random_internal_randen_slow.lib;absl_random_internal_randen_hwaes_impl.lib;absl_random_internal_randen_hwaes.lib;absl_random_internal_randen.lib;absl_random_internal_pool_urbg.lib;re2.lib;absl_raw_hash_set.lib;crypt32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>crypt32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gRPCResponse.cpp" />
-    <ClCompile Include="GRPC_Client.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="EdKeys.cpp" />
     <ClCompile Include="Helper.cpp" />
-    <ClCompile Include="ModelItem.cpp" />
     <ClCompile Include="protocol\auth.grpc.pb.cc" />
     <ClCompile Include="protocol\auth.pb.cc" />
     <ClCompile Include="protocol\common.grpc.pb.cc" />
     <ClCompile Include="protocol\common.pb.cc" />
+    <ClCompile Include="protocol\internalAuth.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalAuth.pb.cc" />
+    <ClCompile Include="protocol\internalCarousel.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalCarousel.pb.cc" />
+    <ClCompile Include="protocol\internalItems.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalItems.pb.cc" />
     <ClCompile Include="protocol\internalMm.grpc.pb.cc" />
     <ClCompile Include="protocol\internalMm.pb.cc" />
+    <ClCompile Include="protocol\internalUpdates.grpc.pb.cc" />
+    <ClCompile Include="protocol\internalUpdates.pb.cc" />
     <ClCompile Include="protocol\items.grpc.pb.cc" />
     <ClCompile Include="protocol\items.pb.cc" />
     <ClCompile Include="protocol\mm.grpc.pb.cc" />
     <ClCompile Include="protocol\mm.pb.cc" />
     <ClCompile Include="protocol\updates.grpc.pb.cc" />
     <ClCompile Include="protocol\updates.pb.cc" />
+    <ClCompile Include="protocol\users.grpc.pb.cc" />
+    <ClCompile Include="protocol\users.pb.cc" />
     <ClCompile Include="src\add_scalar.c" />
     <ClCompile Include="src\fe.c" />
     <ClCompile Include="src\ge.c" />
@@ -206,24 +217,31 @@ copy /y J:\source\GitRepos\battlemon-project\near-cpp-jsonrpc-client\NearPlugin\
     <ClCompile Include="src\verify.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GRPC_Client.h" />
     <ClInclude Include="EdKeys.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="include\Client.h" />
-    <ClInclude Include="include\gRPCResponse.h" />
-    <ClInclude Include="include\ModelItem.h" />
     <ClInclude Include="protocol\auth.grpc.pb.h" />
     <ClInclude Include="protocol\auth.pb.h" />
     <ClInclude Include="protocol\common.grpc.pb.h" />
     <ClInclude Include="protocol\common.pb.h" />
+    <ClInclude Include="protocol\internalAuth.grpc.pb.h" />
+    <ClInclude Include="protocol\internalAuth.pb.h" />
+    <ClInclude Include="protocol\internalCarousel.grpc.pb.h" />
+    <ClInclude Include="protocol\internalCarousel.pb.h" />
+    <ClInclude Include="protocol\internalItems.grpc.pb.h" />
+    <ClInclude Include="protocol\internalItems.pb.h" />
     <ClInclude Include="protocol\internalMm.grpc.pb.h" />
     <ClInclude Include="protocol\internalMm.pb.h" />
+    <ClInclude Include="protocol\internalUpdates.grpc.pb.h" />
+    <ClInclude Include="protocol\internalUpdates.pb.h" />
     <ClInclude Include="protocol\items.grpc.pb.h" />
     <ClInclude Include="protocol\items.pb.h" />
     <ClInclude Include="protocol\mm.grpc.pb.h" />
     <ClInclude Include="protocol\mm.pb.h" />
     <ClInclude Include="protocol\updates.grpc.pb.h" />
     <ClInclude Include="protocol\updates.pb.h" />
+    <ClInclude Include="protocol\users.grpc.pb.h" />
+    <ClInclude Include="protocol\users.pb.h" />
     <ClInclude Include="src\ed25519.h" />
     <ClInclude Include="src\fe.h" />
     <ClInclude Include="src\fixedint.h" />

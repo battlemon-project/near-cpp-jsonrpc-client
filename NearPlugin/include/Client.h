@@ -1,29 +1,42 @@
 #pragma once
-#include "include/ModelItem.h"
+
+#if defined(_WIN32)
+#define TYPE_CHAR wchar_t
+#else
+#define TYPE_CHAR char16_t
+#endif
+
+enum class TypeClient
+{
+	NONE,
+	NEW,
+	OLD
+};
 
 class Client
 {
-	char* accountID;
+	const TYPE_CHAR* accountID;
 	void* keyPair;
-	char* keyPub58;
-	char* error;
-	
+	TYPE_CHAR* keyPub58;
+	TYPE_CHAR* error;
+
 public:
 
-	Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, Type_Call_gRPC::Type_gRPC_Auth type);
+	Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeClient& type);
 
 	~Client();
 	Client() = delete;
 
-	char* GetPublicKey() const { return keyPub58; };
+	TYPE_CHAR* GetPublicKey() const { return keyPub58; };
 	bool IsValidAccount() { return accountID != nullptr; };
 	bool IsValidKeys();
-	char* GetAccount() const { return accountID; };
-	char* GetError() const { return error; };
+	const TYPE_CHAR* GetAccount() const { return accountID; };
+	void SetAccount(const TYPE_CHAR* _accountID) { accountID = _accountID; };
+	TYPE_CHAR* GetError() const { return error; };
 	const char* GetSing() const;
 
-	void saveKey(const TYPE_CHAR* dir);
-	void saveSign(const TYPE_CHAR* dir);
-	bool AuthServiceClient(const TYPE_CHAR* url);
-	void CreateNewSign(const TYPE_CHAR* url);
+	void SaveKey(const TYPE_CHAR* dir);
+
+	void SaveSign(const TYPE_CHAR* dir, const TYPE_CHAR* sign);
+	const char* CreateMessageNewSign(const char* Message);
 };

@@ -21,15 +21,6 @@
     <ClCompile Include="Client.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\auth.pb.cc">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="protocol\auth.grpc.pb.cc">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="GRPC_Client.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\add_scalar.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -60,10 +51,13 @@
     <ClCompile Include="src\verify.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\items.grpc.pb.cc">
+    <ClCompile Include="Helper.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\items.pb.cc">
+    <ClCompile Include="protocol\auth.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\auth.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="protocol\common.grpc.pb.cc">
@@ -72,19 +66,22 @@
     <ClCompile Include="protocol\common.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\mm.grpc.pb.cc">
+    <ClCompile Include="protocol\internalAuth.grpc.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\mm.pb.cc">
+    <ClCompile Include="protocol\internalAuth.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="ModelItem.cpp">
+    <ClCompile Include="protocol\internalCarousel.grpc.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="gRPCResponse.cpp">
+    <ClCompile Include="protocol\internalCarousel.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Helper.cpp">
+    <ClCompile Include="protocol\internalItems.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\internalItems.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="protocol\internalMm.grpc.pb.cc">
@@ -93,24 +90,39 @@
     <ClCompile Include="protocol\internalMm.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="protocol\internalUpdates.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\internalUpdates.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\items.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\items.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\mm.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\mm.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
     <ClCompile Include="protocol\updates.grpc.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="protocol\updates.pb.cc">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="protocol\users.grpc.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\users.pb.cc">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EdKeys.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\auth.pb.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\auth.grpc.pb.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="GRPC_Client.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\ed25519.h">
@@ -134,10 +146,16 @@
     <ClInclude Include="src\sha512.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\items.grpc.pb.h">
+    <ClInclude Include="Helper.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\items.pb.h">
+    <ClInclude Include="include\Client.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\auth.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\auth.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="protocol\common.grpc.pb.h">
@@ -146,22 +164,22 @@
     <ClInclude Include="protocol\common.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\ModelItem.h">
+    <ClInclude Include="protocol\internalAuth.grpc.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\mm.grpc.pb.h">
+    <ClInclude Include="protocol\internalAuth.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\mm.pb.h">
+    <ClInclude Include="protocol\internalCarousel.grpc.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Helper.h">
+    <ClInclude Include="protocol\internalCarousel.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\Client.h">
+    <ClInclude Include="protocol\internalItems.grpc.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="include\gRPCResponse.h">
+    <ClInclude Include="protocol\internalItems.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="protocol\internalMm.grpc.pb.h">
@@ -170,10 +188,34 @@
     <ClInclude Include="protocol\internalMm.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\internalUpdates.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\internalUpdates.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\items.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\items.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\mm.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\mm.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
     <ClInclude Include="protocol\updates.grpc.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="protocol\updates.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\users.grpc.pb.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\users.pb.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

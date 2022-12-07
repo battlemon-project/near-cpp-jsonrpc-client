@@ -142,7 +142,7 @@ bool b58enc(char* b58, size_t* b58sz, const void* data, size_t binsz)
 	return true;
 }
 
-std::string EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
+TYPE_STRING EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
 {
 	const uint8_t base58map[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 	const uint8_t* data = dataIn;
@@ -160,7 +160,7 @@ std::string EncodeBase58(const uint8_t* dataIn, const size_t &sizeData)
 		for (; carry; carry /= 58)
 			digits[digitslen++] = static_cast<uint8_t>(carry % 58);
 	}
-	std::string result = "ed25519:";
+	TYPE_STRING result = _T("ed25519:");
 	for (size_t i = 0; i < (sizeData - 1) && !data[i]; i++)
 		result.push_back(base58map[0]);
 	for (size_t i = 0; i < digitslen; i++)
@@ -179,31 +179,32 @@ EdKeys::~EdKeys()
 {
 }
 
-void EdKeys::GeneratingKeys(char*& error, void(*errorH)(const std::string& copy, char* &error))
+void EdKeys::GeneratingKeys(TYPE_CHAR*& error, void(*errorH)(const TYPE_STRING& copy, TYPE_CHAR* &error))
 {
 	unsigned char seed[32];
 	if (ed25519_create_seed(seed))
 	{
-		errorH("Invalid seed", error);
+		errorH(_T("Invalid seed"), error);
 		return;
 	}
 	state = true;
 	ed25519_create_keypair(public_key, private_key, seed);
 }
 
-std::string EdKeys::MessageSigning(const std::string &messageInp)
+const TYPE_STRING& EdKeys::MessageSigning(const char* messageInp)
 {
 	unsigned char signature[64];
-	ed25519_sign(signature, (const uint8_t*)messageInp.c_str(), messageInp.size(), public_key, private_key);
+	std::string message = messageInp;
+	ed25519_sign(signature, (const uint8_t*)message.c_str(), message.size(), public_key, private_key);
 	std::string sign = (const char*)signature;
 	sign.resize(64);
 	size_t sizeOut;
-	std::string sign64 = (const char*)base64_encode(signature, sign.size(), &sizeOut);
-	return sign64;
+	this->sign = (const TYPE_CHAR*)base64_encode(signature, sign.size(), &sizeOut);
+	return this->sign;
 }
 
 
-void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
+void EdKeys::SaveK(const TYPE_STRING &filename, void* key, size_t size)
 {
 	std::ofstream outfile(filename, std::ofstream::binary);
 	outfile.write((const char*)&size, sizeof(size));
@@ -211,26 +212,26 @@ void EdKeys::SaveK(const std::string &filename, void* key, size_t size)
 	outfile.close();
 }
 
-void EdKeys::SaveKeys(const std::string& accountID, std::string dir)
+void EdKeys::SaveKeys(const TYPE_STRING& accountID, TYPE_STRING dir)
 {
-    if(dir != "")
+    if(dir != _T(""))
     {
-        std::string pashProject = dir;
-        SaveK(pashProject + accountID + ".pr.bin", private_key, 64);
-        SaveK(pashProject + accountID + ".pb.bin", public_key, 32);
-		SaveK(pashProject + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
+        TYPE_STRING pashProject = dir;
+        SaveK(pashProject + accountID + _T(".pr.bin"), private_key, 64);
+        SaveK(pashProject + accountID + _T(".pb.bin"), public_key, 32);
+		SaveK(pashProject + accountID + _T(".sign.pb.bin"), (void*)sign.c_str(), 89);
     }
     else
     {
-        SaveK(std::string("/") + "saved" + accountID + ".pr.bin", private_key, 64);
-        SaveK(std::string("/") + "saved" + accountID + ".pb.bin", public_key, 32);
-		SaveK(std::string("/") + "saved" + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
-    }
+        SaveK(TYPE_STRING(_T("/")) + _T("saved") + accountID + _T(".pr.bin"), private_key, 64);
+        SaveK(TYPE_STRING(_T("/")) + _T("saved") + accountID + _T(".pb.bin"), public_key, 32);
+		SaveK(TYPE_STRING(_T("/")) + _T("saved") + accountID + _T(".sign.pb.bin"), (void*)sign.c_str(), 89);
+    }							 
 }
 
-bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const std::string& filetype, void* key, size_t size)
+bool EdKeys::LoadK(const TYPE_STRING& path, const TYPE_STRING& accountID, const TYPE_STRING& filetype, void* key, size_t size)
 {
-	std::string filename = path + accountID + filetype;
+	TYPE_STRING filename = path + accountID + filetype;
 	std::ifstream infile(filename, std::ofstream::binary);
 	if (infile)
 	{
@@ -242,25 +243,25 @@ bool EdKeys::LoadK(const std::string& path, const std::string& accountID, const 
 	return false;
 }
 
-bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
+bool EdKeys::LoadKeys(const TYPE_STRING& accountID, TYPE_STRING dir)
 {
     
-    if(dir != "")
+    if(dir != _T(""))
     {
-        std::string pashProject = dir;
-        if (LoadK(pashProject, accountID, ".pr.bin", private_key, 64))
+        TYPE_STRING pashProject = dir;
+        if (LoadK(pashProject, accountID, _T(".pr.bin"), private_key, 64))
         {
-            LoadK(pashProject, accountID, ".pb.bin", public_key, 32);
-			LoadK(pashProject, accountID, ".sign.pb.bin", (char*)sign.c_str(), 89);
+            LoadK(pashProject, accountID, _T(".pb.bin"), public_key, 32);
+			LoadK(pashProject, accountID, _T(".sign.pb.bin"), (TYPE_CHAR*)sign.c_str(), 89);
 			state = true;
             return true;
         }
     }
     else
-        if (LoadK((std::string("/") + "saved"), accountID, ".pr.bin", private_key, 64))
+        if (LoadK((TYPE_STRING(_T("/")) + _T("saved")), accountID, _T(".pr.bin"), private_key, 64))
         {
-            LoadK((std::string("/") + "saved"), accountID, ".pb.bin", public_key, 32);
-			LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (char*)sign.c_str(), 89);
+            LoadK((TYPE_STRING(_T("/")) + _T("saved")), accountID, _T(".pb.bin"), public_key, 32);
+			LoadK((TYPE_STRING(_T("/")) + _T("saved")), accountID, _T(".sign.pb.bin"), (TYPE_CHAR*)sign.c_str(), 89);
 			state = true;
             return true;
         }
@@ -268,34 +269,35 @@ bool EdKeys::LoadKeys(const std::string& accountID, std::string dir)
 	return false;
 }
 
-void EdKeys::SaveSign(const std::string& accountID, std::string dir)
+void EdKeys::SaveSign(const TYPE_STRING& accountID, TYPE_STRING dir, const TYPE_CHAR* sign)
 {
-	SaveK(std::string("/") + "saved" + accountID + ".sign.pb.bin", (void*)sign.c_str(), 89);
+	this->sign = sign;
+	SaveK(TYPE_STRING(_T("/")) + _T("saved") + accountID + _T(".sign.pb.bin"), (void*)sign, 89);
 }
 
-bool EdKeys::LoadSign(const std::string& accountID, std::string dir)
+bool EdKeys::LoadSign(const TYPE_STRING& accountID, TYPE_STRING dir)
 {
-	if(LoadK((std::string("/") + "saved"), accountID, ".sign.pb.bin", (void*)sign.c_str(), 89))
+	if(LoadK((TYPE_STRING(_T("/")) + _T("saved")), accountID, _T(".sign.pb.bin"), (void*)sign.c_str(), 89))
 		return true;
 	return false;
 }
 
-std::string EdKeys::GetPubKey58() const
+TYPE_STRING EdKeys::GetPubKey58() const
 {
 	return EncodeBase58(public_key, 32);
 }
 
-std::string EdKeys::GetPrKey58() const
+TYPE_STRING EdKeys::GetPrKey58() const
 {
 	return EncodeBase58(private_key, 64);
 }
 
-const std::string& EdKeys::GetSign() const
+const TYPE_STRING& EdKeys::GetSign() const
 {
 	return sign;
 }
 
-void EdKeys::SetSign(const std::string& sign)
+void EdKeys::SetSign(const TYPE_STRING& sign)
 {
 	this->sign = sign;
 }
