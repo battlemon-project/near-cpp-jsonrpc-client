@@ -26,7 +26,7 @@ Client::Client(const TYPE_CHAR* dir, const TYPE_CHAR* inpText, TypeClient& type)
 
 const char* Client::GetSing() const
 {
-	return (const char*)ED25519->GetSign().c_str();
+	return ED25519->GetSign().c_str();
 }
 
 void Client::SaveKey(const TYPE_CHAR* dir)
@@ -34,7 +34,7 @@ void Client::SaveKey(const TYPE_CHAR* dir)
 	ED25519->SaveKeys(this->accountID, dir);
 }
 
-void Client::SaveSign(const TYPE_CHAR* dir, const TYPE_CHAR* sign)
+void Client::SaveSign(const TYPE_CHAR* dir, const char* sign)
 {
 	ED25519->SaveSign(this->accountID, dir, sign);
 }
@@ -55,7 +55,7 @@ bool Client::IsValidKeys()
 
 const char* Client::CreateMessageNewSign(const char* Message)
 {
-	return (const char*)ED25519->MessageSigning(Message).c_str();
+	return ED25519->MessageSigning(Message);
 }
 
 

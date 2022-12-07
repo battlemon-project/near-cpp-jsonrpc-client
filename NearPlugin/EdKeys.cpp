@@ -17,6 +17,9 @@
 #include <sys/types.h>
 #define SSIZE_T ssize_t
 #endif
+#ifdef __APPLE__
+#include <codecvt>
+#endif
 
 #include <iostream>
 #include <vector>
@@ -191,7 +194,7 @@ void EdKeys::GeneratingKeys(TYPE_CHAR*& error, void(*errorH)(const TYPE_STRING& 
 	ed25519_create_keypair(public_key, private_key, seed);
 }
 
-const TYPE_STRING& EdKeys::MessageSigning(const char* messageInp)
+const char* EdKeys::MessageSigning(const char* messageInp)
 {
 	unsigned char signature[64];
 	std::string message = messageInp;
@@ -199,14 +202,20 @@ const TYPE_STRING& EdKeys::MessageSigning(const char* messageInp)
 	std::string sign = (const char*)signature;
 	sign.resize(64);
 	size_t sizeOut;
-	this->sign = (const TYPE_CHAR*)base64_encode(signature, sign.size(), &sizeOut);
-	return this->sign;
+	this->sign = (const char*)base64_encode(signature, sign.size(), &sizeOut);
+	return this->sign.c_str();
 }
 
 
 void EdKeys::SaveK(const TYPE_STRING &filename, void* key, size_t size)
 {
+#ifdef __APPLE__
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+	std::u16string utf16_string(filename);
+	std::string UTF8 = convert.to_bytes(utf16_string);
+#else
 	std::ofstream outfile(filename, std::ofstream::binary);
+#endif
 	outfile.write((const char*)&size, sizeof(size));
 	outfile.write((const char*)key, size);
 	outfile.close();
@@ -232,7 +241,13 @@ void EdKeys::SaveKeys(const TYPE_STRING& accountID, TYPE_STRING dir)
 bool EdKeys::LoadK(const TYPE_STRING& path, const TYPE_STRING& accountID, const TYPE_STRING& filetype, void* key, size_t size)
 {
 	TYPE_STRING filename = path + accountID + filetype;
+#ifdef __APPLE__
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+	std::u16string utf16_string(filename);
+	std::string UTF8 = convert.to_bytes(utf16_string);
+#else
 	std::ifstream infile(filename, std::ofstream::binary);
+#endif
 	if (infile)
 	{
 		infile.read((char*)&size, sizeof(size_t));
@@ -269,7 +284,7 @@ bool EdKeys::LoadKeys(const TYPE_STRING& accountID, TYPE_STRING dir)
 	return false;
 }
 
-void EdKeys::SaveSign(const TYPE_STRING& accountID, TYPE_STRING dir, const TYPE_CHAR* sign)
+void EdKeys::SaveSign(const TYPE_STRING& accountID, TYPE_STRING dir, const char* sign)
 {
 	this->sign = sign;
 	SaveK(TYPE_STRING(_T("/")) + _T("saved") + accountID + _T(".sign.pb.bin"), (void*)sign, 89);
@@ -292,12 +307,12 @@ TYPE_STRING EdKeys::GetPrKey58() const
 	return EncodeBase58(private_key, 64);
 }
 
-const TYPE_STRING& EdKeys::GetSign() const
+const std::string& EdKeys::GetSign() const
 {
 	return sign;
 }
 
-void EdKeys::SetSign(const TYPE_STRING& sign)
+void EdKeys::SetSign(const std::string& sign)
 {
 	this->sign = sign;
 }

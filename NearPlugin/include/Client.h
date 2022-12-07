@@ -37,6 +37,6 @@ public:
 
 	void SaveKey(const TYPE_CHAR* dir);
 
-	void SaveSign(const TYPE_CHAR* dir, const TYPE_CHAR* sign);
+	void SaveSign(const TYPE_CHAR* dir, const char* sign);
 	const char* CreateMessageNewSign(const char* Message);
 };
