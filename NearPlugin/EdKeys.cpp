@@ -213,6 +213,7 @@ void EdKeys::SaveK(const TYPE_STRING &filename, void* key, size_t size)
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
 	std::u16string utf16_string(filename);
 	std::string UTF8 = convert.to_bytes(utf16_string);
+	std::ofstream outfile(UTF8, std::ofstream::binary);
 #else
 	std::ofstream outfile(filename, std::ofstream::binary);
 #endif
@@ -245,6 +246,7 @@ bool EdKeys::LoadK(const TYPE_STRING& path, const TYPE_STRING& accountID, const 
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
 	std::u16string utf16_string(filename);
 	std::string UTF8 = convert.to_bytes(utf16_string);
+	std::ifstream infile(UTF8, std::ofstream::binary);
 #else
 	std::ifstream infile(filename, std::ofstream::binary);
 #endif
